@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import {
   GraduationCap, Monitor, Play, BookOpen, 
   Users, MessageSquare, FileText, LayoutDashboard,
   Zap, Star, Award, Loader2, Search, Filter, PlayCircle, Clock, Sparkles,
-  ShoppingBag, CheckCircle2, TrendingUp, ChevronRight, Info
+  ShoppingBag, CheckCircle2, TrendingUp, ChevronRight, Info, BookMarked
 } from "lucide-react";
 import Link from 'next/link';
 import { COURSE_LIBRARY } from "@/lib/mock-data";
@@ -23,6 +24,7 @@ const CATEGORIES = ["Todos", "Varejo", "Beleza", "Gestão", "Marketing", "Saúde
 
 export default function EducationAVA({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
@@ -34,12 +36,12 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
     return matchesCategory && matchesSearch;
   });
 
-  const handleEnroll = (courseName: string) => {
+  const handleStartCourse = (courseId: string) => {
     toast({
-      title: "Inscrição Realizada!",
-      description: `Você adquiriu acesso vitalício ao curso: ${courseName}. Valor de R$ 25,00 processado.`,
+      title: "Matrícula Ativada!",
+      description: `Aproveite seu conteúdo gratuito exclusivo.`,
     });
-    setSelectedCourse(null);
+    router.push(`/merchant/${slug}/education/course/${courseId}`);
   };
 
   return (
@@ -59,11 +61,11 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-2">
-               <Badge className="bg-yellow-500 text-black border-none font-black italic px-3 py-1 rounded-full text-[10px]">VALOR ÚNICO: R$ 25,00</Badge>
+               <Badge className="bg-green-500 text-white border-none font-black italic px-3 py-1 rounded-full text-[10px]">ACESSO LIBERADO PARA VOCÊ</Badge>
                <Badge className="bg-primary/20 text-primary border-none font-black text-[10px]">500 CURSOS DISPONÍVEIS</Badge>
             </div>
             <h1 className="text-4xl font-black tracking-tighter italic uppercase text-white">Ágil Academy <span className="text-primary not-italic">PRO</span></h1>
-            <p className="text-slate-500 font-medium italic mt-1">A maior biblioteca corporativa do Brasil para o seu negócio.</p>
+            <p className="text-slate-500 font-medium italic mt-1">Biblioteca exclusiva de treinamentos para lojistas parceiros.</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
              <div className="relative flex-1 md:w-80">
@@ -103,14 +105,14 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
            <div className="absolute bottom-10 left-10 max-w-2xl space-y-6">
               <div className="flex gap-2">
-                <Badge className="bg-primary text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">LANÇAMENTO</Badge>
+                <Badge className="bg-primary text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">NOVO MÓDULO</Badge>
                 <Badge className="bg-white/10 text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">MAIS VENDIDO</Badge>
               </div>
               <h2 className="text-5xl font-black italic uppercase tracking-tighter">Máquina de Vendas no Automático</h2>
               <p className="text-slate-300 font-medium leading-relaxed italic text-lg">Descubra como lojistas do Mercado Ágil estão triplicando o faturamento usando nossa IA de vendas 24h por dia.</p>
               <div className="flex gap-4">
-                 <Button className="h-14 px-10 rounded-2xl bg-white text-slate-900 font-black italic text-lg gap-3" onClick={() => handleEnroll("Máquina de Vendas")}>
-                    <ShoppingBag className="h-6 w-6" /> ADQUIRIR POR R$ 25,00
+                 <Button className="h-14 px-10 rounded-2xl bg-white text-slate-900 font-black italic text-lg gap-3" onClick={() => handleStartCourse("c1")}>
+                    <PlayCircle className="h-6 w-6" /> COMEÇAR AGORA (GRÁTIS)
                  </Button>
               </div>
            </div>
@@ -132,7 +134,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                          <PlayCircle className="h-16 w-16 text-white" />
                       </div>
                       <div className="absolute top-4 left-4">
-                         <Badge className="bg-yellow-500 text-black border-none font-black italic text-[10px]">R$ 25,00</Badge>
+                         <Badge className="bg-green-500 text-white border-none font-black italic text-[10px]">GRATUITO</Badge>
                       </div>
                       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                          <Badge className="bg-black/60 backdrop-blur-md text-white border-none font-black italic text-[8px] uppercase">{course.category}</Badge>
@@ -150,7 +152,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                       <Button 
                         className="w-full bg-white/5 hover:bg-primary hover:text-white border border-white/10 rounded-xl h-10 font-black italic text-[10px] uppercase transition-all mt-auto group-hover:border-primary"
                       >
-                        VER DETALHES
+                        ASSISTIR AGORA
                       </Button>
                    </div>
                 </div>
@@ -197,13 +199,13 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
 
                       <div className="space-y-4">
                          <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2">
-                            <Info className="h-5 w-5 text-primary" /> Sobre o Curso
+                            <Info className="h-5 w-5 text-primary" /> Sobre o Treinamento
                          </h3>
                          <p className="text-slate-400 font-medium leading-relaxed italic">{selectedCourse.description}</p>
                       </div>
 
                       <div className="space-y-4">
-                         <h3 className="text-xl font-black italic uppercase tracking-tighter">O que você vai aprender:</h3>
+                         <h3 className="text-xl font-black italic uppercase tracking-tighter">O que você vai dominar:</h3>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {selectedCourse.syllabus.map((item: string, i: number) => (
                               <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/5">
@@ -216,11 +218,11 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
 
                       <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                          <div className="space-y-1">
-                            <p className="text-[10px] font-black text-slate-500 uppercase">Investimento Único</p>
-                            <p className="text-3xl font-black italic text-white">R$ 25,00</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Disponibilidade</p>
+                            <p className="text-3xl font-black italic text-green-500 uppercase">100% Gratuito</p>
                          </div>
-                         <Button onClick={() => handleEnroll(selectedCourse.title)} className="h-16 px-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-black italic text-xl shadow-2xl shadow-primary/20 gap-3">
-                            <ShoppingBag className="h-6 w-6" /> INSCREVER AGORA
+                         <Button onClick={() => handleStartCourse(selectedCourse.id)} className="h-16 px-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-black italic text-xl shadow-2xl shadow-primary/20 gap-3">
+                            <PlayCircle className="h-6 w-6" /> INICIAR AGORA
                          </Button>
                       </div>
                    </div>
@@ -237,8 +239,8 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                     <div className="h-20 w-20 rounded-3xl bg-white/20 flex items-center justify-center">
                        <Award className="h-12 w-12 text-white" />
                     </div>
-                    <h3 className="text-5xl font-black italic uppercase tracking-tighter leading-[0.9]">Certificações Profissionais Reconhecidas</h3>
-                    <p className="text-xl font-medium opacity-80 italic leading-relaxed">Invista em você por apenas R$ 25,00 por curso. Cada conclusão gera um certificado digital com QR Code de autenticidade para fortalecer o currículo da sua equipe.</p>
+                    <h3 className="text-5xl font-black italic uppercase tracking-tighter leading-[0.9]">Certificações Corporativas Gratuitas</h3>
+                    <p className="text-xl font-medium opacity-80 italic leading-relaxed">No Mercado Ágil, acreditamos que o sucesso do seu negócio depende do seu conhecimento. Todos os cursos são gratuitos para parceiros e emitem certificados com validade nacional.</p>
                     <div className="flex gap-4">
                        <Button className="h-16 px-10 rounded-2xl bg-white text-primary font-black italic text-xl shadow-2xl hover:scale-105 transition-transform">
                           EXPLORAR TODOS

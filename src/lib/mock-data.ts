@@ -77,29 +77,50 @@ export interface Order {
   items: any[];
 }
 
-// Biblioteca de 500 Cursos para o AVA (R$ 25 cada)
+// Biblioteca de 500 Cursos para o AVA (Totalmente Gratuitos para Lojistas)
 const generateCourses = () => {
   const categories = ["Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
   const courses = [];
   
   for (let i = 1; i <= 500; i++) {
     const cat = categories[Math.floor(Math.random() * categories.length)];
+    const topic = getCourseTopic(i);
     courses.push({
       id: `c${i}`,
-      title: `Curso Especialista ${i}: ${getCourseTopic(i)}`,
-      description: `Domine as técnicas avançadas de ${getCourseTopic(i)} com este treinamento intensivo focado em resultados reais para o seu negócio no Mercado Ágil.`,
+      title: `Curso Especialista ${i}: ${topic}`,
+      description: `Treinamento intensivo sobre ${topic}. Este curso foi desenvolvido para acelerar os resultados do seu negócio no Mercado Ágil, focando em métricas reais e implementação prática.`,
       category: cat,
       duration: `${Math.floor(Math.random() * 30) + 10}h`,
       lessons: Math.floor(Math.random() * 20) + 10,
       rating: (Math.random() * (5 - 4.2) + 4.2).toFixed(1),
-      price: 25.00,
+      price: 0,
       thumb: `https://picsum.photos/seed/course${i}/400/250`,
+      modules: [
+        {
+          title: "Módulo 1: Fundamentos",
+          lessons: [
+            { id: "l1", title: "Introdução ao Mercado", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "10:00" },
+            { id: "l2", title: "Mentalidade Vencedora", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "15:00" }
+          ]
+        },
+        {
+          title: "Módulo 2: Prática e Execução",
+          lessons: [
+            { id: "l3", title: "Configuração de Ferramentas", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "25:00" },
+            { id: "l4", title: "Primeiros Resultados", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "30:00" }
+          ]
+        }
+      ],
+      materials: [
+        { title: "E-book do Curso", type: "PDF", size: "2.4MB" },
+        { title: "Planilha de Gestão", type: "XLSX", size: "1.1MB" }
+      ],
       syllabus: [
-        "Introdução e Mentalidade",
-        "Ferramentas e Processos",
-        "Estratégias Avançadas",
-        "Estudo de Caso Real",
-        "Certificação e Próximos Passos"
+        "Introdução e Mentalidade de Crescimento",
+        "Configuração do Ecossistema Ágil",
+        "Estratégias de Atração de Clientes",
+        "Retenção e Fidelização 2.0",
+        "Análise de Dados e Escalabilidade"
       ]
     });
   }
