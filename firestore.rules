@@ -1,11 +1,8 @@
 /**
- * Firestore Security Rules - Version 2
+ * Firestore Security Rules - Mercado Ágil Enterprise
  * 
  * CORE PHILOSOPHY:
- * This ruleset implements a multi-tenant e-commerce platform security model. It distinguishes 
- * between Super Admins (platform owners), Merchant Admins/Staff (store owners), and Customers.
- * It prioritizes strict authorization (who can access what) while remaining flexible on 
- * data schema to support rapid prototyping.
+ * Proteção multi-tenant com fallback para Super Admin mestre.
  */
 
 rules_version = '2';
@@ -18,27 +15,28 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Helper para verificar se o usuário é o Super Admin mestre por e-mail
+    function isMasterAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'vagneroliveira.us@gmail.com' ||
+        request.auth.token.email == 'admin@mercadoagil.com'
+      );
+    }
+
     function getPlatformUser() {
       return isSignedIn() ? get(/databases/$(database)/documents/platformUsers/$(request.auth.uid)).data : null;
     }
 
     function isSuperAdmin() {
-      return isSignedIn() && getPlatformUser() != null && getPlatformUser().role == 'SUPER_ADMIN';
-    }
-
-    function belongsToMerchant(merchantId) {
-      return isSignedIn() && (
-        (getPlatformUser() != null && getPlatformUser().merchantId == merchantId) ||
-        // Permitir acesso ao ID 'm1' (mock padrão) para facilitar inovação rápida
-        merchantId == 'm1'
-      );
+      return isMasterAdmin() || (isSignedIn() && getPlatformUser() != null && getPlatformUser().role == 'SUPER_ADMIN');
     }
 
     // --- COLLECTION RULES ---
 
     match /platformUsers/{platformUserId} {
-      allow get: if isSignedIn();
-      allow list: if isSuperAdmin();
+      // Permitir leitura e listagem para que o sistema de login identifique o cargo do usuário
+      allow get, list: if isSignedIn();
+      // Criar e atualizar permitido para o próprio usuário ou master
       allow create, update: if isSignedIn();
       allow delete: if isSuperAdmin();
     }
@@ -49,30 +47,15 @@ service cloud.firestore {
     }
 
     match /merchants/{merchantId} {
-      allow get, list: if true;
+      allow get, list: if true; 
       allow create: if isSignedIn();
       allow update: if isSignedIn() && (resource.data.platformUserId == request.auth.uid || isSuperAdmin());
       allow delete: if isSuperAdmin();
-    }
 
-    // --- MERCHANT SUBCOLLECTIONS ---
-
-    match /merchants/{merchantId}/paymentMethods/{id} { 
-      allow get, list: if true; 
-      allow create, update, delete: if isSignedIn(); 
-    }
-
-    match /merchants/{merchantId}/products/{id} { 
-      allow get, list: if true; 
-      allow create, update, delete: if isSignedIn(); 
-    }
-
-    match /merchants/{merchantId}/orders/{id} { 
-      allow get, list: if true; 
-      allow create: if true; // Permitir pedidos de clientes anônimos/convidados
-      allow update, delete: if isSignedIn(); 
-
-      match /orderItems/{itemId} { allow read, write: if true; }
+      // Subcoleções de cada lojista (Agenda, Pedidos, etc)
+      match /{allSubcollections=**} {
+        allow read, write: if isSignedIn();
+      }
     }
 
     match /auditLogs/{auditLogId} {

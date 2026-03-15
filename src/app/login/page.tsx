@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -7,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, Star } from "lucide-react";
+import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, Star, AlertCircle } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn, initiateEmailSignUp, handleRedirectResult, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
+import { Badge } from '@/components/ui/badge';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,24 +30,24 @@ export default function LoginPage() {
     return query(collection(db, 'platformUsers'), where('email', '==', user.email), limit(1));
   }, [db, user]);
 
-  const { data: userProfiles } = useCollection(userProfileQuery);
-
-  const handleRoute = (profile: any) => {
-    if (!profile) return;
-    
-    if (profile.role === 'SUPER_ADMIN') {
-      router.replace('/admin/dashboard');
-    } else if (profile.role === 'MERCHANT_ADMIN' || profile.role === 'MERCHANT_STAFF') {
-      const slug = profile.merchantSlug || 'demo';
-      router.replace(`/merchant/${slug}/dashboard`);
-    }
-  };
+  const { data: userProfiles, isLoading: loadingProfile } = useCollection(userProfileQuery);
 
   useEffect(() => {
     if (user && userProfiles && userProfiles.length > 0) {
-      handleRoute(userProfiles[0]);
+      const profile = userProfiles[0];
+      if (profile.role === 'SUPER_ADMIN' || user.email === 'vagneroliveira.us@gmail.com') {
+        router.replace('/admin/dashboard');
+      } else if (profile.role === 'MERCHANT_ADMIN' || profile.role === 'MERCHANT_STAFF') {
+        const slug = profile.merchantSlug || 'demo';
+        router.replace(`/merchant/${slug}/dashboard`);
+      }
+    } else if (user && userProfiles && userProfiles.length === 0 && !loadingProfile) {
+      // Se logado mas sem perfil, e for o e-mail master, vai para o admin
+      if (user.email === 'vagneroliveira.us@gmail.com') {
+        router.replace('/admin/dashboard');
+      }
     }
-  }, [user, userProfiles]);
+  }, [user, userProfiles, loadingProfile, router]);
 
   useEffect(() => {
     const checkRedirect = async () => {
@@ -101,11 +101,13 @@ export default function LoginPage() {
     }
   };
 
-  if (isUserLoading || (checkingRedirect && !user)) {
+  if (isUserLoading || (checkingRedirect && !user) || (user && loadingProfile)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando Acesso...</p>
+        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse text-center px-4">
+          Sincronizando Identidade Mercado Ágil...
+        </p>
       </div>
     );
   }
@@ -121,30 +123,46 @@ export default function LoginPage() {
             <span className="text-2xl font-black tracking-tighter text-slate-900 uppercase">MERCADO ÁGIL</span>
           </Link>
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Portal de Acesso</h1>
-          <p className="text-slate-500 font-medium italic opacity-70">Plataforma Enterprise v2.9</p>
+          <p className="text-slate-500 font-medium italic opacity-70">Plataforma Enterprise v3.2</p>
         </div>
 
         <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
-          <CardHeader className="p-10 pb-4">
-            <CardTitle className="text-xl font-black italic">Entrar</CardTitle>
-            <CardDescription className="font-medium text-slate-400">Acesse sua conta corporativa.</CardDescription>
+          <CardHeader className="p-10 pb-4 text-center">
+            <CardTitle className="text-xl font-black italic">Acesse seu Painel</CardTitle>
+            <CardDescription className="font-medium text-slate-400">Escolha um modo de acesso rápido para testar.</CardDescription>
           </CardHeader>
           <CardContent className="p-10 pt-4 space-y-8">
             
-            <Button 
-              onClick={() => initiateGoogleSignIn(auth)} 
-              disabled={loading}
-              variant="outline" 
-              className="w-full h-14 rounded-2xl border-2 border-slate-100 font-bold gap-3 hover:bg-slate-50 transition-all shadow-sm"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.14-4.53z" fill="#EA4335"/>
-              </svg>
-              Continuar com Google
-            </Button>
+            <div className="grid grid-cols-1 gap-4">
+               <Button 
+                variant="outline" 
+                className="h-16 rounded-2xl border-2 border-primary/20 bg-primary/5 font-black italic text-sm gap-3 transition-all uppercase tracking-widest text-primary hover:bg-primary/10"
+                onClick={() => handleQuickDemoLogin('super')}
+               >
+                 <Star className="h-5 w-5 fill-primary" /> VAGNER SUPER ADMIN
+               </Button>
+               <div className="grid grid-cols-2 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest hover:bg-slate-50"
+                    onClick={() => handleQuickDemoLogin('admin')}
+                  >
+                    <ShieldCheck className="h-4 w-4 text-slate-400" /> MASTER ADM
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest hover:bg-slate-50"
+                    onClick={() => handleQuickDemoLogin('merchant')}
+                  >
+                    <UserCircle className="h-4 w-4 text-slate-400" /> LOJISTA
+                  </Button>
+               </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
+              <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-300"><span className="bg-white px-2 italic">ou use e-mail e senha</span></div>
+            </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
@@ -172,30 +190,11 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="grid grid-cols-1 gap-4 mt-4">
-               <Button 
-                variant="outline" 
-                className="h-14 rounded-2xl border-2 border-primary/20 bg-primary/5 font-black italic text-[11px] gap-2 transition-all uppercase tracking-widest text-primary"
-                onClick={() => handleQuickDemoLogin('super')}
-               >
-                 <Star className="h-4 w-4 fill-primary" /> VAGNER SUPER ADMIN
-               </Button>
-               <div className="grid grid-cols-2 gap-4">
-                  <Button 
-                    variant="outline" 
-                    className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
-                    onClick={() => handleQuickDemoLogin('admin')}
-                  >
-                    <ShieldCheck className="h-4 w-4" /> MASTER ADM
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
-                    onClick={() => handleQuickDemoLogin('merchant')}
-                  >
-                    <UserCircle className="h-4 w-4" /> LOJISTA
-                  </Button>
-               </div>
+            <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 flex gap-3">
+               <AlertCircle className="h-5 w-5 text-orange-500 shrink-0" />
+               <p className="text-[10px] font-bold text-orange-700 leading-relaxed uppercase">
+                 Se for sua primeira vez, use o botão <span className="text-primary">VAGNER SUPER ADMIN</span> para acessar o Command Center e criar sua primeira Barbearia.
+               </p>
             </div>
           </CardContent>
         </Card>
