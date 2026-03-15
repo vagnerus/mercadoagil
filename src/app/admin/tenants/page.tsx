@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,8 @@ import { Store, Search, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutG
 import Link from 'next/link';
 import { SYSTEM_PLANS } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore, useCollection, addDocumentNonBlocking } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useCollection, addDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp, query, orderBy } from 'firebase/firestore';
 
 export default function AdminTenants() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -23,10 +23,10 @@ export default function AdminTenants() {
   const { toast } = useToast();
   const db = useFirestore();
   
-  const merchantsQuery = collection(db, 'merchants');
+  const merchantsQuery = useMemoFirebase(() => query(collection(db, 'merchants'), orderBy('createdAt', 'desc')), [db]);
   const { data: merchants, isLoading: loadingMerchants } = useCollection(merchantsQuery);
 
-  const [formData, setCustomerInfo] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     slug: "",
     planId: "p_free",
@@ -39,15 +39,19 @@ export default function AdminTenants() {
     setLoading(true);
     
     try {
+      const plan = SYSTEM_PLANS.find(p => p.id === formData.planId);
+      
       await addDocumentNonBlocking(collection(db, 'merchants'), {
         ...formData,
         status: 'active',
         createdAt: new Date().toISOString(),
         timestamp: serverTimestamp(),
+        planName: plan?.name || 'Free',
         mrr: formData.planId === 'p_free' ? 0 : (formData.planId === 'p_pro' ? 150 : 300)
       });
 
       setIsCreateOpen(false);
+      setFormData({ name: "", slug: "", planId: "p_free", email: "", ownerName: "" });
       toast({ title: "Loja Criada!", description: "O novo lojista já pode acessar o painel." });
     } catch (error) {
       toast({ title: "Erro", description: "Falha ao criar loja.", variant: "destructive" });
@@ -130,7 +134,7 @@ export default function AdminTenants() {
                                 className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
                                 required 
                                 value={formData.name}
-                                onChange={e => setCustomerInfo({...formData, name: e.target.value})}
+                                onChange={e => setFormData({...formData, name: e.target.value})}
                                />
                             </div>
                             <div className="space-y-2">
@@ -141,14 +145,14 @@ export default function AdminTenants() {
                                     className="h-12 rounded-l-xl bg-slate-50 border-none font-bold border-r border-slate-200" 
                                     required 
                                     value={formData.slug}
-                                    onChange={e => setCustomerInfo({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+                                    onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
                                   />
                                   <div className="h-12 px-3 bg-slate-100 flex items-center rounded-r-xl text-[10px] font-black text-slate-400">.agil.com</div>
                                </div>
                             </div>
                             <div className="space-y-2">
                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Plano Mercado Ágil</Label>
-                               <Select value={formData.planId} onValueChange={v => setCustomerInfo({...formData, planId: v})}>
+                               <Select value={formData.planId} onValueChange={v => setFormData({...formData, planId: v})}>
                                   <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
                                      <SelectValue />
                                   </SelectTrigger>
@@ -171,7 +175,7 @@ export default function AdminTenants() {
                                 className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
                                 required 
                                 value={formData.ownerName}
-                                onChange={e => setCustomerInfo({...formData, ownerName: e.target.value})}
+                                onChange={e => setFormData({...formData, ownerName: e.target.value})}
                                />
                             </div>
                             <div className="space-y-2">
@@ -182,7 +186,7 @@ export default function AdminTenants() {
                                 className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
                                 required 
                                 value={formData.email}
-                                onChange={e => setCustomerInfo({...formData, email: e.target.value})}
+                                onChange={e => setFormData({...formData, email: e.target.value})}
                                />
                             </div>
                          </div>

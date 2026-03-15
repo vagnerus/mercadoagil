@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -24,10 +25,11 @@ export default function LoginPage() {
   // Redirecionamento automático quando o usuário logar
   useEffect(() => {
     if (user && !isUserLoading) {
-      if (user.email?.includes('admin')) {
+      if (user.email?.toLowerCase().includes('admin')) {
         router.push('/admin/dashboard');
         toast({ title: "Bem-vindo", description: "Acesso administrativo liberado." });
       } else {
+        // Em um sistema real, buscaríamos o slug do lojista no Firestore baseado no UID/Email
         router.push('/merchant/burger-ze/dashboard');
         toast({ title: "Bem-vindo", description: "Painel da sua loja carregado." });
       }
@@ -58,7 +60,7 @@ export default function LoginPage() {
       toast({
         title: "Erro no Google Login",
         description: isPopupError 
-          ? "A janela de login foi fechada. Certifique-se de autorizar este domínio no Console do Firebase." 
+          ? "A janela de login foi fechada. Se o problema persistir, verifique os bloqueadores de popup." 
           : err.message,
         variant: "destructive"
       });
@@ -68,7 +70,16 @@ export default function LoginPage() {
   const handleQuickDemoLogin = (type: 'admin' | 'merchant') => {
     setLoading(true);
     const targetEmail = type === 'admin' ? 'admin@mercadoagil.com' : 'lojista@mercadoagil.com';
-    initiateEmailSignIn(auth, targetEmail, 'password123').catch(() => setLoading(false));
+    initiateEmailSignIn(auth, targetEmail, 'password123').catch(() => {
+      // Se o usuário não existir no seu Firebase Auth ainda, ele vai dar erro.
+      // Em um ambiente real, você criaria esses usuários no console.
+      setLoading(false);
+      toast({ 
+        title: "Usuário Demo", 
+        description: "Para acesso real, crie estes usuários no Console Firebase ou use o Google Login.",
+        variant: "destructive"
+      });
+    });
   };
 
   return (
@@ -84,14 +95,6 @@ export default function LoginPage() {
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Acesso ao Painel</h1>
           <p className="text-slate-500 font-medium italic opacity-70">Gerencie sua loja ou a plataforma global.</p>
         </div>
-
-        <Alert className="bg-blue-50 border-blue-200 text-blue-800 rounded-3xl">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle className="font-black text-xs uppercase tracking-widest">Dica Técnica</AlertTitle>
-          <AlertDescription className="text-[10px] font-bold">
-            Para o Google Login funcionar neste ambiente, autorize o domínio <code className="bg-blue-100 px-1">*.cloudworkstations.dev</code> no seu Console Firebase.
-          </AlertDescription>
-        </Alert>
 
         <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
           <CardHeader className="p-10 pb-4">
