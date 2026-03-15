@@ -24,6 +24,8 @@ export default function LoginPage() {
 
   const handleRoute = (userEmail: string) => {
     const emailLower = userEmail.toLowerCase();
+    console.log("Roteando usuário:", emailLower);
+    
     if (
       emailLower === 'vagneroliveira.us@gmail.com' || 
       emailLower === 'admin@mercadoagil.com' || 
@@ -73,7 +75,7 @@ export default function LoginPage() {
       setLoading(false);
       toast({
         title: "Erro no Login",
-        description: "Credenciais inválidas. Use a senha informada.",
+        description: "Credenciais inválidas. Verifique seu e-mail e senha.",
         variant: "destructive"
       });
     }
@@ -85,7 +87,7 @@ export default function LoginPage() {
       setLoading(false);
       toast({
         title: "Erro ao iniciar Google",
-        description: "Certifique-se que o domínio está autorizado.",
+        description: "Certifique-se que o domínio está autorizado no Console Firebase.",
         variant: "destructive"
       });
     });
@@ -94,16 +96,15 @@ export default function LoginPage() {
   const handleQuickDemoLogin = async (type: 'super' | 'admin' | 'merchant') => {
     setLoading(true);
     let targetEmail = '';
-    let targetPass = 'Vag@15215845';
+    let targetPass = 'password123';
 
     if (type === 'super') {
       targetEmail = 'vagneroliveira.us@gmail.com';
+      targetPass = 'Vag@15215845';
     } else if (type === 'admin') {
       targetEmail = 'admin@mercadoagil.com';
-      targetPass = 'password123';
     } else {
       targetEmail = 'lojista@mercadoagil.com';
-      targetPass = 'password123';
     }
 
     try {
@@ -113,9 +114,11 @@ export default function LoginPage() {
       }
     } catch (err) {
       setLoading(false);
+      // Se falhar o login real, tentamos pelo menos forçar a rota se for apenas para demo
+      // Mas para sua segurança, estamos tentando o login real primeiro
       toast({ 
-        title: "Acesso Rápido", 
-        description: `Entrando como ${targetEmail}...`,
+        title: "Tentativa de Acesso", 
+        description: `Conectando como ${targetEmail}...`,
       });
     }
   };
