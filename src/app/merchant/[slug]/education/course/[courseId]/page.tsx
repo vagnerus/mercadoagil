@@ -4,15 +4,14 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Play, CheckCircle2, FileText, MessageSquare, 
-  ChevronLeft, ArrowRight, Download, Star,
-  Monitor, LayoutDashboard, Clock, PlayCircle,
+  ChevronLeft, Download, Clock, PlayCircle,
   HelpCircle, Sparkles, Send, Info, Award, Users
 } from "lucide-react";
 import Link from 'next/link';
@@ -54,6 +53,11 @@ export default function CoursePlayer() {
     if (!comment) return;
     toast({ title: "Comentário Enviado!", description: "O instrutor responderá em breve." });
     setComment("");
+  };
+
+  const handleDownload = (material: any) => {
+    window.open(material.url, '_blank');
+    toast({ title: "Download Iniciado", description: `Baixando ${material.title}...` });
   };
 
   if (!course || !currentLesson) return null;
@@ -122,31 +126,32 @@ export default function CoursePlayer() {
       <main className="flex-1 flex flex-col h-full bg-black overflow-y-auto no-scrollbar">
          <div className="aspect-video w-full bg-slate-900 relative group overflow-hidden">
             <video 
-              key={currentLesson.videoUrl}
+              key={currentLesson.id} // Chave única força o reload do elemento de vídeo
               className="w-full h-full object-contain"
               controls
               autoPlay
             >
                <source src={currentLesson.videoUrl} type="video/mp4" />
+               Seu navegador não suporta vídeos.
             </video>
             <div className="absolute top-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity">
-               <Badge className="bg-primary text-white border-none font-black italic py-2 px-4 rounded-xl text-xs">AULA ATIVA: {currentLesson.title}</Badge>
+               <Badge className="bg-primary text-white border-none font-black italic py-2 px-4 rounded-xl text-xs uppercase">AULA ATIVA: {currentLesson.title}</Badge>
             </div>
          </div>
 
          <div className="p-8 lg:p-12 max-w-5xl">
-            <header className="flex justify-between items-start mb-12">
+            <header className="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">
                <div className="space-y-2">
-                  <Badge className="bg-primary/20 text-primary border-none font-black italic text-[10px] uppercase">{course.category}</Badge>
-                  <h1 className="text-4xl font-black italic uppercase tracking-tighter">{currentLesson.title}</h1>
+                  <Badge className="bg-primary/20 text-primary border-none font-black italic text-[10px] uppercase px-3 py-1">{course.category}</Badge>
+                  <h1 className="text-4xl font-black italic uppercase tracking-tighter leading-none">{currentLesson.title}</h1>
                   <p className="text-slate-500 font-medium italic">Faz parte do curso: {course.title}</p>
                </div>
                <Button 
                 onClick={() => toggleLessonComplete(currentLesson.id)}
                 variant={completedLessons.includes(currentLesson.id) ? "outline" : "default"}
                 className={cn(
-                  "h-14 rounded-2xl px-10 font-black italic gap-2 transition-all",
-                  completedLessons.includes(currentLesson.id) ? "border-green-500 text-green-500 hover:bg-green-500/10" : "bg-white text-slate-950"
+                  "h-14 rounded-2xl px-10 font-black italic gap-2 transition-all shrink-0",
+                  completedLessons.includes(currentLesson.id) ? "border-green-500 text-green-500 hover:bg-green-500/10" : "bg-white text-slate-950 hover:bg-slate-100"
                 )}
                >
                   {completedLessons.includes(currentLesson.id) ? <CheckCircle2 className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
@@ -155,38 +160,38 @@ export default function CoursePlayer() {
             </header>
 
             <Tabs defaultValue="overview" className="space-y-8">
-               <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-auto">
-                  <TabsTrigger value="overview" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase"><Info className="h-4 w-4 mr-2" /> Visão Geral</TabsTrigger>
-                  <TabsTrigger value="materials" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase"><FileText className="h-4 w-4 mr-2" /> Materiais</TabsTrigger>
-                  <TabsTrigger value="comments" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase"><MessageSquare className="h-4 w-4 mr-2" /> Comentários</TabsTrigger>
-                  <TabsTrigger value="quiz" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase"><HelpCircle className="h-4 w-4 mr-2" /> Desafio IA</TabsTrigger>
+               <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-auto flex overflow-x-auto no-scrollbar">
+                  <TabsTrigger value="overview" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><Info className="h-4 w-4 mr-2" /> Visão Geral</TabsTrigger>
+                  <TabsTrigger value="materials" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><FileText className="h-4 w-4 mr-2" /> Materiais de Apoio</TabsTrigger>
+                  <TabsTrigger value="comments" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><MessageSquare className="h-4 w-4 mr-2" /> Comentários</TabsTrigger>
+                  <TabsTrigger value="quiz" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><HelpCircle className="h-4 w-4 mr-2" /> Desafio IA</TabsTrigger>
                </TabsList>
 
-               <TabsContent value="overview" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <TabsContent value="overview" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
                   <div className="prose prose-invert max-w-none">
-                     <h3 className="text-2xl font-black italic uppercase text-white mb-4">O que aprenderemos nesta aula?</h3>
+                     <h3 className="text-2xl font-black italic uppercase text-white mb-4">Sobre esta lição</h3>
                      <p className="text-slate-400 text-lg leading-relaxed italic">{course.description}</p>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
                      <Card className="bg-white/5 border-none p-6 rounded-[35px] relative overflow-hidden">
                         <Sparkles className="absolute -bottom-4 -right-4 h-24 w-24 opacity-5 text-primary" />
                         <h4 className="text-xs font-black text-primary uppercase mb-4 tracking-widest">Dica do Tutor</h4>
-                        <p className="text-sm font-bold text-slate-300 italic leading-relaxed">"Não pule as etapas práticas. A configuração do ecossistema é o segredo para vender mais no automático."</p>
+                        <p className="text-sm font-bold text-slate-300 italic leading-relaxed">"Não pule as etapas práticas. A configuração correta do ecossistema é o segredo para vender mais no automático e garantir a escalabilidade do seu negócio."</p>
                      </Card>
                      <Card className="bg-white/5 border-none p-6 rounded-[35px]">
                         <h4 className="text-xs font-black text-slate-500 uppercase mb-4 tracking-widest">Tempo de Estudo Recomendado</h4>
                         <div className="flex items-center gap-3">
                            <Clock className="h-6 w-6 text-slate-600" />
-                           <p className="text-xl font-black italic text-white uppercase">45 Minutos</p>
+                           <p className="text-xl font-black italic text-white uppercase">45 Minutos Intensivos</p>
                         </div>
                      </Card>
                   </div>
                </TabsContent>
 
-               <TabsContent value="materials" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="text-2xl font-black italic uppercase text-white mb-6">Downloads e Referências</h3>
-                  {course.materials.map((mat, i) => (
-                    <div key={i} className="flex items-center justify-between p-6 bg-white/5 rounded-[30px] border border-white/5 hover:bg-white/10 transition-all">
+               <TabsContent value="materials" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
+                  <h3 className="text-2xl font-black italic uppercase text-white mb-6">Downloads e Referências Externas</h3>
+                  {course.materials.map((mat: any, i: number) => (
+                    <div key={i} className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 bg-white/5 rounded-[30px] border border-white/5 hover:bg-white/10 transition-all gap-4">
                        <div className="flex items-center gap-4">
                           <div className="h-12 w-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
                              <FileText className="h-6 w-6" />
@@ -196,14 +201,18 @@ export default function CoursePlayer() {
                              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{mat.type} • {mat.size}</p>
                           </div>
                        </div>
-                       <Button variant="outline" className="rounded-xl h-10 border-white/10 hover:bg-white hover:text-black gap-2 text-[10px] font-black uppercase">
-                          <Download className="h-4 w-4" /> Baixar Agora
+                       <Button 
+                        onClick={() => handleDownload(mat)}
+                        variant="outline" 
+                        className="w-full md:w-auto rounded-xl h-10 border-white/10 hover:bg-white hover:text-black gap-2 text-[10px] font-black uppercase"
+                       >
+                          <Download className="h-4 w-4" /> Baixar Arquivo
                        </Button>
                     </div>
                   ))}
                </TabsContent>
 
-               <TabsContent value="comments" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <TabsContent value="comments" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
                   <div className="space-y-6">
                      <div className="flex gap-4">
                         <div className="h-12 w-12 rounded-full bg-slate-800 shrink-0 flex items-center justify-center"><Users className="h-6 w-6 text-slate-600" /></div>
@@ -212,10 +221,10 @@ export default function CoursePlayer() {
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder="Deixe sua dúvida ou comentário aqui..."
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-medium focus:ring-primary outline-none min-h-[120px] italic"
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-medium focus:ring-primary outline-none min-h-[120px] italic text-white"
                            />
                            <div className="flex justify-end">
-                              <Button onClick={handlePostComment} className="bg-primary rounded-xl h-12 px-8 font-black italic gap-2 text-white">
+                              <Button onClick={handlePostComment} className="bg-primary hover:bg-primary/90 rounded-xl h-12 px-8 font-black italic gap-2 text-white transition-all">
                                  <Send className="h-4 w-4" /> ENVIAR COMENTÁRIO
                               </Button>
                            </div>
@@ -225,23 +234,23 @@ export default function CoursePlayer() {
                      <div className="space-y-6 pt-10 border-t border-white/5">
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/5 space-y-3">
                            <div className="flex justify-between items-center">
-                              <span className="text-xs font-black text-primary uppercase italic">João Silva (Lojista)</span>
+                              <span className="text-xs font-black text-primary uppercase italic">João Silva (Lojista Premium)</span>
                               <span className="text-[8px] font-bold text-slate-600 uppercase">Há 2 horas</span>
                            </div>
-                           <p className="text-sm font-medium italic text-slate-400">"Essa estratégia de cashback mudou o jogo na minha barbearia. Valeu Ágil Academy!"</p>
+                           <p className="text-sm font-medium italic text-slate-400">"Essa estratégia de automação mudou o jogo no meu estabelecimento. Reduzi o tempo de resposta em 60%. Valeu Ágil Academy!"</p>
                         </div>
                      </div>
                   </div>
                </TabsContent>
 
-               <TabsContent value="quiz" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <TabsContent value="quiz" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
                   <div className="p-12 text-center space-y-8 bg-gradient-to-br from-primary/5 to-transparent rounded-[50px] border border-primary/10">
                      <div className="h-20 w-20 bg-primary/20 rounded-[30px] flex items-center justify-center text-primary mx-auto">
                         <HelpCircle className="h-10 w-10" />
                      </div>
                      <div className="space-y-2">
-                        <h3 className="text-3xl font-black italic uppercase tracking-tighter">Desafio de Fixação</h3>
-                        <p className="text-slate-400 font-medium italic max-w-lg mx-auto">Responda as questões geradas pela nossa IA baseadas no conteúdo desta aula para pontuar no ranking global.</p>
+                        <h3 className="text-3xl font-black italic uppercase tracking-tighter">Desafio de Fixação Pro</h3>
+                        <p className="text-slate-400 font-medium italic max-w-lg mx-auto">Responda as questões geradas pela nossa IA baseadas no conteúdo exclusivo desta aula para pontuar no ranking global de lojistas.</p>
                      </div>
                      <Button className="h-16 px-12 rounded-[25px] bg-primary hover:bg-primary/90 text-white font-black italic text-lg shadow-2xl shadow-primary/20">
                         COMEÇAR DESAFIO IA

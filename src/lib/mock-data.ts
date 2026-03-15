@@ -77,6 +77,18 @@ export interface Order {
   items: any[];
 }
 
+const VIDEO_SAMPLES = [
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+];
+
 // Biblioteca de 500 Cursos para o AVA (Totalmente Gratuitos para Lojistas)
 const generateCourses = () => {
   const categories = ["Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
@@ -85,10 +97,12 @@ const generateCourses = () => {
   for (let i = 1; i <= 500; i++) {
     const cat = categories[Math.floor(Math.random() * categories.length)];
     const topic = getCourseTopic(i);
+    const videoUrl = VIDEO_SAMPLES[i % VIDEO_SAMPLES.length];
+    
     courses.push({
       id: `c${i}`,
       title: `Curso Especialista ${i}: ${topic}`,
-      description: `Treinamento intensivo sobre ${topic}. Este curso foi desenvolvido para acelerar os resultados do seu negócio no Mercado Ágil, focando em métricas reais e implementação prática.`,
+      description: `Treinamento intensivo sobre ${topic}. Este curso foi desenvolvido para acelerar os resultados do seu negócio no Mercado Ágil, focando em métricas reais e implementação prática. Através deste conteúdo, você aprenderá técnicas validadas para otimizar sua operação e escalar suas vendas de forma consistente.`,
       category: cat,
       duration: `${Math.floor(Math.random() * 30) + 10}h`,
       lessons: Math.floor(Math.random() * 20) + 10,
@@ -97,30 +111,33 @@ const generateCourses = () => {
       thumb: `https://picsum.photos/seed/course${i}/400/250`,
       modules: [
         {
-          title: "Módulo 1: Fundamentos",
+          title: "Módulo 1: Fundamentos Estratégicos",
           lessons: [
-            { id: "l1", title: "Introdução ao Mercado", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "10:00" },
-            { id: "l2", title: "Mentalidade Vencedora", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "15:00" }
+            { id: `c${i}l1`, title: `Introdução ao ${topic}`, videoUrl: videoUrl, duration: "12:45" },
+            { id: `c${i}l2`, title: "Mentalidade de Crescimento Exponencial", videoUrl: videoUrl, duration: "18:20" },
+            { id: `c${i}l3`, title: "Mapeamento de Processos Atuais", videoUrl: videoUrl, duration: "22:15" }
           ]
         },
         {
-          title: "Módulo 2: Prática e Execução",
+          title: "Módulo 2: Prática e Execução Ágil",
           lessons: [
-            { id: "l3", title: "Configuração de Ferramentas", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "25:00" },
-            { id: "l4", title: "Primeiros Resultados", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", duration: "30:00" }
+            { id: `c${i}l4`, title: "Configuração de Ferramentas de Automação", videoUrl: videoUrl, duration: "28:30" },
+            { id: `c${i}l5`, title: "Primeiros Resultados e Ajustes Finos", videoUrl: videoUrl, duration: "35:00" },
+            { id: `c${i}l6`, title: "Escalabilidade e Delegação", videoUrl: videoUrl, duration: "24:10" }
           ]
         }
       ],
       materials: [
-        { title: "E-book do Curso", type: "PDF", size: "2.4MB" },
-        { title: "Planilha de Gestão", type: "XLSX", size: "1.1MB" }
+        { title: `Guia Completo: ${topic}`, type: "PDF", size: "4.8MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+        { title: "Planilha de Gestão Financeira v3.2", type: "XLSX", size: "2.1MB", url: "https://file-examples.com/wp-content/uploads/2017/02/file_example_XLSX_10.xlsx" },
+        { title: "Checklist de Implementação Diária", type: "PDF", size: "1.2MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
       ],
       syllabus: [
-        "Introdução e Mentalidade de Crescimento",
-        "Configuração do Ecossistema Ágil",
-        "Estratégias de Atração de Clientes",
-        "Retenção e Fidelização 2.0",
-        "Análise de Dados e Escalabilidade"
+        `Introdução profunda ao universo de ${topic}`,
+        "Configuração passo a passo do Ecossistema Ágil",
+        "Estratégias avançadas de atração de clientes qualificados",
+        "Retenção, Fidelização e Recompra Automática",
+        "Análise de Big Data e Tomada de Decisão com IA"
       ]
     });
   }
@@ -129,14 +146,14 @@ const generateCourses = () => {
 
 const getCourseTopic = (i: number) => {
   const topics = [
-    "Vendas de Alto Impacto", "Design de Experiência", "Gestão de Crises", "Marketing no TikTok", 
-    "Liderança Ágil", "Análise de Dados Pro", "Atendimento VIP", "Finanças para MEI",
-    "Estética Avançada", "Corte Europeu", "Colorimetria Real", "Manicure Russa",
-    "Google Ads Local", "Copywriting IA", "SEO para Lojas", "Instagram para Negócios",
-    "Primeiros Socorros", "Nutrição Clínica", "Gestão Hospitalar", "Ética na Saúde",
-    "JavaScript Moderno", "React do Zero", "Cloud Computing", "Segurança Digital",
-    "Roteirização de Entregas", "Controle de Estoque", "Curva ABC na Prática", "Fidelização 2.0",
-    "Escala de Franquias", "Processos Operacionais", "Venda Consultiva", "Psicologia do Consumidor"
+    "Vendas de Alto Impacto", "Design de Experiência do Cliente", "Gestão de Crises e Reputação", "Marketing Viral no TikTok", 
+    "Liderança Ágil para Equipes", "Análise de Dados e BI Pro", "Atendimento VIP e Encantamento", "Finanças Estratégicas para MEI",
+    "Estética Avançada e Biossegurança", "Corte Europeu Masculino", "Colorimetria Real Aplicada", "Manicure Russa e Nail Art",
+    "Google Ads para Negócios Locais", "Copywriting Persuasivo com IA", "SEO Dominante para Lojas", "Instagram para Negócios 2024",
+    "Primeiros Socorros no Estabelecimento", "Nutrição Clínica Funcional", "Gestão Hospitalar Eficiente", "Ética na Saúde Digital",
+    "JavaScript Moderno para Lojistas", "React do Zero ao Painel", "Cloud Computing para Pequenos Negócios", "Segurança Digital e LGPD",
+    "Roteirização Inteligente de Entregas", "Controle de Estoque Inteligente", "Curva ABC na Prática Real", "Fidelização 2.0 e Cashback",
+    "Escala de Franquias e Multitenancy", "Processos Operacionais Padrão", "Venda Consultiva de Serviços", "Psicologia do Consumidor Moderno"
   ];
   return topics[i % topics.length];
 };
