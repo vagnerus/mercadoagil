@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -11,15 +11,54 @@ import { Input } from "@/components/ui/input";
 import { 
   Package, AlertTriangle, TrendingDown, ArrowUpDown, Search, 
   Plus, Filter, Download, History, Database, Layers, 
-  QrCode, Warehouse, Truck, RefreshCw, Barcode
+  QrCode, Warehouse, Truck, RefreshCw, Barcode, Eye, Camera, Loader2
 } from "lucide-react";
 import Link from 'next/link';
 import { MOCK_PRODUCTS } from "@/lib/mock-data";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MerchantInventory({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const [warehouse, setWarehouse] = useState("principal");
+  const [isVisionScanOpen, setIsVisionScanOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const { toast } = useToast();
+
   const lowStockItems = MOCK_PRODUCTS.filter(p => (p.stock || 0) <= (p.minStock || 0));
+
+  const startVisionScan = async () => {
+    setIsVisionScanOpen(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setHasCameraPermission(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+      toast({
+        variant: 'destructive',
+        title: 'Acesso à Câmera Negado',
+        description: 'Ative as permissões para usar a Visão Computacional IA.',
+      });
+    }
+  };
+
+  const handleVisionAnalysis = () => {
+    setIsAnalyzing(true);
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      toast({
+        title: "Análise Concluída",
+        description: "Detectados 12 itens 'X-Tudo' no campo de visão. Estoque atualizado.",
+      });
+      setIsVisionScanOpen(false);
+    }, 2500);
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
@@ -49,7 +88,9 @@ export default function MerchantInventory({ params }: { params: Promise<{ slug: 
             <p className="text-slate-500 font-medium">Controle multi-warehouse, rastreio de lotes e grade de variações.</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="rounded-2xl h-12 gap-2 font-bold px-6"><Barcode className="h-4 w-4" /> Scan SKU</Button>
+            <Button onClick={startVisionScan} variant="outline" className="rounded-2xl h-12 gap-2 font-black italic px-6 border-primary/20 text-primary hover:bg-primary/5">
+              <Eye className="h-4 w-4" /> AI Vision Scan
+            </Button>
             <Button className="bg-slate-900 rounded-2xl h-12 gap-2 font-bold px-6 shadow-xl shadow-slate-200">
               <Plus className="h-4 w-4" /> Entrada de Lote / NF-e
             </Button>
@@ -71,9 +112,6 @@ export default function MerchantInventory({ params }: { params: Promise<{ slug: 
            >
               <Warehouse className="h-4 w-4" /> Filial Sul - CTBA
            </Button>
-           <Button variant="ghost" className="rounded-2xl h-14 px-6 text-slate-400 font-bold border-2 border-dashed">
-              <Plus className="h-4 w-4 mr-2" /> Novo Galpão
-           </Button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-4 mb-10">
@@ -86,11 +124,11 @@ export default function MerchantInventory({ params }: { params: Promise<{ slug: 
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Patrimônio Imobilizado</p>
               <p className="text-3xl font-black italic mt-2 text-slate-900">R$ 482.150</p>
            </Card>
-           <Card className="border-none shadow-sm p-6 rounded-[32px] bg-white">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Giro Médio (Global)</p>
-              <div className="flex items-center gap-3 mt-2">
-                 <p className="text-3xl font-black italic text-slate-900">5.8x</p>
-                 <Badge className="bg-green-100 text-green-700 font-black border-none px-3">Alta Performance</Badge>
+           <Card className="border-none shadow-sm p-6 rounded-[32px] bg-slate-900 text-white relative overflow-hidden">
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Pegada de Carbono (Log)</p>
+              <div className="flex items-center gap-2 mt-2">
+                 <p className="text-3xl font-black italic">0.8t CO2</p>
+                 <Badge className="bg-green-500 text-white border-none font-black italic text-[8px]">ECO-FRIENDLY</Badge>
               </div>
            </Card>
            <Card className="border-none shadow-sm p-6 rounded-[32px] bg-primary text-white relative overflow-hidden">
@@ -172,6 +210,43 @@ export default function MerchantInventory({ params }: { params: Promise<{ slug: 
           </CardContent>
         </Card>
       </main>
+
+      <Dialog open={isVisionScanOpen} onOpenChange={setIsVisionScanOpen}>
+        <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
+           <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
+              <div className="relative z-10">
+                 <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">AI Vision Computer</DialogTitle>
+                 <p className="text-slate-400 font-bold uppercase text-[9px] tracking-widest mt-1">Escaneamento volumétrico de inventário via IA.</p>
+              </div>
+              <Eye className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
+           </div>
+           <div className="p-8 space-y-6">
+              <div className="aspect-video rounded-[30px] bg-black relative overflow-hidden flex items-center justify-center">
+                 <video ref={videoRef} className="w-full h-full object-cover opacity-80" autoPlay muted />
+                 <div className="absolute inset-0 border-2 border-primary/40 border-dashed m-10 rounded-2xl animate-pulse"></div>
+                 {isAnalyzing && (
+                   <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-4">
+                      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                      <p className="text-primary font-black italic animate-pulse">PROCESSANDO VOLUMETRIA...</p>
+                   </div>
+                 )}
+                 {!hasCameraPermission && (
+                   <div className="text-center p-10">
+                      <Camera className="h-12 w-12 text-slate-700 mx-auto mb-4" />
+                      <p className="text-slate-500 font-bold">Aguardando permissão da câmera...</p>
+                   </div>
+                 )}
+              </div>
+              <Button 
+                onClick={handleVisionAnalysis} 
+                disabled={!hasCameraPermission || isAnalyzing}
+                className="w-full h-16 bg-primary hover:bg-primary/90 rounded-[28px] font-black italic text-lg shadow-xl"
+              >
+                Capturar e Analisar Estoque
+              </Button>
+           </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -13,7 +13,7 @@ import {
   Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, 
   ShieldCheck, ShoppingBag, MapPin, Phone, User, Check,
   Download, Copy, TrendingUp, CreditCard, Landmark, Wallet, 
-  Trophy, Flame, Clock, RefreshCw
+  Trophy, Flame, Clock, RefreshCw, MessageSquare, Globe
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -38,6 +38,7 @@ export default function StoreFront() {
   const [walletBalance] = useState(142.50);
   const [useWallet, setUseWallet] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [lang, setLang] = useState('PT');
   
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
@@ -131,6 +132,33 @@ export default function StoreFront() {
 
   return (
     <div className="max-w-xl mx-auto min-h-screen bg-slate-50 pb-44 relative font-body overflow-x-hidden">
+      {/* Floating Status Widget */}
+      <div className="fixed top-24 right-6 z-50 animate-bounce">
+         <Badge className="bg-green-500 text-white border-4 border-white shadow-2xl py-2 px-4 rounded-full font-black text-[10px] uppercase tracking-tighter">
+            LOJA ABERTA ⚡
+         </Badge>
+      </div>
+
+      {/* Language Switcher */}
+      <div className="absolute top-6 right-6 z-50 flex gap-2">
+         <Button 
+          variant="secondary" 
+          size="sm" 
+          className={`h-10 rounded-xl font-black ${lang === 'PT' ? 'bg-primary text-white' : 'bg-white/80'}`}
+          onClick={() => setLang('PT')}
+         >
+            PT
+         </Button>
+         <Button 
+          variant="secondary" 
+          size="sm" 
+          className={`h-10 rounded-xl font-black ${lang === 'EN' ? 'bg-primary text-white' : 'bg-white/80'}`}
+          onClick={() => setLang('EN')}
+         >
+            EN
+         </Button>
+      </div>
+
       {/* Gamified Header */}
       <div className="relative h-80 w-full overflow-hidden">
         <img src={merchant.bannerUrl} alt={merchant.name} className="w-full h-full object-cover" />
@@ -230,7 +258,7 @@ export default function StoreFront() {
                          <h3 className="font-black text-slate-900 text-base">{product.name}</h3>
                          {product.isLoyaltyExclusive && <Lock className="h-3 w-3 text-yellow-600" />}
                       </div>
-                      <p className="text-[10px] text-slate-500 line-clamp-2 font-medium leading-relaxed">{product.description}</p>
+                      <p className="text-[10px] text-slate-500 line-clamp-2 font-medium leading-relaxed">{lang === 'EN' ? 'AI Translation active...' : product.description}</p>
                       <div className="flex items-center gap-3 mt-3">
                         <p className="font-black text-primary text-xl italic tracking-tighter">R$ {product.price.toFixed(2)}</p>
                         {product.isLoyaltyExclusive && (
@@ -261,7 +289,6 @@ export default function StoreFront() {
         )}
       </div>
 
-      {/* Checkout Dialog remains with added Wallet support */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
         <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-[40px] border-none shadow-2xl font-body">
            <div className="bg-slate-900 p-8 text-white flex justify-between items-center">

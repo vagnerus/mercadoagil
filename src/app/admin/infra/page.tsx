@@ -4,7 +4,7 @@
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Server, Activity, Globe, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutGrid, Database, Zap, Cpu, HardDrive, RefreshCw } from "lucide-react";
+import { Server, Activity, Globe, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutGrid, Database, Zap, Cpu, HardDrive, RefreshCw, ShieldAlert, Fingerprint } from "lucide-react";
 import Link from 'next/link';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -32,15 +32,6 @@ export default function AdminInfra() {
         <nav className="flex-1 px-4 space-y-2">
           <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <LayoutDashboard className="h-5 w-5" /> Global
-          </Link>
-          <Link href="/admin/franchises" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Building2 className="h-5 w-5" /> Gestão de Franquias
-          </Link>
-          <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <LayoutGrid className="h-5 w-5" /> Multi-Tenancy
-          </Link>
-          <Link href="/admin/audit" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Database className="h-5 w-5" /> Auditoria SaaS
           </Link>
           <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-semibold">
             <Server className="h-5 w-5" /> Infraestrutura
@@ -70,10 +61,10 @@ export default function AdminInfra() {
               <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">CPU Master</p>
               <p className="text-2xl font-black italic text-slate-900">12%</p>
            </Card>
-           <Card className="border-none shadow-sm p-6 rounded-3xl bg-white flex flex-col items-center text-center">
-              <HardDrive className="h-8 w-8 text-purple-500 mb-3" />
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">DB Load</p>
-              <p className="text-2xl font-black italic text-slate-900">42%</p>
+           <Card className="border-none shadow-sm p-6 rounded-3xl bg-red-50 flex flex-col items-center text-center border border-red-100">
+              <ShieldAlert className="h-8 w-8 text-red-500 mb-3" />
+              <p className="text-[10px] font-black uppercase text-red-400 tracking-widest">Threats Blocked</p>
+              <p className="text-2xl font-black italic text-red-900">1.2k</p>
            </Card>
            <Card className="border-none shadow-sm p-6 rounded-3xl bg-white flex flex-col items-center text-center">
               <Zap className="h-8 w-8 text-yellow-500 mb-3" />
@@ -87,7 +78,7 @@ export default function AdminInfra() {
            </Card>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 mb-8">
            <Card className="border-none shadow-sm p-8 rounded-[40px] bg-white">
               <CardTitle className="text-xl font-black italic mb-8">Latência API (Últimas 6h)</CardTitle>
               <div className="h-[300px]">
@@ -106,10 +97,10 @@ export default function AdminInfra() {
            <div className="space-y-6">
               <Card className="border-none shadow-sm p-8 rounded-[40px] bg-slate-900 text-white relative overflow-hidden h-[200px]">
                  <div className="relative z-10">
-                    <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Cluster Status</p>
-                    <h3 className="text-2xl font-black italic">Operação Nominal</h3>
+                    <p className="text-[10px] font-black uppercase text-slate-400 mb-2">AI Fraud Score</p>
+                    <h3 className="text-2xl font-black italic">Active Monitoring</h3>
                     <p className="text-sm text-green-400 font-bold mt-4 flex items-center gap-2">
-                       <Activity className="h-4 w-4" /> Sincronismo 100%
+                       <Fingerprint className="h-4 w-4" /> All Transactions Scanned
                     </p>
                  </div>
               </Card>
