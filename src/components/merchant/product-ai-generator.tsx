@@ -4,33 +4,31 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Loader2, Copy, Check } from "lucide-react";
+import { Sparkles, Loader2, Image as ImageIcon } from "lucide-react";
 import { generateProductDescription } from "@/ai/flows/generate-product-description-flow";
+import { generateProductImage } from "@/ai/flows/generate-product-image-flow";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProductAiGeneratorProps {
   onDescriptionGenerated: (description: string) => void;
+  onImageGenerated?: (imageUrl: string) => void;
   productName: string;
 }
 
-export function ProductAiGenerator({ onDescriptionGenerated, productName }: ProductAiGeneratorProps) {
-  const [loading, setLoading] = useState(false);
+export function ProductAiGenerator({ onDescriptionGenerated, onImageGenerated, productName }: ProductAiGeneratorProps) {
+  const [loadingText, setLoadingText] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(false);
   const [keywords, setKeywords] = useState("");
   const [attributes, setAttributes] = useState("");
   const { toast } = useToast();
 
-  const handleGenerate = async () => {
+  const handleGenerateDescription = async () => {
     if (!productName) {
-      toast({
-        title: "Erro",
-        description: "Por favor, defina o nome do produto primeiro.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: "Defina o nome do produto primeiro.", variant: "destructive" });
       return;
     }
 
-    setLoading(true);
+    setLoadingText(true);
     try {
       const result = await generateProductDescription({
         productName,
@@ -38,62 +36,72 @@ export function ProductAiGenerator({ onDescriptionGenerated, productName }: Prod
         attributes: attributes.split(",").map(a => a.trim()).filter(Boolean),
         tone: "enthusiastic"
       });
-
       onDescriptionGenerated(result.description);
-      toast({
-        title: "Sucesso!",
-        description: "Descrição gerada com sucesso pela IA.",
-      });
+      toast({ title: "Sucesso!", description: "Descrição gerada com IA." });
     } catch (error) {
-      console.error(error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível gerar a descrição no momento.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro", description: "Falha na geração da descrição.", variant: "destructive" });
     } finally {
-      setLoading(false);
+      setLoadingText(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!productName) {
+      toast({ title: "Erro", description: "Defina o nome do produto primeiro.", variant: "destructive" });
+      return;
+    }
+
+    setLoadingImage(true);
+    try {
+      const result = await generateProductImage({ productName, style: "gourmet photography" });
+      if (onImageGenerated) onImageGenerated(result.imageUrl);
+      toast({ title: "Sucesso!", description: "Imagem gerada com IA." });
+    } catch (error) {
+      toast({ title: "Erro", description: "Falha na geração da imagem.", variant: "destructive" });
+    } finally {
+      setLoadingImage(false);
     }
   };
 
   return (
-    <div className="space-y-4 p-4 border rounded-lg bg-primary/5">
+    <div className="space-y-4 p-4 border rounded-2xl bg-primary/5 border-primary/20">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
-        <h3 className="text-sm font-semibold text-primary">Gerador de Descrição com IA</h3>
+        <Sparkles className="h-4 w-4 text-primary" />
+        <h3 className="text-sm font-bold text-primary uppercase tracking-tight">Assistente de Criação IA</h3>
       </div>
       
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4">
         <div className="space-y-2">
-          <Label htmlFor="keywords" className="text-xs">Palavras-chave (separadas por vírgula)</Label>
+          <Label htmlFor="keywords" className="text-xs font-bold text-slate-500 uppercase">Palavras-chave</Label>
           <Input 
             id="keywords" 
-            placeholder="ex: suculento, artesanal, gourmet" 
+            placeholder="ex: suculento, defumado" 
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
-            className="text-sm"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="attributes" className="text-xs">Atributos (ex: Peso: 200g, Orgânico)</Label>
-          <Input 
-            id="attributes" 
-            placeholder="ex: Angus, 180g, Defumado" 
-            value={attributes}
-            onChange={(e) => setAttributes(e.target.value)}
-            className="text-sm"
+            className="text-sm bg-white"
           />
         </div>
       </div>
 
-      <Button 
-        onClick={handleGenerate} 
-        disabled={loading} 
-        className="w-full bg-primary hover:bg-primary/90"
-      >
-        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-        Gerar Descrição Profissional
-      </Button>
+      <div className="flex gap-2">
+        <Button 
+          onClick={handleGenerateDescription} 
+          disabled={loadingText} 
+          className="flex-1 bg-white border-primary/20 text-primary hover:bg-primary/10 transition-colors"
+          variant="outline"
+        >
+          {loadingText ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+          Texto IA
+        </Button>
+        <Button 
+          onClick={handleGenerateImage} 
+          disabled={loadingImage} 
+          className="flex-1 bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
+        >
+          {loadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="mr-2 h-4 w-4" />}
+          Foto IA
+        </Button>
+      </div>
     </div>
   );
 }
