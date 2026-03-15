@@ -5,17 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Store, LayoutDashboard, Database, Server, LogOut, ShieldCheck, Activity, Globe, LayoutGrid, Building2, TrendingUp, AlertTriangle, Search } from "lucide-react";
+import { Users, Store, LayoutDashboard, Database, Server, LogOut, ShieldCheck, Activity, Globe, LayoutGrid, Building2, TrendingUp, AlertTriangle, Search, Wallet, Landmark, ArrowUpRight } from "lucide-react";
 import { MOCK_MERCHANTS } from "@/lib/mock-data";
 import Link from 'next/link';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { Input } from "@/components/ui/input";
 
 const globalData = [
-  { month: 'Jan', rev: 80000, churn: 1.5 },
-  { month: 'Fev', rev: 95000, churn: 1.2 },
-  { month: 'Mar', rev: 110000, churn: 1.1 },
-  { month: 'Abr', rev: 125400, churn: 1.2 },
+  { month: 'Jan', rev: 80000, royalties: 12000 },
+  { month: 'Fev', rev: 95000, royalties: 14200 },
+  { month: 'Mar', rev: 110000, royalties: 16500 },
+  { month: 'Abr', rev: 125400, royalties: 18900 },
 ];
 
 export default function AdminDashboard() {
@@ -23,7 +23,7 @@ export default function AdminDashboard() {
     { title: "Redes (Franquias)", value: "24", icon: Building2, color: "text-blue-600", bg: "bg-blue-100", trend: "+2" },
     { title: "MRR Global", value: "R$ 125.400", icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", trend: "+8.4%" },
     { title: "Lojistas Ativos", value: "542", icon: Store, color: "text-purple-600", bg: "bg-purple-100", trend: "+45" },
-    { title: "Uptime Infra", value: "99.98%", icon: Activity, color: "text-orange-600", bg: "bg-orange-100", trend: "Normal" },
+    { title: "Royalties Acumulados", value: "R$ 18.900", icon: Landmark, color: "text-orange-600", bg: "bg-orange-100", trend: "+12%" },
   ];
 
   return (
@@ -93,50 +93,60 @@ export default function AdminDashboard() {
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
           <Card className="lg:col-span-2 border-none shadow-sm p-8 rounded-[40px] bg-white">
-             <CardTitle className="text-2xl font-black italic mb-8">Consolidado MRR (SaaS)</CardTitle>
+             <div className="flex justify-between items-center mb-8">
+                <CardTitle className="text-2xl font-black italic">Consolidado MRR & Royalties</CardTitle>
+                <Badge className="bg-primary/10 text-primary border-none font-black italic">CRESCIMENTO: +14%</Badge>
+             </div>
              <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={globalData}>
+                    <defs>
+                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontWeight: 700}} />
                     <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `R$ ${v/1000}k`} tick={{fontWeight: 700}} />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="rev" stroke="hsl(var(--primary))" strokeWidth={5} fillOpacity={0.1} fill="hsl(var(--primary))" />
+                    <Tooltip contentStyle={{borderRadius: '20px', border: 'none'}} />
+                    <Area type="monotone" dataKey="rev" stroke="hsl(var(--primary))" strokeWidth={5} fillOpacity={1} fill="url(#colorRev)" />
+                    <Area type="monotone" dataKey="royalties" stroke="#f59e0b" strokeWidth={3} fill="transparent" />
                   </AreaChart>
                 </ResponsiveContainer>
              </div>
           </Card>
           
           <div className="space-y-6">
-            <Card className="border-none shadow-sm p-8 rounded-[40px] bg-slate-900 text-white relative overflow-hidden">
-               <CardTitle className="text-xl font-black italic mb-4">Saúde da Rede</CardTitle>
-               <div className="space-y-4">
-                  <div className="flex justify-between items-center text-xs">
-                     <span className="font-bold text-slate-400">Latência API</span>
-                     <span className="font-black text-green-500">14ms</span>
+            <Card className="border-none shadow-sm p-8 rounded-[40px] bg-slate-900 text-white relative overflow-hidden h-full">
+               <CardTitle className="text-xl font-black italic mb-6">Engine de Royalties</CardTitle>
+               <div className="space-y-6">
+                  <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-2">
+                     <p className="text-[10px] font-black uppercase text-primary tracking-widest">Taxa de Rede Média</p>
+                     <p className="text-3xl font-black italic">5.2%</p>
                   </div>
-                  <div className="flex justify-between items-center text-xs">
-                     <span className="font-bold text-slate-400">Sucesso Repasses</span>
-                     <span className="font-black text-green-500">99.9%</span>
+                  <div className="space-y-4">
+                     <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-slate-400">Total Processado</span>
+                        <span className="font-black text-white">R$ 4.2M</span>
+                     </div>
+                     <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-slate-400">Sucesso Repasses</span>
+                        <span className="font-black text-green-500">99.9%</span>
+                     </div>
                   </div>
-                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3">
-                     <AlertTriangle className="h-4 w-4 text-red-500" />
-                     <p className="text-[10px] font-bold text-red-200">2 lojas em Churn Risk</p>
-                  </div>
+                  <Button className="w-full bg-primary h-12 rounded-xl font-black italic gap-2 shadow-xl shadow-primary/20">
+                     <ArrowUpRight className="h-4 w-4" /> Relatório Fiscal
+                  </Button>
                </div>
-            </Card>
-
-            <Card className="border-none shadow-sm p-8 rounded-[40px] bg-white h-[200px] flex flex-col justify-center items-center text-center">
-               <Globe className="h-10 w-10 text-primary mb-4" />
-               <p className="text-2xl font-black italic">14.2k</p>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requisições / Min</p>
+               <Wallet className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
             </Card>
           </div>
         </div>
 
         <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
           <CardHeader className="p-8 border-b flex flex-row items-center justify-between">
-            <CardTitle className="text-2xl font-black italic">Lojistas Recentes</CardTitle>
+            <CardTitle className="text-2xl font-black italic">Lojistas & Royalties</CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input className="pl-10 h-10 rounded-xl border-none bg-slate-100 font-medium" placeholder="Buscar lojista..." />
@@ -147,27 +157,32 @@ export default function AdminDashboard() {
               <TableHeader className="bg-slate-50">
                 <TableRow>
                   <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Lojista</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Franquia</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status</TableHead>
-                  <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">MRR</TableHead>
+                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano SaaS</TableHead>
+                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Royalty Plataforma</TableHead>
+                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status Pagamento</TableHead>
+                  <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Total Repassado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {MOCK_MERCHANTS.map((merchant) => (
                   <TableRow key={merchant.id}>
-                    <TableCell className="px-8 py-6 font-black text-slate-900 text-lg italic">{merchant.name}</TableCell>
-                    <TableCell className="font-bold text-slate-500">{merchant.franchiseGroup || 'Independente'}</TableCell>
-                    <TableCell>
-                      <Badge className="rounded-lg font-black italic bg-purple-100 text-purple-700 border-none">{merchant.plan}</Badge>
+                    <TableCell className="px-8 py-6">
+                       <div className="flex flex-col">
+                          <span className="font-black text-slate-900 text-lg italic">{merchant.name}</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">{merchant.franchiseGroup || 'Independente'}</span>
+                       </div>
                     </TableCell>
+                    <TableCell>
+                      <Badge className="rounded-lg font-black italic bg-purple-100 text-purple-700 border-none">{merchant.planName}</Badge>
+                    </TableCell>
+                    <TableCell className="font-black text-slate-600 italic">5% s/ Venda</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                         <span className="font-bold text-slate-600">Ativo</span>
+                         <span className="font-bold text-slate-600">Em dia</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right px-8 font-black text-primary italic">R$ {merchant.mrr.toFixed(2)}</TableCell>
+                    <TableCell className="text-right px-8 font-black text-primary italic">R$ {merchant.royaltiesPaid?.toFixed(2) || '0.00'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

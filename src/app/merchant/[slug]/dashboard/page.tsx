@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart } from "lucide-react";
+import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart, Monitor, ChevronRight } from "lucide-react";
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell } from 'recharts';
 import Link from 'next/link';
 import { MOCK_AUDIT_LOGS, MOCK_MERCHANTS } from "@/lib/mock-data";
@@ -41,17 +41,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
     { title: isRestaurant ? "Throughput" : "Expedição", value: "32 min", icon: Clock, color: "text-orange-600", bg: "bg-orange-100", trend: "-5 min" },
   ];
 
-  const throughputData = isRestaurant ? [
-    { station: 'Grelha', time: 12, color: '#f59e0b' },
-    { station: 'Prep', time: 8, color: '#3b82f6' },
-    { station: 'Montagem', time: 5, color: '#10b981' },
-    { station: 'Entrega', time: 15, color: '#8b5cf6' },
-  ] : [
-    { station: 'Separação', time: 5, color: '#3b82f6' },
-    { station: 'Embalagem', time: 4, color: '#10b981' },
-    { station: 'Postagem', time: 10, color: '#8b5cf6' },
-  ];
-
   const handleGetAdvice = async () => {
     setLoadingAdvice(true);
     try {
@@ -71,7 +60,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
-      <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
+      <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-accent p-1.5 rounded-lg shadow-sm">
@@ -80,9 +69,15 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             <span className="font-bold text-lg text-slate-800 tracking-tight">Painel Lojista</span>
           </Link>
         </div>
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar pb-10">
           <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <LayoutDashboard className="h-5 w-5" /> Dashboard
+          </Link>
+          <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Monitor className="h-5 w-5 text-primary" /> PDV Cloud
+          </Link>
+          <Link href={`/merchant/${slug}/logistics`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Truck className="h-5 w-5" /> Logística & Frota
           </Link>
           <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <ShoppingBag className="h-5 w-5" /> Pedidos
@@ -111,7 +106,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           {stats.map((stat, i) => (
-            <Card key={i} className="border-none shadow-sm rounded-[32px] overflow-hidden group hover:scale-[1.02] transition-transform">
+            <Card key={i} className="border-none shadow-sm rounded-3xl overflow-hidden group hover:scale-[1.02] transition-transform">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className={`${stat.bg} p-3 rounded-2xl`}>
@@ -129,61 +124,94 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
-          <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-8">
-             <CardTitle className="text-2xl font-black italic mb-8">{isRestaurant ? 'Fluxo de Cozinha (Estações)' : 'Fluxo de Expedição'}</CardTitle>
-             <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={throughputData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                    <XAxis type="number" hide />
-                    <YAxis dataKey="station" type="category" axisLine={false} tickLine={false} tick={{fontWeight: 700}} width={80} />
-                    <Tooltip contentStyle={{borderRadius: '20px'}} />
-                    <Bar dataKey="time" radius={[0, 10, 10, 0]}>
-                      {throughputData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+          <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-8 bg-white">
+             <CardTitle className="text-2xl font-black italic mb-8">Fluxo de Expedição Logística</CardTitle>
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Preparação', val: '12', color: 'bg-orange-500' },
+                  { label: 'Aguardando', val: '04', color: 'bg-blue-500' },
+                  { label: 'Em Rota', val: '08', color: 'bg-purple-500' },
+                  { label: 'Entregues', val: '142', color: 'bg-green-500' },
+                ].map(item => (
+                  <div key={item.label} className="p-6 rounded-[35px] bg-slate-50 border border-dashed flex flex-col items-center text-center space-y-2">
+                     <div className={`h-3 w-3 rounded-full ${item.color} shadow-lg`}></div>
+                     <p className="text-2xl font-black italic">{item.val}</p>
+                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">{item.label}</p>
+                  </div>
+                ))}
              </div>
-             <p className="text-[10px] font-black text-center text-slate-400 uppercase tracking-widest mt-4">Tempo médio em minutos por etapa</p>
+             <div className="mt-8 p-6 bg-slate-900 rounded-[35px] text-white flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                   <div className="bg-primary/20 p-3 rounded-2xl">
+                      <Truck className="h-6 w-6 text-primary" />
+                   </div>
+                   <div>
+                      <p className="font-black italic">Fleet Dispatcher IA</p>
+                      <p className="text-xs text-slate-400">Sugestão: Agrupar 3 pedidos na Rota Sul.</p>
+                   </div>
+                </div>
+                <Button variant="outline" className="border-white/10 rounded-xl font-black italic h-10 px-6">Ver Mapa</Button>
+             </div>
           </Card>
 
           <div className="space-y-6">
-            <Card className="border-none shadow-sm rounded-[40px] p-8 bg-slate-900 text-white relative overflow-hidden h-[200px]">
-               <div className="relative z-10">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Monitoramento IA</p>
-                 <p className="text-2xl font-black italic">{isRestaurant ? 'Cozinha Ágil' : 'Estoque Otimizado'}</p>
-                 <div className="mt-6 flex items-center gap-3">
-                    <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse"></div>
-                    <span className="font-bold text-sm">Gargalo: Nenhum</span>
-                 </div>
+            <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white h-fit">
+               <CardTitle className="text-xl font-black italic mb-6">Atalhos Operacionais</CardTitle>
+               <div className="space-y-3">
+                  <Button variant="outline" className="w-full h-14 justify-between rounded-2xl font-black italic hover:bg-primary hover:text-white transition-all group" asChild>
+                     <Link href={`/merchant/${slug}/pdv`}>
+                        <div className="flex items-center gap-3">
+                           <Monitor className="h-5 w-5 text-primary group-hover:text-white" />
+                           ABRIR PDV CLOUD
+                        </div>
+                        <ChevronRight className="h-4 w-4 opacity-30" />
+                     </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full h-14 justify-between rounded-2xl font-black italic hover:bg-primary hover:text-white transition-all group" asChild>
+                     <Link href={`/merchant/${slug}/logistics`}>
+                        <div className="flex items-center gap-3">
+                           <Truck className="h-5 w-5 text-primary group-hover:text-white" />
+                           GESTÃO DE FROTA
+                        </div>
+                        <ChevronRight className="h-4 w-4 opacity-30" />
+                     </Link>
+                  </Button>
                </div>
-               <Activity className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5 text-white" />
             </Card>
 
-            <Card className="border-none shadow-sm rounded-[40px] p-8 h-[calc(100%-216px)]">
-               <CardTitle className="text-xl font-black italic mb-6">Logs Recentes</CardTitle>
+            <Card className="border-none shadow-sm rounded-[40px] p-8 h-fit bg-slate-900 text-white relative overflow-hidden">
+               <CardTitle className="text-xl font-black italic mb-4">Saúde do Lojista</CardTitle>
                <div className="space-y-4">
-                  {MOCK_AUDIT_LOGS.map((log) => (
-                    <div key={log.id} className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-[10px] font-black text-primary uppercase">{log.user}</p>
-                      <p className="text-xs font-bold text-slate-700 mt-1">{log.action}</p>
-                    </div>
-                  ))}
+                  <div className="flex justify-between items-center text-xs">
+                     <span className="font-bold text-slate-400">Conversão Loja</span>
+                     <span className="font-black text-primary">12.4%</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                     <span className="font-bold text-slate-400">NPS Clientes</span>
+                     <span className="font-black text-green-500">4.9/5</span>
+                  </div>
                </div>
+               <BrainCircuit className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
             </Card>
           </div>
         </div>
 
-        <Card className="border-none shadow-sm rounded-[40px] p-8">
-           <CardTitle className="text-2xl font-black italic mb-8">Performance Semanal</CardTitle>
+        <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
+           <CardTitle className="text-2xl font-black italic mb-8">Performance Semanal (Todos os Canais)</CardTitle>
            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={salesData}>
+                  <defs>
+                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" tick={{fontWeight: 600}} axisLine={false} tickLine={false} />
                   <YAxis tick={{fontWeight: 600}} axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="sales" stroke="hsl(var(--primary))" strokeWidth={4} fillOpacity={0.1} fill="hsl(var(--primary))" />
+                  <Tooltip contentStyle={{borderRadius: '20px', border: 'none'}} />
+                  <Area type="monotone" dataKey="sales" stroke="hsl(var(--primary))" strokeWidth={4} fillOpacity={1} fill="url(#colorSales)" />
                 </AreaChart>
               </ResponsiveContainer>
            </div>

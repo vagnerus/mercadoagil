@@ -33,6 +33,7 @@ export interface Merchant {
   status: 'active' | 'blocked' | 'expired';
   createdAt: string;
   mrr: number;
+  royaltiesPaid: number;
   franchiseGroup?: string;
   platformUserId: string;
   settings?: {
@@ -79,6 +80,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     status: 'active',
     createdAt: '2024-01-01',
     mrr: 150.00,
+    royaltiesPaid: 1240.50,
     franchiseGroup: 'Rede Burger',
     platformUserId: 'u1',
     settings: {
@@ -88,6 +90,22 @@ export const MOCK_MERCHANTS: Merchant[] = [
       enableCashback: true,
       cashbackPercentage: 5
     }
+  },
+  {
+    id: 'm2',
+    name: 'Moda Carioca',
+    slug: 'moda-carioca',
+    segment: 'RETAIL',
+    logoUrl: 'https://picsum.photos/seed/fashion/200/200',
+    bannerUrl: 'https://picsum.photos/seed/fashion-banner/1200/400',
+    planId: 'p_pro2',
+    planName: 'Pro II',
+    status: 'active',
+    createdAt: '2024-02-15',
+    mrr: 300.00,
+    royaltiesPaid: 850.00,
+    franchiseGroup: 'Independente',
+    platformUserId: 'u2'
   }
 ];
 
@@ -124,6 +142,19 @@ export const MOCK_PRODUCTS: Product[] = [
     minStock: 10,
     stockForecastDays: 2,
     variations: [{ name: 'Ponto da Carne', options: ['Mal passado', 'Ao ponto', 'Bem passado'] }]
+  },
+  {
+    id: 'p2',
+    merchantId: 'm1',
+    categoryId: 'c2',
+    name: 'Coca-Cola 350ml',
+    description: 'Lata gelada.',
+    price: 6.50,
+    costPrice: 2.10,
+    imageUrl: 'https://picsum.photos/seed/coke/400/300',
+    isAvailable: true,
+    stock: 48,
+    minStock: 12
   }
 ];
 
@@ -149,6 +180,7 @@ export const MOCK_COUPONS = [
 export const MOCK_STAFF = [
   { id: 's1', name: 'Ricardo Chef', role: 'Chef', avatar: 'https://i.pravatar.cc/150?u=s1', performanceScore: 98, ordersHandled: 450 },
   { id: 's2', name: 'Ana Gerente', role: 'Manager', avatar: 'https://i.pravatar.cc/150?u=s2', performanceScore: 95, ordersHandled: 1200 },
+  { id: 's3', name: 'Marcos Motoboy', role: 'Entregador', avatar: 'https://i.pravatar.cc/150?u=s3', performanceScore: 88, ordersHandled: 840, status: 'available' },
 ];
 
 export const MOCK_AUDIT_LOGS = [
