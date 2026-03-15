@@ -4,10 +4,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, UtensilsCrossed, TrendingUp } from "lucide-react";
+import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, UtensilsCrossed, TrendingUp, AlertTriangle, Download, Users, Ticket } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import Link from 'next/link';
+import { MOCK_PRODUCTS } from "@/lib/mock-data";
 
 const chartData = [
   { name: 'Seg', sales: 4000 },
@@ -19,150 +19,132 @@ const chartData = [
   { name: 'Dom', sales: 3490 },
 ];
 
-const areaData = [
-  { time: '10:00', orders: 2 },
-  { time: '12:00', orders: 15 },
-  { time: '14:00', orders: 8 },
-  { time: '16:00', orders: 5 },
-  { time: '18:00', orders: 22 },
-  { time: '20:00', orders: 35 },
-  { time: '22:00', orders: 10 },
-];
-
 export default function MerchantDashboard({ params }: { params: { slug: string } }) {
+  const lowStockProducts = MOCK_PRODUCTS.filter(p => p.stock && p.stock < 10);
+
   const stats = [
     { title: "Vendas de Hoje", value: "R$ 1.240", icon: DollarSign, color: "text-green-600", bg: "bg-green-100" },
-    { title: "Pedidos Novos", value: "8", icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-100" },
-    { title: "Em Preparo", value: "5", icon: UtensilsCrossed, color: "text-orange-600", bg: "bg-orange-100" },
-    { title: "Tempo Médio", value: "32 min", icon: Clock, color: "text-purple-600", bg: "bg-purple-100" },
+    { title: "Ticket Médio", value: "R$ 42,50", icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-100" },
+    { title: "Novos Clientes", value: "12", icon: Users, color: "text-purple-600", bg: "bg-purple-100" },
+    { title: "Tempo Médio", value: "32 min", icon: Clock, color: "text-orange-600", bg: "bg-orange-100" },
   ];
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar */}
-      <aside className="w-64 border-r bg-white hidden lg:block">
+      <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-accent p-1 rounded-md">
+            <div className="bg-accent p-1.5 rounded-lg shadow-sm">
               <Package className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-slate-800 tracking-tight">Lojista Admin</span>
+            <span className="font-bold text-lg text-slate-800 tracking-tight">Painel Lojista</span>
           </Link>
         </div>
-        <nav className="px-4 space-y-2">
-          <Link href={`/merchant/${params.slug}/dashboard`} className="flex items-center gap-3 px-4 py-2 bg-accent/10 text-accent rounded-lg font-medium">
+        <nav className="flex-1 px-4 space-y-2">
+          <Link href={`/merchant/${params.slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <LayoutDashboard className="h-5 w-5" /> Dashboard
           </Link>
-          <Link href={`/merchant/${params.slug}/orders`} className="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          <Link href={`/merchant/${params.slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <ShoppingBag className="h-5 w-5" /> Pedidos
           </Link>
-          <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
-            <List className="h-5 w-5" /> Cardápio
+          <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <List className="h-5 w-5" /> Catálogo
           </Link>
-          <Link href="#" className="flex items-center gap-3 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          <Link href={`/merchant/${params.slug}/coupons`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Ticket className="h-5 w-5" /> Cupons
+          </Link>
+          <Link href={`/merchant/${params.slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
         </nav>
       </aside>
 
-      <main className="flex-1 p-8">
-        <header className="flex justify-between items-center mb-8">
+      <main className="flex-1 p-8 overflow-y-auto">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 uppercase tracking-wide">
-              {params.slug.replace('-', ' ')}
-            </h1>
-            <p className="text-slate-500">Visão geral da sua operação hoje.</p>
+            <h1 className="text-3xl font-bold text-slate-900 uppercase tracking-tight">{params.slug.replace('-', ' ')}</h1>
+            <p className="text-slate-500">Métricas e alertas em tempo real.</p>
           </div>
-          <div className="flex items-center gap-4">
-            <Badge className="bg-green-500 text-white border-none py-1.5 px-4 rounded-full">LOJA ABERTA</Badge>
-            <Link href={`/store/${params.slug}`} target="_blank">
-               <Button variant="outline" size="sm">Ver Minha Loja</Button>
-            </Link>
+          <div className="flex gap-3">
+             <Button variant="outline" className="rounded-xl h-12 gap-2"><Download className="h-4 w-4" /> Exportar Vendas</Button>
+             <Badge className="bg-green-500 text-white h-12 px-6 rounded-xl flex items-center text-sm font-bold">LOJA ABERTA</Badge>
           </div>
         </header>
 
+        {lowStockProducts.length > 0 && (
+          <div className="mb-8 p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-4">
+               <div className="p-3 bg-orange-100 rounded-xl">
+                 <AlertTriangle className="h-6 w-6 text-orange-600" />
+               </div>
+               <div>
+                  <h4 className="font-bold text-orange-900">Alerta de Estoque</h4>
+                  <p className="text-sm text-orange-700">Existem {lowStockProducts.length} itens com menos de 10 unidades no estoque.</p>
+               </div>
+            </div>
+            <Button variant="ghost" asChild className="text-orange-900 font-bold hover:bg-orange-100"><Link href={`/merchant/${params.slug}/catalog`}>Ver Estoque</Link></Button>
+          </div>
+        )}
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           {stats.map((stat, i) => (
-            <Card key={i} className="border-none shadow-sm">
+            <Card key={i} className="border-none shadow-sm rounded-3xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">{stat.title}</p>
-                    <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
-                  </div>
                   <div className={`${stat.bg} p-3 rounded-2xl`}>
                     <stat.icon className={`h-6 w-6 ${stat.color}`} />
                   </div>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-slate-500">{stat.title}</p>
+                  <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3 mb-8">
-           <Card className="lg:col-span-2 border-none shadow-sm">
-             <CardHeader className="flex flex-row items-center justify-between">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl p-6">
+             <CardHeader className="p-0 mb-6 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg">Vendas Semanais</CardTitle>
-                  <p className="text-sm text-slate-500">Acompanhamento de receita bruta.</p>
+                  <CardTitle className="text-xl">Faturamento Semanal</CardTitle>
                 </div>
-                <TrendingUp className="h-5 w-5 text-green-500" />
              </CardHeader>
-             <CardContent className="h-[300px]">
+             <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} tickFormatter={(value) => `R$ ${value}`} />
-                    <Tooltip 
-                      cursor={{fill: '#f8fafc'}}
-                      contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
-                    />
-                    <Bar dataKey="sales" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                    <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `R$ ${value}`} />
+                    <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                    <Bar dataKey="sales" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
-             </CardContent>
-           </Card>
-           
-           <Card className="border-none shadow-sm">
-             <CardHeader>
-                <CardTitle className="text-lg">Pico de Pedidos</CardTitle>
-                <p className="text-sm text-slate-500">Volume de hoje por horário.</p>
-             </CardHeader>
-             <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={areaData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                    <YAxis hide />
-                    <Tooltip 
-                       contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
-                    />
-                    <Area type="monotone" dataKey="orders" stroke="hsl(var(--primary))" fill="hsl(var(--primary)/0.2)" strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-             </CardContent>
-           </Card>
-        </div>
+             </div>
+          </Card>
 
-        <div className="grid gap-6 md:grid-cols-1">
-           <Card className="border-none shadow-sm">
-             <CardHeader>
-                <CardTitle className="text-lg">Ações Rápidas</CardTitle>
-             </CardHeader>
-             <CardContent className="grid gap-4 md:grid-cols-2">
-               <Button className="py-6 bg-accent hover:bg-accent/90" asChild>
-                 <Link href={`/merchant/${params.slug}/catalog`}>
-                   <List className="mr-3 h-5 w-5" /> Adicionar Novo Produto
-                 </Link>
-               </Button>
-               <Button variant="outline" className="py-6" asChild>
-                  <Link href={`/merchant/${params.slug}/orders`}>
-                    <ShoppingBag className="mr-3 h-5 w-5" /> Gerenciar Pedidos Ativos
-                  </Link>
-               </Button>
-             </CardContent>
-           </Card>
+          <Card className="border-none shadow-sm rounded-3xl p-6 flex flex-col gap-6">
+             <div>
+                <CardTitle className="text-xl">Ações Rápidas</CardTitle>
+                <p className="text-sm text-slate-500">Funcionalidades de gestão.</p>
+             </div>
+             <div className="space-y-4">
+                <Button className="w-full h-14 bg-slate-900 rounded-2xl justify-start gap-4 px-6" asChild>
+                  <Link href={`/merchant/${params.slug}/team`}><Users className="h-5 w-5" /> Gerenciar Equipe</Link>
+                </Button>
+                <Button variant="outline" className="w-full h-14 rounded-2xl justify-start gap-4 px-6" asChild>
+                   <Link href={`/merchant/${params.slug}/customers`}><ShoppingBag className="h-5 w-5" /> Base de Clientes</Link>
+                </Button>
+                <div className="pt-4 border-t">
+                   <p className="text-xs font-bold text-slate-400 uppercase mb-3">Seu Plano</p>
+                   <div className="bg-primary/10 p-4 rounded-2xl flex items-center justify-between">
+                      <span className="font-bold text-primary">Plano PRO</span>
+                      <Button size="sm" variant="ghost" className="text-xs underline">Mudar plano</Button>
+                   </div>
+                </div>
+             </div>
+          </Card>
         </div>
       </main>
     </div>

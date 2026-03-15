@@ -1,3 +1,4 @@
+
 export type PlanType = 'Free' | 'Basic' | 'Pro';
 
 export interface Merchant {
@@ -19,6 +20,12 @@ export interface Category {
   name: string;
 }
 
+export interface ProductVariation {
+  id: string;
+  name: string;
+  price: number;
+}
+
 export interface Product {
   id: string;
   merchantId: string;
@@ -28,6 +35,9 @@ export interface Product {
   price: number;
   imageUrl: string;
   isAvailable: boolean;
+  stock?: number;
+  variations?: ProductVariation[];
+  rating?: number;
 }
 
 export type OrderStatus = 'new' | 'preparing' | 'delivering' | 'finished' | 'cancelled';
@@ -50,6 +60,13 @@ export interface OrderItem {
   productName: string;
   quantity: number;
   price: number;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount: number;
+  type: 'fixed' | 'percent';
 }
 
 export const MOCK_MERCHANTS: Merchant[] = [
@@ -96,6 +113,12 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 35.90,
     imageUrl: 'https://picsum.photos/seed/burger1/400/300',
     isAvailable: true,
+    stock: 5,
+    rating: 4.8,
+    variations: [
+      { id: 'v1', name: 'Combo Médio', price: 45.90 },
+      { id: 'v2', name: 'Combo Grande', price: 55.90 }
+    ]
   },
   {
     id: 'p2',
@@ -106,6 +129,8 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 12.00,
     imageUrl: 'https://picsum.photos/seed/coke/400/300',
     isAvailable: true,
+    stock: 50,
+    rating: 5.0
   }
 ];
 
@@ -123,18 +148,10 @@ export const MOCK_ORDERS: Order[] = [
       { id: 'oi1', productId: 'p1', productName: 'X-Tudo Monstro', quantity: 1, price: 35.90 },
       { id: 'oi2', productId: 'p2', productName: 'Coca-Cola 2L', quantity: 1, price: 12.00 }
     ]
-  },
-  {
-    id: 'o2',
-    merchantId: 'm1',
-    customerName: 'Maria Oliveira',
-    customerPhone: '(11) 97777-6666',
-    address: 'Av. Paulista, 1000, São Paulo - SP',
-    total: 35.90,
-    status: 'preparing',
-    createdAt: new Date().toISOString(),
-    items: [
-      { id: 'oi3', productId: 'p1', productName: 'X-Tudo Monstro', quantity: 1, price: 35.90 }
-    ]
   }
+];
+
+export const MOCK_COUPONS: Coupon[] = [
+  { id: 'cp1', code: 'PRIMEIRACOMPRA', discount: 10, type: 'percent' },
+  { id: 'cp2', code: 'DEZOFF', discount: 10, type: 'fixed' }
 ];
