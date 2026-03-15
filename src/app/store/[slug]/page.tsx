@@ -11,7 +11,7 @@ import {
   ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, 
   Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, 
   ShieldCheck, ShoppingBag, MapPin, Phone, User, Check,
-  Download, Copy, TrendingUp, CreditCard, Landmark, Wallet, Briefcase, Pill
+  Download, Copy, TrendingUp, CreditCard, Landmark, Wallet, Briefcase, Pill, MessageSquare
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,8 @@ export default function StoreFront() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [userTier] = useState<'Bronze' | 'Silver' | 'Gold'>('Silver');
+  const [walletBalance] = useState(142.50);
+  const [useWallet, setUseWallet] = useState(false);
   
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
@@ -82,7 +84,7 @@ export default function StoreFront() {
   };
 
   const handleFinishOrder = async () => {
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address || !customerInfo.paymentMethodId) {
+    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address || (!customerInfo.paymentMethodId && !useWallet)) {
       toast({ title: "Dados incompletos", description: "Por favor, preencha as informações de entrega e pagamento.", variant: "destructive" });
       return;
     }
@@ -96,7 +98,7 @@ export default function StoreFront() {
         customerName: customerInfo.name,
         customerPhone: customerInfo.phone,
         address: customerInfo.address,
-        paymentMethod: selectedPayment?.type || 'Não informado',
+        paymentMethod: useWallet ? 'Wallet Credits' : (selectedPayment?.type || 'Não informado'),
         total: finalTotal,
         status: 'new',
         createdAt: new Date().toISOString(),
@@ -106,7 +108,8 @@ export default function StoreFront() {
           productName: i.product.name,
           quantity: i.quantity,
           price: i.product.price
-        }))
+        })),
+        isPaid: useWallet
       });
 
       toast({ title: "Pedido enviado!", description: "Seu pedido está sendo processado." });
@@ -118,27 +121,23 @@ export default function StoreFront() {
   };
 
   const cartTotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
-  const deliveryFee = 5.00;
+  const deliveryFee = userTier === 'Gold' ? 0 : 5.00;
   const finalTotal = cartTotal + deliveryFee;
 
   if (!merchant) return null;
 
-  const segmentIcon = {
-    'RESTAURANT': ShoppingBag,
-    'RETAIL': Briefcase,
-    'SERVICE': Zap,
-    'GROCERY': ShoppingCart,
-    'PHARMACY': Pill
-  }[merchant.segment] || Store;
-
   return (
-    <div className="max-w-xl mx-auto min-h-screen bg-slate-50 pb-40 relative font-body overflow-x-hidden">
+    <div className="max-w-xl mx-auto min-h-screen bg-slate-50 pb-44 relative font-body overflow-x-hidden">
       <div className="relative h-72 w-full overflow-hidden">
         <img src={merchant.bannerUrl} alt={merchant.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
         <Link href="/" className="absolute top-6 left-6 bg-white/90 p-3 rounded-2xl shadow-xl z-50">
            <ArrowLeft className="h-5 w-5 text-slate-800" />
         </Link>
+        <div className="absolute top-6 right-6 flex gap-2 z-50">
+           <div className="bg-white/90 p-3 rounded-2xl shadow-xl"><Share2 className="h-5 w-5 text-slate-800" /></div>
+           <div className="bg-white/90 p-3 rounded-2xl shadow-xl"><QrCode className="h-5 w-5 text-slate-800" /></div>
+        </div>
         <div className="absolute bottom-8 left-8 right-8 flex items-end gap-6">
            <div className="h-24 w-24 rounded-[30px] border-4 border-white/20 bg-white shadow-2xl overflow-hidden shrink-0">
              <img src={merchant.logoUrl} alt={merchant.name} className="h-full w-full object-cover" />
@@ -155,30 +154,32 @@ export default function StoreFront() {
         </div>
       </div>
 
-      <div className="p-6">
-         <div className="bg-primary p-6 rounded-[35px] flex items-center gap-5 relative overflow-hidden text-white shadow-xl shadow-primary/20">
+      <div className="p-6 grid grid-cols-2 gap-4">
+         <div className="bg-primary p-5 rounded-[30px] flex flex-col justify-between h-32 relative overflow-hidden text-white shadow-xl shadow-primary/20">
             <Gift className="h-10 w-10 opacity-20 absolute -right-2 -bottom-2" />
-            <div className="h-14 w-14 rounded-[20px] bg-white/20 flex items-center justify-center shrink-0">
-               <Zap className="h-6 w-6 text-white fill-white" />
+            <p className="text-[9px] font-black uppercase tracking-widest text-white/80">Fidelidade</p>
+            <div>
+               <p className="text-2xl font-black italic tracking-tighter">750 pts</p>
+               <div className="h-1.5 w-full bg-white/20 rounded-full mt-2 overflow-hidden">
+                  <div className="h-full bg-white w-[75%]"></div>
+               </div>
             </div>
-            <div className="flex-1 space-y-2">
-               <div className="flex justify-between items-center">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/80">Fidelidade {merchant.name}</p>
-                  <span className="text-xs font-black">750 pts</span>
-               </div>
-               <div className="h-2.5 w-full bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-white w-[75%] rounded-full"></div>
-               </div>
-               <p className="text-[9px] font-bold text-white/70">Suba para o nível Gold e ganhe frete grátis!</p>
+         </div>
+         <div className="bg-white p-5 rounded-[30px] flex flex-col justify-between h-32 relative overflow-hidden border border-slate-100 shadow-sm">
+            <Wallet className="h-10 w-10 opacity-5 absolute -right-2 -bottom-2" />
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Minha Carteira</p>
+            <div>
+               <p className="text-2xl font-black italic tracking-tighter text-slate-900">R$ {walletBalance.toFixed(2)}</p>
+               <p className="text-[8px] font-bold text-green-600 mt-1 flex items-center gap-1"><Sparkles className="h-2 w-2" /> +R$ 12.00 Cashback Pendente</p>
             </div>
          </div>
       </div>
 
-      <div className="px-6 py-4 space-y-4">
+      <div className="px-6 py-2">
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input 
-            className="w-full h-14 bg-white border border-slate-100 shadow-sm rounded-[24px] pl-12 pr-4 text-sm font-bold outline-none" 
+            className="w-full h-14 bg-white border border-slate-100 shadow-sm rounded-[24px] pl-12 pr-4 text-sm font-bold outline-none focus:border-primary transition-all" 
             placeholder={`Buscar em ${merchant.name}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -212,7 +213,7 @@ export default function StoreFront() {
                       <div className="flex items-center gap-3 mt-3">
                         <p className="font-black text-primary text-lg italic">R$ {product.price.toFixed(2)}</p>
                         {product.isLoyaltyExclusive && (
-                          <Badge className="bg-yellow-50 text-yellow-700 text-[8px] font-black border-none uppercase">Gold Only</Badge>
+                          <Badge className="bg-yellow-50 text-yellow-700 text-[8px] font-black border-none uppercase">Gold Exclusive</Badge>
                         )}
                       </div>
                     </div>
@@ -227,7 +228,7 @@ export default function StoreFront() {
         }) : (
           <div className="text-center p-20">
              <ShoppingBag className="h-12 w-12 text-slate-200 mx-auto mb-4" />
-             <p className="font-black text-slate-400 italic">Nenhum item disponível nesta vitrine.</p>
+             <p className="font-black text-slate-400 italic">Carregando catálogo...</p>
           </div>
         )}
       </div>
@@ -236,79 +237,72 @@ export default function StoreFront() {
         <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-[40px] border-none shadow-2xl font-body">
            <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-black italic tracking-tighter">Finalizar {merchant.segment === 'SERVICE' ? 'Agendamento' : 'Compra'}</h2>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Resumo do Pedido</p>
+                <h2 className="text-2xl font-black italic tracking-tighter">Confirmar Pedido</h2>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Revisão de Itens & Pagamento</p>
               </div>
               <ShoppingBag className="h-8 w-8 text-primary" />
            </div>
            
-           <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto">
+           <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar">
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Forma de Recebimento</h3>
-                <RadioGroup 
-                  className="grid gap-3" 
-                  value={customerInfo.paymentMethodId}
-                  onValueChange={v => setCustomerInfo({...customerInfo, paymentMethodId: v})}
-                >
-                  {lojistaPayments?.filter(p => p.isActive).map(method => (
-                    <Label 
-                      key={method.id}
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                        customerInfo.paymentMethodId === method.id ? 'border-primary bg-primary/5' : 'border-slate-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value={method.id} id={method.id} />
-                        <div>
-                          <p className="font-black text-sm">{method.type}</p>
-                          <p className="text-[10px] text-slate-400">{method.details}</p>
-                        </div>
-                      </div>
-                      {method.type === 'PIX' ? <Landmark className="h-4 w-4 text-primary" /> : <CreditCard className="h-4 w-4 text-slate-400" />}
-                    </Label>
-                  ))}
-                  {(!lojistaPayments || lojistaPayments.length === 0) && (
-                    <div className="p-4 bg-slate-50 rounded-2xl border border-dashed text-center">
-                      <p className="text-xs font-bold text-slate-400 italic">Pagar na Entrega / Local</p>
+                 <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Saldo em Carteira</h3>
+                 <div 
+                   onClick={() => setUseWallet(!useWallet)}
+                   className={`p-6 rounded-3xl border-2 transition-all cursor-pointer flex justify-between items-center ${
+                     useWallet ? 'border-primary bg-primary/5' : 'border-slate-100 bg-white'
+                   }`}
+                 >
+                    <div className="flex items-center gap-4">
+                       <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${useWallet ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
+                          <Wallet className="h-6 w-6" />
+                       </div>
+                       <div>
+                          <p className="font-black text-sm">Pagar com Saldo (R$ {walletBalance.toFixed(2)})</p>
+                          <p className="text-[10px] text-slate-400 font-bold">Use seus créditos e ganhe +2% de cashback.</p>
+                       </div>
                     </div>
-                  )}
-                </RadioGroup>
+                    <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center ${useWallet ? 'bg-primary border-primary' : 'border-slate-200'}`}>
+                       {useWallet && <Check className="h-4 w-4 text-white" />}
+                    </div>
+                 </div>
               </div>
 
+              {!useWallet && (
+                <div className="space-y-4">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Outras Formas</h3>
+                  <RadioGroup className="grid gap-3" onValueChange={v => setCustomerInfo({...customerInfo, paymentMethodId: v})}>
+                    {lojistaPayments?.filter(p => p.isActive).map(method => (
+                      <Label key={method.id} className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-100 hover:border-primary transition-all cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <RadioGroupItem value={method.id} id={method.id} />
+                          <p className="font-black text-sm">{method.type}</p>
+                        </div>
+                        {method.type === 'PIX' ? <Landmark className="h-4 w-4 text-primary" /> : <CreditCard className="h-4 w-4 text-slate-400" />}
+                      </Label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              )}
+
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Local de Entrega</h3>
+                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Informações de Entrega</h3>
                 <div className="space-y-3">
-                  <Input 
-                    placeholder="Seu Nome" 
-                    className="h-12 rounded-xl bg-slate-50 border-none font-bold px-4" 
-                    value={customerInfo.name}
-                    onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})}
-                  />
-                  <Input 
-                    placeholder="Telefone / WhatsApp" 
-                    className="h-12 rounded-xl bg-slate-50 border-none font-bold px-4" 
-                    value={customerInfo.phone}
-                    onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
-                  />
-                  <Textarea 
-                    placeholder="Endereço ou Local de Retirada" 
-                    className="min-h-[100px] rounded-xl bg-slate-50 border-none font-bold px-4 pt-4" 
-                    value={customerInfo.address}
-                    onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})}
-                  />
+                  <Input placeholder="Seu Nome" className="h-12 rounded-xl bg-slate-50 border-none font-bold px-4" value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} />
+                  <Input placeholder="Seu Telefone" className="h-12 rounded-xl bg-slate-50 border-none font-bold px-4" value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} />
+                  <Textarea placeholder="Endereço Completo ou Ponto de Referência" className="min-h-[100px] rounded-xl bg-slate-50 border-none font-bold px-4 pt-4" value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} />
                 </div>
               </div>
 
-              <div className="p-6 bg-slate-50 rounded-3xl space-y-2">
+              <div className="p-6 bg-slate-50 rounded-[35px] space-y-2">
                  <div className="flex justify-between text-sm font-bold text-slate-500">
                     <span>Subtotal</span>
                     <span>R$ {cartTotal.toFixed(2)}</span>
                  </div>
                  <div className="flex justify-between text-sm font-bold text-slate-500">
                     <span>Taxa de Entrega</span>
-                    <span>R$ {deliveryFee.toFixed(2)}</span>
+                    <span className={deliveryFee === 0 ? 'text-green-600 font-black italic' : ''}>{deliveryFee === 0 ? 'GRÁTIS' : `R$ ${deliveryFee.toFixed(2)}`}</span>
                  </div>
-                 <div className="flex justify-between text-xl font-black text-slate-900 pt-2 border-t border-dashed">
+                 <div className="flex justify-between text-xl font-black text-slate-900 pt-4 border-t border-dashed">
                     <span className="italic">Total</span>
                     <span className="italic text-primary">R$ {finalTotal.toFixed(2)}</span>
                  </div>
@@ -321,31 +315,33 @@ export default function StoreFront() {
                 onClick={handleFinishOrder}
               >
                 <span>Finalizar Pedido</span>
-                <Check className="h-6 w-6" />
+                <ArrowLeft className="h-6 w-6 rotate-180" />
               </Button>
            </div>
         </DialogContent>
       </Dialog>
 
-      {cart.length > 0 && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-8 z-50">
-          <Button 
-            onClick={() => setIsCheckoutOpen(true)}
-            className="w-full bg-slate-900 h-20 rounded-[40px] flex justify-between px-10 shadow-2xl border-4 border-white/10 active:scale-95 transition-all"
-          >
-            <div className="flex items-center gap-4">
-               <div className="relative">
-                 <ShoppingCart className="h-6 w-6 text-primary" />
-                 <span className="absolute -top-3 -right-3 h-5 w-5 bg-white text-slate-900 rounded-full text-[10px] font-black flex items-center justify-center">
-                   {cart.reduce((a, b) => a + b.quantity, 0)}
-                 </span>
-               </div>
-               <span className="font-black text-lg text-white italic">Ver Carrinho</span>
-            </div>
-            <span className="font-black text-2xl text-primary italic">R$ {finalTotal.toFixed(2)}</span>
-          </Button>
-        </div>
-      )}
+      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-8 z-50 flex gap-4">
+        <Button variant="outline" className="h-20 w-20 rounded-full bg-white shadow-2xl border-2 border-slate-100 shrink-0">
+           <MessageSquare className="h-6 w-6 text-primary" />
+        </Button>
+        <Button 
+          onClick={() => setIsCheckoutOpen(true)}
+          disabled={cart.length === 0}
+          className="flex-1 bg-slate-900 h-20 rounded-[40px] flex justify-between px-10 shadow-2xl border-4 border-white/10 active:scale-95 transition-all disabled:opacity-50"
+        >
+          <div className="flex items-center gap-4">
+             <div className="relative">
+               <ShoppingCart className="h-6 w-6 text-primary" />
+               <span className="absolute -top-3 -right-3 h-5 w-5 bg-white text-slate-900 rounded-full text-[10px] font-black flex items-center justify-center">
+                 {cart.reduce((a, b) => a + b.quantity, 0)}
+               </span>
+             </div>
+             <span className="font-black text-lg text-white italic">Ver Carrinho</span>
+          </div>
+          <span className="font-black text-2xl text-primary italic">R$ {finalTotal.toFixed(2)}</span>
+        </Button>
+      </div>
     </div>
   );
 }

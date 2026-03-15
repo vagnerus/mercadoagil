@@ -35,6 +35,13 @@ export interface Merchant {
   mrr: number;
   franchiseGroup?: string;
   platformUserId: string;
+  settings?: {
+    currency: string;
+    language: string;
+    enableWallet: boolean;
+    enableCashback: boolean;
+    cashbackPercentage: number;
+  }
 }
 
 export const SYSTEM_PLANS: Plan[] = [
@@ -73,48 +80,15 @@ export const MOCK_MERCHANTS: Merchant[] = [
     createdAt: '2024-01-01',
     mrr: 150.00,
     franchiseGroup: 'Rede Burger',
-    platformUserId: 'u1'
-  },
-  {
-    id: 'm2',
-    name: 'Moda Fashion S.A',
-    slug: 'moda-fashion',
-    segment: 'RETAIL',
-    logoUrl: 'https://picsum.photos/seed/logo-fashion/200/200',
-    bannerUrl: 'https://picsum.photos/seed/banner-fashion/1200/400',
-    planId: 'p_pro2',
-    planName: 'Pro II',
-    status: 'active',
-    createdAt: new Date().toISOString(),
-    mrr: 300.00,
-    platformUserId: 'u2'
+    platformUserId: 'u1',
+    settings: {
+      currency: 'BRL',
+      language: 'pt-BR',
+      enableWallet: true,
+      enableCashback: true,
+      cashbackPercentage: 5
+    }
   }
-];
-
-export interface StaffMember {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-  avatar: string;
-  performanceScore: number;
-  ordersHandled: number;
-}
-
-export const MOCK_STAFF: StaffMember[] = [
-  { id: 's1', name: 'Ricardo Chef', role: 'Chef', email: 'ricardo@burger.com', avatar: 'https://i.pravatar.cc/150?u=s1', performanceScore: 98, ordersHandled: 450 },
-  { id: 's2', name: 'Ana Gerente', role: 'Manager', email: 'ana@burger.com', avatar: 'https://i.pravatar.cc/150?u=s2', performanceScore: 95, ordersHandled: 1200 },
-  { id: 's3', name: 'Lucas Garçom', role: 'Waiter', email: 'lucas@burger.com', avatar: 'https://i.pravatar.cc/150?u=s3', performanceScore: 88, ordersHandled: 310 },
-];
-
-export const MOCK_AUDIT_LOGS = [
-  { id: 'l1', user: 'Ana Gerente', action: 'Alteração de Preço', timestamp: '2024-03-20 14:30', details: 'X-Tudo Monstro de R$ 32,90 para R$ 35,90' },
-  { id: 'l2', user: 'Ricardo Chef', action: 'Item Indisponível', timestamp: '2024-03-20 12:15', details: 'Coca-Cola 2L marcada como fora de estoque' },
-];
-
-export const MOCK_CATEGORIES = [
-  { id: 'c1', merchantId: 'm1', name: 'Hambúrgueres' },
-  { id: 'c2', merchantId: 'm1', name: 'Bebidas' },
 ];
 
 export interface Product {
@@ -128,9 +102,11 @@ export interface Product {
   imageUrl: string;
   isAvailable: boolean;
   stock?: number;
+  minStock?: number;
   isLoyaltyExclusive?: boolean;
   requiredTier?: 'Bronze' | 'Silver' | 'Gold';
   stockForecastDays?: number;
+  variations?: { name: string; options: string[] }[];
 }
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -145,20 +121,9 @@ export const MOCK_PRODUCTS: Product[] = [
     imageUrl: 'https://picsum.photos/seed/burger1/400/300',
     isAvailable: true,
     stock: 5,
-    stockForecastDays: 2
-  },
-  {
-    id: 'p2',
-    merchantId: 'm1',
-    categoryId: 'c2',
-    name: 'Coca-Cola 2L',
-    description: 'Gelada e refrescante.',
-    price: 12.00,
-    costPrice: 6.20,
-    imageUrl: 'https://picsum.photos/seed/coke/400/300',
-    isAvailable: true,
-    stock: 50,
-    stockForecastDays: 12
+    minStock: 10,
+    stockForecastDays: 2,
+    variations: [{ name: 'Ponto da Carne', options: ['Mal passado', 'Ao ponto', 'Bem passado'] }]
   }
 ];
 
@@ -176,24 +141,21 @@ export interface Order {
   items: { id: string; productId: string; productName: string; quantity: number; price: number; }[];
 }
 
-export const MOCK_ORDERS: Order[] = [
-  {
-    id: 'o1',
-    merchantId: 'm1',
-    customerName: 'João Silva',
-    customerPhone: '(11) 98888-7777',
-    address: 'Rua das Flores, 123, São Paulo - SP',
-    total: 47.90,
-    status: 'new',
-    createdAt: new Date().toISOString(),
-    items: [
-      { id: 'oi1', productId: 'p1', productName: 'X-Tudo Monstro', quantity: 1, price: 35.90 },
-      { id: 'oi2', productId: 'p2', productName: 'Coca-Cola 2L', quantity: 1, price: 12.00 }
-    ]
-  }
+export const MOCK_COUPONS = [
+  { id: 'cp1', code: 'PRIMEIRACOMPRA', discount: 10, type: 'percent', usageCount: 45, expiresAt: '2024-12-31' },
+  { id: 'cp2', code: 'HAPPYHOUR', discount: 5, type: 'fixed', usageCount: 12, expiresAt: '2024-06-30' }
 ];
 
-export const MOCK_COUPONS = [
-  { id: 'cp1', code: 'PRIMEIRACOMPRA', discount: 10, type: 'percent' },
-  { id: 'cp2', code: 'DEZOFF', discount: 10, type: 'fixed' }
+export const MOCK_STAFF = [
+  { id: 's1', name: 'Ricardo Chef', role: 'Chef', avatar: 'https://i.pravatar.cc/150?u=s1', performanceScore: 98, ordersHandled: 450 },
+  { id: 's2', name: 'Ana Gerente', role: 'Manager', avatar: 'https://i.pravatar.cc/150?u=s2', performanceScore: 95, ordersHandled: 1200 },
+];
+
+export const MOCK_AUDIT_LOGS = [
+  { id: 'l1', user: 'Ana Gerente', action: 'Alteração de Preço', timestamp: '2024-03-20 14:30', details: 'X-Tudo Monstro de R$ 32,90 para R$ 35,90' },
+];
+
+export const MOCK_CATEGORIES = [
+  { id: 'c1', merchantId: 'm1', name: 'Hambúrgueres' },
+  { id: 'c2', merchantId: 'm1', name: 'Bebidas' },
 ];
