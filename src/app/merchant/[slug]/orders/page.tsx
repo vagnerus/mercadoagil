@@ -5,7 +5,8 @@ import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, MapPin, ArrowRight, Volume2, Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, MapPin, ArrowRight, Volume2, Loader2, Printer, Ban, LayoutGrid, CheckCheck, Map } from "lucide-react";
 import Link from 'next/link';
 import { MOCK_ORDERS, OrderStatus } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
@@ -14,14 +15,15 @@ import { textToSpeech } from "@/ai/flows/text-to-speech-flow";
 export default function MerchantOrders({ params }: { params: { slug: string } }) {
   const [orders, setOrders] = useState(MOCK_ORDERS);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [viewMode, setViewMode] = useState<'kanban' | 'kds'>('kanban');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
   const columns: { label: string; status: OrderStatus; color: string; nextStatus?: OrderStatus }[] = [
     { label: "Novos", status: "new", color: "bg-blue-500", nextStatus: "preparing" },
-    { label: "Em Preparo", status: "preparing", color: "bg-orange-500", nextStatus: "delivering" },
-    { label: "Em Entrega", status: "delivering", color: "bg-purple-500", nextStatus: "finished" },
-    { label: "Concluídos", status: "finished", color: "bg-green-500" },
+    { label: "Cozinha", status: "preparing", color: "bg-orange-500", nextStatus: "delivering" },
+    { label: "Entrega", status: "delivering", color: "bg-purple-500", nextStatus: "finished" },
+    { label: "Prontos", status: "finished", color: "bg-green-500" },
   ];
 
   const announceOrder = async (text: string) => {
@@ -60,20 +62,12 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
     }
   };
 
-  const cancelOrder = (orderId: string) => {
-    setOrders(prev => prev.map(o => 
-      o.id === orderId ? { ...o, status: 'cancelled' } : o
-    ));
-    toast({
-      title: "Pedido Cancelado",
-      description: `O pedido #${orderId.toUpperCase()} foi marcado como cancelado.`,
-      variant: "destructive"
-    });
-    announceOrder(`Atenção! Um pedido foi cancelado.`);
+  const handlePrint = (orderId: string) => {
+    toast({ title: "Imprimindo...", description: `Cupom do pedido #${orderId.toUpperCase()} enviado para impressora.` });
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50 font-body">
       <audio ref={audioRef} hidden />
       
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
@@ -102,83 +96,136 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
       </aside>
 
       <main className="flex-1 p-8 overflow-x-auto">
-        <header className="flex justify-between items-center mb-8">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Gestão de Pedidos</h1>
-            <p className="text-slate-500 mt-1">Acompanhe e anuncie os pedidos em tempo real.</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Gestão Operacional</h1>
+            <p className="text-slate-500 font-medium">Controle total do fluxo de pedidos em tempo real.</p>
           </div>
-          <div className="flex gap-4">
-            <Button variant="outline" className="gap-2 rounded-xl" onClick={() => announceOrder("Sistema de áudio ativo e pronto para notificações")}>
-              {isSpeaking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
-              Testar Áudio
+          <div className="flex items-center gap-4 p-1 bg-white rounded-2xl shadow-sm border">
+            <Button 
+              variant={viewMode === 'kanban' ? 'default' : 'ghost'} 
+              className="rounded-xl font-black italic gap-2 h-10 px-6"
+              onClick={() => setViewMode('kanban')}
+            >
+              <LayoutGrid className="h-4 w-4" /> Kanban
             </Button>
-            <Button variant="outline" className="gap-2 rounded-xl">
-              <Clock className="h-4 w-4" /> Histórico
+            <Button 
+              variant={viewMode === 'kds' ? 'default' : 'ghost'} 
+              className="rounded-xl font-black italic gap-2 h-10 px-6"
+              onClick={() => setViewMode('kds')}
+            >
+              <UtensilsCrossed className="h-4 w-4" /> Modo Cozinha
             </Button>
           </div>
         </header>
 
-        <div className="flex gap-6 min-w-max pb-4 h-[calc(100vh-200px)]">
-          {columns.map((col) => (
-            <div key={col.status} className="w-80 flex flex-col gap-4">
-              <div className="flex items-center justify-between px-2">
-                 <div className="flex items-center gap-2">
-                   <div className={`h-3 w-3 rounded-full ${col.color}`}></div>
-                   <h3 className="font-bold text-slate-700">{col.label}</h3>
-                 </div>
-                 <Badge variant="secondary" className="rounded-full bg-white shadow-sm">
-                    {orders.filter(o => o.status === col.status).length}
-                 </Badge>
-              </div>
+        {viewMode === 'kanban' ? (
+          <div className="flex gap-8 min-w-max pb-6 h-[calc(100vh-250px)]">
+            {columns.map((col) => (
+              <div key={col.status} className="w-80 flex flex-col gap-6">
+                <div className="flex items-center justify-between px-4">
+                   <div className="flex items-center gap-3">
+                     <div className={`h-4 w-4 rounded-full ${col.color} shadow-lg shadow-${col.color}/30`}></div>
+                     <h3 className="font-black text-slate-700 italic text-lg">{col.label}</h3>
+                   </div>
+                   <Badge className="bg-white text-slate-400 font-black border-none shadow-sm rounded-lg px-3">
+                      {orders.filter(o => o.status === col.status).length}
+                   </Badge>
+                </div>
 
-              <div className="flex-1 bg-slate-100/50 p-2 rounded-3xl border border-dashed border-slate-300 overflow-y-auto space-y-4">
-                {orders.filter(o => o.status === col.status).map((order) => (
-                  <Card key={order.id} className="border-none shadow-sm hover:shadow-md transition-shadow group rounded-2xl overflow-hidden">
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex justify-between items-start">
-                        <span className="font-bold text-slate-900 text-sm">#{order.id.toUpperCase()}</span>
-                        <span className="text-xs text-slate-400 font-medium">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                          <User className="h-3 w-3 text-accent" /> {order.customerName}
-                        </div>
-                        <div className="flex items-start gap-2 text-xs text-slate-500 font-medium">
-                          <MapPin className="h-3 w-3 text-slate-400 mt-0.5" /> {order.address}
-                        </div>
-                      </div>
-
-                      <div className="pt-2 border-t space-y-1">
-                        {order.items.map(item => (
-                          <div key={item.id} className="flex justify-between text-xs font-medium">
-                             <span className="text-slate-600">{item.quantity}x {item.productName}</span>
+                <div className="flex-1 bg-slate-100/30 p-4 rounded-[40px] border border-dashed border-slate-200 overflow-y-auto space-y-4 no-scrollbar">
+                  {orders.filter(o => o.status === col.status).map((order) => (
+                    <Card key={order.id} className="border-none shadow-sm hover:shadow-xl transition-all group rounded-[32px] overflow-hidden bg-white">
+                      <CardContent className="p-6 space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex flex-col">
+                             <span className="font-black text-slate-900 text-sm italic">#{order.id.toUpperCase()}</span>
+                             <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Via App Web</span>
                           </div>
-                        ))}
-                      </div>
-
-                      <div className="flex justify-between items-center pt-2">
-                        <span className="font-black text-accent italic">R$ {order.total.toFixed(2)}</span>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                           {col.nextStatus && (
-                             <Button size="sm" className="h-9 px-3 text-xs gap-1 bg-slate-900 rounded-xl" onClick={() => moveOrder(order.id, order.status)}>
-                               Avançar <ArrowRight className="h-3 w-3" />
-                             </Button>
-                           )}
-                           {order.status === 'new' && (
-                             <Button size="sm" variant="ghost" className="h-9 px-3 text-xs text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl" onClick={() => cancelOrder(order.id)}>
-                               Cancelar
-                             </Button>
-                           )}
+                          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-none font-bold text-[10px] rounded-lg">
+                             {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </Badge>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        
+                        <div className="space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                          <div className="flex items-center gap-2 text-sm font-black text-slate-800 italic">
+                            <User className="h-4 w-4 text-primary" /> {order.customerName}
+                          </div>
+                          <div className="flex items-start gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                            <MapPin className="h-3.5 w-3.5 text-slate-300 mt-0.5" /> {order.address}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 py-2">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Itens do Pedido</p>
+                          {order.items.map(item => (
+                            <div key={item.id} className="flex justify-between items-center text-xs font-bold">
+                               <span className="text-slate-600 bg-slate-100 px-2 py-1 rounded-lg">{item.quantity}x</span>
+                               <span className="flex-1 px-3 truncate text-slate-900">{item.productName}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-between items-center pt-4 border-t border-dashed">
+                          <span className="font-black text-primary italic text-xl">R$ {order.total.toFixed(2)}</span>
+                          <div className="flex gap-2">
+                             <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-slate-100 text-slate-400" onClick={() => handlePrint(order.id)}>
+                               <Printer className="h-4 w-4" />
+                             </Button>
+                             {col.nextStatus && (
+                               <Button size="sm" className="h-10 px-4 text-xs gap-2 bg-slate-900 rounded-xl font-black italic shadow-lg shadow-slate-200" onClick={() => moveOrder(order.id, order.status)}>
+                                 Avançar <ArrowRight className="h-4 w-4" />
+                               </Button>
+                             )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+             {orders.filter(o => o.status === 'preparing').map((order) => (
+               <Card key={order.id} className="border-4 border-orange-200 shadow-2xl rounded-[40px] overflow-hidden bg-white">
+                 <div className="bg-orange-500 p-6 text-white flex justify-between items-center">
+                    <h3 className="text-2xl font-black italic">Mesa #4 / {order.id.toUpperCase()}</h3>
+                    <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-2xl font-black">
+                       <Clock className="h-5 w-5" /> 12:45
+                    </div>
+                 </div>
+                 <CardContent className="p-8 space-y-6">
+                    <div className="space-y-4">
+                       {order.items.map(item => (
+                         <div key={item.id} className="flex items-center gap-6 p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span className="text-3xl font-black text-orange-500">{item.quantity}x</span>
+                            <span className="text-xl font-black text-slate-900">{item.productName}</span>
+                         </div>
+                       ))}
+                    </div>
+                    <div className="flex gap-4 pt-6">
+                       <Button className="flex-1 h-16 bg-green-500 hover:bg-green-600 rounded-2xl font-black text-xl italic shadow-xl shadow-green-100 gap-3" onClick={() => moveOrder(order.id, 'preparing')}>
+                          <CheckCheck className="h-6 w-6" /> PRONTO
+                       </Button>
+                       <Button variant="outline" size="icon" className="h-16 w-16 rounded-2xl border-2 border-slate-100 hover:bg-slate-50" onClick={() => handlePrint(order.id)}>
+                          <Printer className="h-6 w-6 text-slate-400" />
+                       </Button>
+                    </div>
+                 </CardContent>
+               </Card>
+             ))}
+             {orders.filter(o => o.status === 'preparing').length === 0 && (
+               <div className="col-span-full py-40 text-center space-y-4">
+                  <div className="h-32 w-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
+                     <UtensilsCrossed className="h-16 w-16 text-slate-300" />
+                  </div>
+                  <p className="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum pedido em preparo no momento</p>
+               </div>
+             )}
+          </div>
+        )}
       </main>
     </div>
   );

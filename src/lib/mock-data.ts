@@ -131,6 +131,18 @@ export const MOCK_PRODUCTS: Product[] = [
     isAvailable: true,
     stock: 50,
     rating: 5.0
+  },
+  {
+    id: 'p3',
+    merchantId: 'm1',
+    categoryId: 'c1',
+    name: 'Smash Ágil',
+    description: 'Dois blends prensados, queijo cheddar derretido e molho especial.',
+    price: 24.90,
+    imageUrl: 'https://picsum.photos/seed/smash/400/300',
+    isAvailable: true,
+    stock: 12,
+    rating: 4.9
   }
 ];
 
@@ -147,6 +159,19 @@ export const MOCK_ORDERS: Order[] = [
     items: [
       { id: 'oi1', productId: 'p1', productName: 'X-Tudo Monstro', quantity: 1, price: 35.90 },
       { id: 'oi2', productId: 'p2', productName: 'Coca-Cola 2L', quantity: 1, price: 12.00 }
+    ]
+  },
+  {
+    id: 'o2',
+    merchantId: 'm1',
+    customerName: 'Maria Santos',
+    customerPhone: '(11) 97777-6666',
+    address: 'Av. Paulista, 1000, São Paulo - SP',
+    total: 24.90,
+    status: 'preparing',
+    createdAt: new Date(Date.now() - 15 * 60000).toISOString(),
+    items: [
+      { id: 'oi3', productId: 'p3', productName: 'Smash Ágil', quantity: 1, price: 24.90 }
     ]
   }
 ];
