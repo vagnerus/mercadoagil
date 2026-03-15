@@ -14,7 +14,8 @@ import {
   Calendar as CalendarIcon, Clock, User, Plus, 
   LayoutDashboard, Settings, Users, Scissors, 
   MoreVertical, CheckCircle2, AlertCircle, Phone, 
-  History, TrendingUp, Wallet, Bell, Loader2, MessageCircle
+  History, TrendingUp, Wallet, Bell, Loader2, MessageCircle,
+  Smartphone
 } from "lucide-react";
 import Link from 'next/link';
 import { Calendar } from "@/components/ui/calendar";
@@ -96,7 +97,6 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
     const docRef = doc(db, 'merchants', merchantId, 'appointments', ap.id);
     updateDocumentNonBlocking(docRef, { status: 'confirmed' });
     
-    // Disparo oficial via WhatsApp conectado
     if (merchant?.settings?.whatsapp) {
       const cleanPhone = ap.phone.replace(/\D/g, '');
       const message = `Olá *${ap.customer}*! Passando para confirmar seu horário de *${ap.service}* aqui na *${merchant.name}*.\n\n📅 Data: *${new Date(ap.date).toLocaleDateString('pt-BR')}*\n⏰ Hora: *${ap.time}*\n💈 Profissional: *${ap.staff}*\n\nEstamos te esperando! Caso precise desmarcar, nos avise por aqui.`;
@@ -133,7 +133,7 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
              
              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-slate-900 rounded-2xl h-12 flex-1 md:flex-none gap-2 font-bold shadow-xl shadow-slate-200"><Plus className="h-4 w-4" /> Novo Horário</Button>
+                  <Button className="bg-slate-900 rounded-2xl h-12 flex-1 md:flex-none gap-2 font-bold shadow-xl shadow-slate-200 text-white"><Plus className="h-4 w-4" /> Novo Horário</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md rounded-[40px] p-0 overflow-hidden border-none shadow-2xl">
                   <div className="bg-primary p-8 text-white">

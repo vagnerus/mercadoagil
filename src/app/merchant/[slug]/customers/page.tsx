@@ -8,7 +8,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Search, Mail, Phone, MessageSquare, Star, LayoutDashboard, ShoppingBag, List, Wallet, Settings, Package, Megaphone, Loader2, Sparkles, Copy, Check, MessageCircle } from "lucide-react";
+import { 
+  Users, Search, Mail, Phone, MessageSquare, Star, 
+  LayoutDashboard, ShoppingBag, List, Wallet, Settings, 
+  Package, Megaphone, Loader2, Sparkles, Copy, Check, 
+  MessageCircle, Smartphone 
+} from "lucide-react";
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { generateMarketingCampaign, MarketingCampaignOutput } from "@/ai/flows/generate-marketing-campaign-flow";
@@ -104,7 +109,7 @@ export default function MerchantCustomers({ params }: { params: Promise<{ slug: 
             <Button 
               onClick={handleCreateCampaign} 
               disabled={loadingCampaign}
-              className="bg-primary hover:bg-primary/90 rounded-2xl h-12 gap-2 font-black italic px-6 shadow-xl shadow-primary/20"
+              className="bg-primary hover:bg-primary/90 rounded-2xl h-12 gap-2 font-black italic px-6 shadow-xl shadow-primary/20 text-white"
             >
               {loadingCampaign ? <Loader2 className="h-4 w-4 animate-spin" /> : <Megaphone className="h-5 w-5" />}
               Scripts IA para Whats
@@ -117,7 +122,7 @@ export default function MerchantCustomers({ params }: { params: Promise<{ slug: 
         </header>
 
         <div className="grid gap-6 md:grid-cols-4 mb-8">
-          <Card className="border-none shadow-sm rounded-[32px] p-6 text-center space-y-2">
+          <Card className="border-none shadow-sm rounded-[32px] p-6 text-center space-y-2 bg-white">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Base Ativa</p>
             <p className="text-4xl font-black italic tracking-tighter text-slate-900">1.248</p>
           </Card>
@@ -125,11 +130,11 @@ export default function MerchantCustomers({ params }: { params: Promise<{ slug: 
             <p className="text-[10px] font-black uppercase tracking-widest text-green-600">Instância WhatsApp</p>
             <p className="text-2xl font-black italic tracking-tighter text-green-700">CONECTADA</p>
           </Card>
-          <Card className="border-none shadow-sm rounded-[32px] p-6 text-center space-y-2">
+          <Card className="border-none shadow-sm rounded-[32px] p-6 text-center space-y-2 bg-white">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Engajamento</p>
             <p className="text-4xl font-black italic tracking-tighter text-slate-900">68%</p>
           </Card>
-          <Card className="border-none shadow-sm rounded-[32px] p-6 text-center space-y-2">
+          <Card className="border-none shadow-sm rounded-[32px] p-6 text-center space-y-2 bg-white">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nota Média</p>
             <p className="text-4xl font-black italic tracking-tighter text-slate-900 flex items-center justify-center gap-2"><Star className="h-6 w-6 fill-yellow-400 text-yellow-400" /> 4.9</p>
           </Card>
@@ -144,7 +149,7 @@ export default function MerchantCustomers({ params }: { params: Promise<{ slug: 
                   <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest text-center">Status</TableHead>
                   <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest text-center">Última Venda</TableHead>
                   <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest text-center">Faturamento</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest text-center">Disparo Direto</TableHead>
+                  <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Disparo Direto</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -192,7 +197,7 @@ export default function MerchantCustomers({ params }: { params: Promise<{ slug: 
            <div className="bg-green-600 p-10 text-white relative overflow-hidden">
               <Sparkles className="absolute -top-10 -right-10 h-40 w-40 opacity-10 animate-pulse" />
               <DialogHeader>
-                <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">WhatsApp Marketing IA</DialogTitle>
+                <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase text-white">WhatsApp Marketing IA</DialogTitle>
                 <p className="text-white/80 font-bold uppercase text-[10px] tracking-widest mt-2 border-l-2 border-white/30 pl-3">Conectado ao seu número oficial</p>
               </DialogHeader>
            </div>
@@ -226,7 +231,7 @@ export default function MerchantCustomers({ params }: { params: Promise<{ slug: 
                   </div>
                 </div>
               )}
-              <Button className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg" onClick={() => setIsCampaignOpen(false)}>CONCLUÍDO</Button>
+              <Button className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg text-white" onClick={() => setIsCampaignOpen(false)}>CONCLUÍDO</Button>
            </div>
         </DialogContent>
       </Dialog>
