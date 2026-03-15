@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -12,9 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Store, Search, ShieldCheck, LogOut, LayoutDashboard, Building2, 
-  LayoutGrid, Database, Server, MoreHorizontal, Plus, Loader2, 
-  Monitor, ShoppingBag, Briefcase, Zap, Pill, CreditCard, 
-  Activity, ArrowUpRight, CheckCircle2, Globe, Scissors, Stethoscope, Tool, Dog, GraduationCap, HeartHandshake
+  LayoutGrid, Database, Server, Plus, Loader2, 
+  Monitor, ShoppingBag, Briefcase, Zap, CreditCard, 
+  ArrowUpRight, Globe, Scissors, Stethoscope, Wrench, Dog, GraduationCap, HeartHandshake
 } from "lucide-react";
 import Link from 'next/link';
 import { SYSTEM_PLANS, MerchantSegment } from "@/lib/mock-data";
@@ -27,7 +26,7 @@ const SEGMENTS: { value: MerchantSegment; label: string; icon: any }[] = [
   { value: 'HEALTH', label: 'Saúde / Clínicas', icon: Stethoscope },
   { value: 'RESTAURANT', label: 'Restaurante / Food', icon: ShoppingBag },
   { value: 'RETAIL', label: 'Varejo / Loja', icon: Briefcase },
-  { value: 'MAINTENANCE', label: 'Manutenção / T.I.', icon: Tool },
+  { value: 'MAINTENANCE', label: 'Manutenção / T.I.', icon: Wrench },
   { value: 'AUTO', label: 'Automotivo / Oficina', icon: Zap },
   { value: 'PET', label: 'Pets / Veterinária', icon: Dog },
   { value: 'EDUCATION', label: 'Educação / Aulas', icon: GraduationCap },
