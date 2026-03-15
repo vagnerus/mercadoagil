@@ -100,74 +100,98 @@ const TOPICS_POOL = [
 ];
 
 const CATEGORY_CONTENT: Record<string, string> = {
-  "Beleza": `O mercado de beleza e estética é um dos pilares da economia brasileira, movendo bilhões anualmente. Este curso aprofunda o conhecimento técnico e estratégico necessário para se destacar.
+  "Beleza": `O mercado de beleza e estética exige precisão técnica e um profundo conhecimento da fisiologia humana aplicada à estética.
 
-CONTEÚDO TÉCNICO AVANÇADO:
-1. ANATOMIA E FISIOLOGIA: Compreender a estrutura do fio de cabelo, as camadas da pele e como os produtos químicos interagem com o organismo. A saúde do cliente é a prioridade zero.
-2. BIOSSEGURANÇA: Protocolos rigorosos de esterilização, uso de EPIs e prevenção de contaminação cruzada. Um salão seguro é um salão lucrativo.
-3. TÉCNICAS DE CORTE E VISAGISMO: O visagismo não é apenas sobre estética, mas sobre identidade. Aprenda a ler o formato do rosto e a personalidade do cliente para sugerir o corte que eleva a autoestima.
-4. GESTÃO DE ESTOQUE E PRODUTOS: Como evitar o desperdício de colorações e insumos. O controle por gramatura pode salvar até 15% do seu lucro mensal.
-5. MARKETING DE RELACIONAMENTO: Fidelizar um cliente custa 5x menos que atrair um novo. Use o WhatsApp para lembretes de retorno e promoções de aniversariantes.
+CAPÍTULO 1: FISIOLOGIA DO CABELO E PELE
+O profissional de elite deve compreender que o cabelo é composto por 90% de queratina e 10% de lipídios e água. No salão, o diagnóstico capilar é o primeiro passo para o sucesso. Analise a porosidade, elasticidade e textura antes de qualquer procedimento químico.
 
-Este manual serve como guia definitivo para a excelência na prestação de serviços de beleza e estética. A técnica deve estar sempre acompanhada de um atendimento humanizado e uma gestão financeira impecável.`,
+CAPÍTULO 2: BIOSSEGURANÇA E HIGIENE
+A biossegurança não é opcional. Todo material perfurocortante deve ser descartado em coletores específicos. Alicates e espátulas de metal devem passar por autoclave a 121°C por 30 minutos ou 134°C por 15 minutos. A higiene do ambiente transmite confiança e evita contaminações biológicas.
 
-  "Varejo": `Vender produtos no século XXI exige uma integração perfeita entre o físico e o digital. O varejo moderno é omnichannel e focado na experiência.
+CAPÍTULO 3: VISAGISMO E DESIGN
+Visagismo é a arte de criar uma imagem personalizada que revela as qualidades do cliente. Use as linhas retas para transmitir força e poder, ou linhas curvas para delicadeza e suavidade. O corte de cabelo deve equilibrar o formato do rosto (oval, redondo, quadrado ou coração).
 
-MÓDULOS DE CONHECIMENTO:
-1. PSICOLOGIA DO CONSUMIDOR: Entenda o caminho que o cliente faz desde que entra na loja até o checkout. O uso de cores, sons e aromas influencia diretamente na decisão de compra.
-2. CURVA ABC E ESTOQUE: Não deixe dinheiro parado na prateleira. Foque nos produtos 'A' (80% do faturamento) e liquide os produtos 'C'.
-3. VISUAL MERCHANDISING: A vitrine é o convite da sua loja. Aprenda técnicas de exposição que aumentam o ticket médio naturalmente.
-4. PREVENÇÃO DE PERDAS: Furtos, quebras e vencimentos são inimigos do lucro. Implemente sistemas de auditoria diária.
-5. LOGÍSTICA E LAST MILE: Entregas rápidas e baratas são o maior diferencial competitivo. Otimize suas rotas de entrega.
+CAPÍTULO 4: GESTÃO E FIDELIZAÇÃO
+Um salão lucrativo foca no LTV (Life Time Value). Use o sistema de agendamento online do Mercado Ágil para reduzir o no-show em até 40%. Envie lembretes automáticos via WhatsApp e ofereça programas de cashback para garantir o retorno do cliente a cada 20 dias.`,
 
-O sucesso no varejo é medido pelo Giro de Estoque e pela Margem de Contribuição. Este curso ensina a dominar esses indicadores para garantir a saúde do seu negócio.`,
+  "Varejo": `Vender produtos hoje requer uma estratégia omnichannel, unindo a conveniência do digital com a experiência do físico.
 
-  "Gestão": `Gestão é a arte de organizar recursos para atingir objetivos. Para um lojista, gestão é o que diferencia o sobrevivente do vencedor.
+CAPÍTULO 1: PSICOLOGIA DO CONSUMIDOR
+O consumidor decide comprar em frações de segundos. O Visual Merchandising (VM) deve guiar o olhar do cliente. Coloque os produtos de alta margem na altura dos olhos e os produtos de conveniência próximos ao checkout para vendas por impulso.
 
-ESTRUTURA DE GESTÃO ELITE:
-1. FLUXO DE CAIXA E DRE: Você precisa saber exatamente para onde cada centavo está indo. O regime de caixa e o regime de competência devem ser dominados.
-2. LIDERANÇA E RH: Pessoas felizes vendem mais. Aprenda a contratar por valores e treinar por competências.
-3. PLANEJAMENTO ESTRATÉGICO: Onde sua loja estará daqui a 2 anos? Defina metas SMART e acompanhe-as semanalmente.
-4. CONTROLADORIA: Auditoria de notas fiscais, impostos e taxas bancárias. Pequenos erros administrativos podem gerar grandes multas.
-5. EXPANSÃO E ESCALA: Quando é a hora de abrir a segunda unidade? Aprenda a analisar a viabilidade de novos investimentos.
+CAPÍTULO 2: GESTÃO DE ESTOQUE INTELIGENTE
+Dinheiro na prateleira é dinheiro perdendo valor. Aplique a Curva ABC:
+- Grupo A: 20% dos itens que geram 80% do faturamento. Monitoramento diário.
+- Grupo B: 30% dos itens com giro médio.
+- Grupo C: 50% dos itens que geram apenas 5% do faturamento. Liquide-os.
 
-Este treinamento é o braço direito do empreendedor moderno. Sem dados, você é apenas mais uma pessoa com uma opinião. Gerencie com números.`,
+CAPÍTULO 3: PREVENÇÃO DE PERDAS E AUDITORIA
+A ruptura de estoque é a maior causa de perda de vendas. Use leitores de código de barras e o AI Vision Scan do Mercado Ágil para inventários rápidos. Audite os lotes semanalmente para evitar produtos vencidos ou avariados.
 
-  "Marketing": `Marketing não é apenas postar no Instagram. É uma ciência de aquisição e retenção de demanda.
+CAPÍTULO 4: EXPERIÊNCIA E LOGÍSTICA
+A entrega é a última impressão que o cliente tem. No Mercado Ágil, use o Fleet Hub para roteirizar entregas por proximidade, reduzindo custos de combustível e tempo de espera. O cliente satisfeito compra novamente.`,
 
-PILARE DO CRESCIMENTO:
-1. TRÁFEGO PAGO: Google Ads e Meta Ads são máquinas de vendas se usados corretamente. Aprenda a definir seu público-alvo por comportamento e geolocalização.
-2. COPYWRITING: A arte da escrita persuasiva. Suas legendas e mensagens devem resolver uma dor do cliente ou realizar um desejo.
-3. MARKETING DE CONTEÚDO: Gere valor antes de pedir a venda. Eduque seu cliente sobre como usar seus produtos ou serviços.
-4. CRM E WHATSAPP: O poder dos dados. Tenha uma lista de clientes organizada e faça campanhas de recompra automáticas.
-5. BRANDING: O que as pessoas dizem de você quando você não está na sala. Construa uma marca forte e reconhecível.
+  "Gestão": `Gerenciar é tomar decisões baseadas em dados, não em palpites.
 
-O marketing digital nivela o jogo. Uma pequena loja pode competir com grandes redes se tiver uma estratégia inteligente e constante.`,
+CAPÍTULO 1: FLUXO DE CAIXA E DRE
+O Fluxo de Caixa mostra a liquidez, enquanto o DRE mostra a lucratividade. Um negócio pode ter dinheiro no caixa mas estar operando no prejuízo se as margens estiverem erradas. Acompanhe o EBITDA mensalmente para entender a saúde real da operação.
 
-  "Saúde": `Gerenciar na saúde é lidar com vidas e com uma regulação complexa. Segurança e confiança são os ativos mais caros.
+CAPÍTULO 2: INDICADORES (KPIs)
+Os 4 KPIs que você deve monitorar todo dia:
+1. Ticket Médio: Quanto cada cliente gasta em média.
+2. Taxa de Conversão: Quantos visitantes se tornam compradores.
+3. CAC: Quanto custa adquirir um novo cliente.
+4. Churn: Quantos clientes você está perdendo.
 
-PROTOCOLO DE GESTÃO EM SAÚDE:
-1. COMPLIANCE E LGPD: O sigilo médico e a proteção de dados sensíveis são obrigatórios. Entenda as penalidades e como se proteger.
-2. PRONTUÁRIO ELETRÔNICO (PEP): Mais que um registro, uma ferramenta de decisão. O histórico completo melhora o diagnóstico e a segurança jurídica.
-3. FATURAMENTO E TISS/TUSS: Reduza as glosas médicas entendendo profundamente os códigos e prazos das operadoras de saúde.
-4. EXPERIÊNCIA DO PACIENTE: Do agendamento online à sala de espera. O paciente avalia a clínica como um todo, não apenas o ato médico.
-5. TELEMEDICINA: Como realizar consultas remotas com segurança, ética e validade jurídica.
+CAPÍTULO 3: LIDERANÇA E PROCESSOS
+Contrate pelo caráter, treine a habilidade. Crie Manuais de Processos (SOPs) para cada função. Quando o processo é claro, a equipe performa melhor e o dono ganha liberdade. Use o Painel Staff para medir o score de performance de cada colaborador.
 
-A saúde 4.0 exige tecnologia integrada para que o profissional possa focar no que realmente importa: o cuidado com o paciente.`,
+CAPÍTULO 4: PLANEJAMENTO E ESCALA
+Defina metas anuais e quebre-as em metas semanais. A escala vem através da repetição de processos bem sucedidos. Se sua primeira unidade é lucrativa e processualizada, você está pronto para o modelo de franquias.`,
 
-  "Tecnologia": `A tecnologia é a infraestrutura invisível que sustenta o mundo moderno. Para o comércio, ela é o motor da eficiência.
+  "Marketing": `Marketing de elite é sobre atenção e conversão em canais onde seu público está.
 
-MANUAL DE TECNOLOGIA APLICADA:
-1. CIBERSEGURANÇA: Proteja sua loja contra ataques de ransomware e roubo de dados de cartões.
-2. CLOUD COMPUTING: Por que usar a nuvem? Escalabilidade, segurança e acesso global aos dados do seu negócio.
-3. AUTOMAÇÃO E IA: Como usar robôr para responder chats e IAs para prever o estoque futuro.
-4. DESENVOLVIMENTO NO-CODE: Crie soluções internas sem precisar de programadores caros.
-5. DATA SCIENCE: Transforme montanhas de dados em decisões claras. O BI (Business Intelligence) é o futuro da gestão.
+CAPÍTULO 1: TRÁFEGO PAGO LOCAL
+Para negócios físicos, o Google Maps é o canal n° 1. Configure seu Perfil de Empresa e invista em anúncios geolocalizados. No Meta Ads, use o raio de 5km ao redor da sua loja para não desperdiçar verba com quem mora longe.
 
-Não existe mais negócio "fora da tecnologia". Entender o básico da infraestrutura digital é requisito para qualquer gestor de sucesso.`
+CAPÍTULO 2: CONTEÚDO E AUTORIDADE
+No Instagram, o Reels gera alcance e os Stories geram conexão. Mostre os bastidores, o cuidado com os produtos e o depoimento de clientes reais. A confiança é a moeda do novo marketing.
+
+CAPÍTULO 3: WHATSAPP MARKETING IA
+O WhatsApp é a ferramenta de fechamento mais poderosa do Brasil. Use scripts de venda persuasivos e automações de recuperação de carrinho. Não seja um spammer; entregue valor e ofertas exclusivas para quem já comprou de você.
+
+CAPÍTULO 4: BRANDING E DIFERENCIAÇÃO
+Por que o cliente deve comprar de você e não do vizinho? Defina sua Proposta Única de Valor (UVP). Pode ser o atendimento ultra-rápido, a curadoria de produtos ou a experiência sensorial no ponto de venda.`,
+
+  "Saúde": `A gestão na saúde exige conformidade rigorosa e foco absoluto na segurança do paciente.
+
+CAPÍTULO 1: LGPD E SEGURANÇA DE DADOS
+Dados de saúde são classificados como dados sensíveis pela Lei Geral de Proteção de Dados. O Mercado Ágil utiliza criptografia AES-256. Nunca compartilhe senhas e certifique-se de que o consentimento do paciente está assinado digitalmente.
+
+CAPÍTULO 2: PRONTUÁRIO ELETRÔNICO (PEP)
+O prontuário é o documento jurídico mais importante da clínica. Registre cada detalhe: sintomas, hipóteses diagnósticas (CID), prescrições e orientações pós-consulta. Um prontuário bem preenchido é a sua melhor defesa profissional.
+
+CAPÍTULO 3: FATURAMENTO TISS/TUSS
+Evite glosas médicas conhecendo as regras das operadoras. A tabela TUSS padroniza os procedimentos. Audite as guias antes do envio em lote via XML para garantir o recebimento pontual.
+
+CAPÍTULO 4: HUMANIZAÇÃO E TELEMEDICINA
+A tecnologia deve servir ao humano. A telemedicina amplia o acesso, mas exige uma plataforma estável e segura. Use o Consultório Virtual da Ágil Academy para consultas remotas integradas ao prontuário, garantindo a mesma qualidade do presencial.`,
+
+  "Tecnologia": `A tecnologia é a espinha dorsal de qualquer negócio escalável no século XXI.
+
+CAPÍTULO 1: INFRAESTRUTURA E CLOUD
+A nuvem permite que você acesse os dados da sua loja de qualquer lugar do mundo. Entenda o conceito de escalabilidade: se o seu site recebe 100 ou 100.000 visitas, a infraestrutura deve se adaptar automaticamente para não cair.
+
+CAPÍTULO 2: AUTOMAÇÃO DE PROCESSOS
+O tempo é o recurso mais escasso. Automatize tarefas repetitivas: disparo de notas fiscais, atualização de estoque e conciliação bancária. Cada processo automatizado libera horas da sua equipe para focar em estratégia e vendas.
+
+CAPÍTULO 3: INTELIGÊNCIA ARTIFICIAL (IA)
+A IA não vai substituir o lojista, mas o lojista que usa IA vai substituir o que não usa. Use modelos de linguagem para criar descrições de produtos, legendas de posts e até para analisar tendências de compras futuras baseadas no seu histórico.
+
+CAPÍTULO 4: SEGURANÇA E CONTINUIDADE
+Backup é seguro de vida. Tenha redundância de dados e planos de recuperação de desastres. Proteja sua rede contra ataques de força bruta e eduque sua equipe sobre o perigo do Phishing.`
 };
 
-// Gerador de Conteúdo Didático Realista para 1000 Cursos
 const generateCourses = () => {
   const courses = [];
   
