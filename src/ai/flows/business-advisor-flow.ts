@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview Flow para consultoria de negócios baseada em dados de vendas.
+ * @fileOverview Flow para consultoria de negócios baseada em dados de vendas com correção de sintaxe.
  */
 
 import {ai} from '@/ai/genkit';
@@ -41,7 +41,7 @@ Sua missão é analisar os dados da loja "{{{merchantName}}}" e fornecer insight
 
 Dados de Vendas Recentes:
 {{#each salesData}}
-- Data: {{{this.date}}}, Total: R${{{this.total}}}, Itens: {{{this.itemCount}}}
+- Data: {{{this.date}}}, Valor: R$ {{{this.total}}}, Itens: {{{this.itemCount}}}
 {{/each}}
 
 Produtos Mais Vendidos:

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, UtensilsCrossed, TrendingUp, AlertTriangle, Download, Users, Ticket, Sparkles, Loader2, BrainCircuit } from "lucide-react";
+import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, UtensilsCrossed, TrendingUp, AlertTriangle, Download, Users, Ticket, Sparkles, Loader2, BrainCircuit, Wallet } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import Link from 'next/link';
 import { MOCK_PRODUCTS } from "@/lib/mock-data";
@@ -61,7 +61,7 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
@@ -81,6 +81,12 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
           <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <List className="h-5 w-5" /> Catálogo
           </Link>
+          <Link href={`/merchant/${params.slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Users className="h-5 w-5" /> CRM Clientes
+          </Link>
+          <Link href={`/merchant/${params.slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Wallet className="h-5 w-5" /> Financeiro
+          </Link>
           <Link href={`/merchant/${params.slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
@@ -90,36 +96,21 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
       <main className="flex-1 p-8 overflow-y-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 uppercase tracking-tight">{params.slug.replace('-', ' ')}</h1>
-            <p className="text-slate-500 font-medium">Insights baseados em inteligência artificial.</p>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">{params.slug.replace('-', ' ')}</h1>
+            <p className="text-slate-500 font-medium">Insights e controle total do seu negócio.</p>
           </div>
           <div className="flex gap-3">
              <Button 
               onClick={handleGetAdvice} 
               disabled={loadingAdvice}
-              className="bg-primary hover:bg-primary/90 rounded-xl h-12 gap-2 shadow-lg shadow-primary/20"
+              className="bg-primary hover:bg-primary/90 rounded-2xl h-12 gap-2 shadow-xl shadow-primary/20 font-black italic"
              >
                {loadingAdvice ? <Loader2 className="h-4 w-4 animate-spin" /> : <BrainCircuit className="h-5 w-5" />}
-               Consultoria IA
+               Assistente IA
              </Button>
-             <Badge className="bg-green-500 text-white h-12 px-6 rounded-xl flex items-center text-sm font-bold shadow-sm">LOJA ABERTA</Badge>
+             <Badge className="bg-green-500 text-white h-12 px-6 rounded-2xl flex items-center text-sm font-black italic shadow-sm">LOJA ABERTA</Badge>
           </div>
         </header>
-
-        {lowStockProducts.length > 0 && (
-          <div className="mb-8 p-5 bg-orange-50 border border-orange-100 rounded-[32px] flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-4">
-               <div className="p-3 bg-orange-100 rounded-2xl">
-                 <AlertTriangle className="h-6 w-6 text-orange-600" />
-               </div>
-               <div>
-                  <h4 className="font-bold text-orange-900">Alerta de Estoque</h4>
-                  <p className="text-sm text-orange-700 font-medium">Atenção! {lowStockProducts.length} itens estão abaixo do nível crítico.</p>
-               </div>
-            </div>
-            <Button variant="outline" asChild className="border-orange-200 text-orange-900 font-bold rounded-xl hover:bg-orange-100"><Link href={`/merchant/${params.slug}/catalog`}>Gerenciar Estoque</Link></Button>
-          </div>
-        )}
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           {stats.map((stat, i) => (
@@ -131,7 +122,7 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
                   </div>
                 </div>
                 <div className="mt-4">
-                  <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{stat.title}</p>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{stat.title}</p>
                   <p className="text-2xl font-black text-slate-900 mt-1 italic tracking-tight">{stat.value}</p>
                 </div>
               </CardContent>
@@ -143,27 +134,27 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
           <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-8">
              <CardHeader className="p-0 mb-8 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-2xl font-black">Performance Semanal</CardTitle>
-                  <CardDescription className="font-medium">Volume de vendas e pedidos por dia.</CardDescription>
+                  <CardTitle className="text-2xl font-black italic">Performance Semanal</CardTitle>
+                  <CardDescription className="font-bold text-slate-400">Volume de vendas (R$) por dia.</CardDescription>
                 </div>
              </CardHeader>
              <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={salesData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 600}} tickFormatter={(value) => `R$ ${value}`} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 600, fontSize: 12}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 600, fontSize: 12}} tickFormatter={(value) => `R$ ${value}`} />
                     <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
-                    <Bar dataKey="sales" fill="hsl(var(--accent))" radius={[12, 12, 0, 0]} />
+                    <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[10, 10, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
              </div>
           </Card>
 
-          <Card className="border-none shadow-sm rounded-[40px] p-8 flex flex-col gap-8">
+          <Card className="border-none shadow-sm rounded-[40px] p-8 flex flex-col gap-8 bg-white">
              <div>
-                <CardTitle className="text-2xl font-black">Mix de Produtos</CardTitle>
-                <CardDescription className="font-medium">Participação por categoria.</CardDescription>
+                <CardTitle className="text-2xl font-black italic">Mix de Produtos</CardTitle>
+                <CardDescription className="font-bold text-slate-400">Participação no faturamento.</CardDescription>
              </div>
              <div className="h-[250px] relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -172,27 +163,27 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
                       data={productPerformance}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
+                      innerRadius={65}
+                      outerRadius={85}
+                      paddingAngle={8}
                       dataKey="value"
                     >
                       {productPerformance.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                       ))}
                     </Pie>
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
              </div>
-             <div className="space-y-3">
+             <div className="space-y-4">
                 {productPerformance.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm font-bold">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{backgroundColor: item.color}}></div>
-                      <span className="text-slate-600">{item.name}</span>
+                  <div key={i} className="flex items-center justify-between text-xs font-black uppercase tracking-wider">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: item.color}}></div>
+                      <span className="text-slate-500">{item.name}</span>
                     </div>
-                    <span className="text-slate-900">{item.value}%</span>
+                    <span className="text-slate-900 italic">{item.value}%</span>
                   </div>
                 ))}
              </div>
@@ -201,41 +192,44 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
       </main>
 
       <Dialog open={isAdviceOpen} onOpenChange={setIsAdviceOpen}>
-        <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
-           <div className="bg-primary p-8 text-white relative overflow-hidden">
-              <Sparkles className="absolute -top-6 -right-6 h-32 w-32 opacity-10" />
+        <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden">
+           <div className="bg-primary p-10 text-white relative overflow-hidden">
+              <Sparkles className="absolute -top-10 -right-10 h-40 w-40 opacity-10" />
               <DialogHeader>
-                <DialogTitle className="text-3xl font-black italic tracking-tighter">Relatório Estratégico IA</DialogTitle>
-                <p className="text-white/80 font-bold uppercase text-xs tracking-widest mt-2">Análise de Performance Mercado Ágil</p>
+                <DialogTitle className="text-3xl font-black italic tracking-tighter">Relatório de Consultoria IA</DialogTitle>
+                <p className="text-white/80 font-bold uppercase text-xs tracking-widest mt-2">Análise Estratégica Mercado Ágil</p>
               </DialogHeader>
            </div>
-           <div className="p-8 space-y-8">
+           <div className="p-10 space-y-10">
               {advice && (
                 <>
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Status do Negócio</h3>
-                    <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none px-4 py-1.5 rounded-full font-black italic">{advice.sentiment}</Badge>
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[24px] border border-dashed border-slate-200">
+                    <div>
+                      <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Status Atual</h3>
+                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none px-4 py-1.5 rounded-full font-black italic">{advice.sentiment}</Badge>
+                    </div>
+                    <BrainCircuit className="h-10 w-10 text-primary opacity-20" />
                   </div>
                   
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Resumo da Análise</h3>
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Resumo da Performance</h3>
                     <p className="text-slate-600 font-medium leading-relaxed">{advice.summary}</p>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Próximos Passos</h3>
-                    <div className="grid gap-3">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Conselhos Práticos</h3>
+                    <div className="grid gap-4">
                       {advice.advice.map((item, i) => (
-                        <div key={i} className="flex gap-4 p-4 bg-slate-50 border rounded-2xl items-start">
-                           <div className="bg-primary/10 text-primary h-6 w-6 rounded-full flex items-center justify-center shrink-0 text-xs font-black">{i+1}</div>
-                           <p className="text-sm font-bold text-slate-700 leading-snug">{item}</p>
+                        <div key={i} className="flex gap-4 p-5 bg-white border border-slate-100 rounded-[28px] items-center shadow-sm">
+                           <div className="bg-primary/10 text-primary h-8 w-8 rounded-2xl flex items-center justify-center shrink-0 text-xs font-black italic">{i+1}</div>
+                           <p className="text-sm font-bold text-slate-700">{item}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 </>
               )}
-              <Button className="w-full h-14 bg-slate-900 rounded-2xl font-black italic text-lg shadow-xl" onClick={() => setIsAdviceOpen(false)}>Entendido!</Button>
+              <Button className="w-full h-16 bg-slate-900 rounded-[28px] font-black italic text-xl shadow-xl" onClick={() => setIsAdviceOpen(false)}>Focar no Crescimento!</Button>
            </div>
         </DialogContent>
       </Dialog>
