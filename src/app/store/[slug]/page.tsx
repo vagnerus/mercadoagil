@@ -1,12 +1,13 @@
 
 "use client";
 
+import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { MOCK_MERCHANTS, MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_COUPONS, Product, Merchant, Coupon } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Clock, Info, Search, MapPin, ChevronRight, Plus, Minus, Trash2, CheckCircle2, ArrowLeft, Star, Heart, Share2, Ticket, QrCode, Gift, Zap } from "lucide-react";
+import { ShoppingCart, Clock, Info, Search, MapPin, ChevronRight, Plus, Minus, Trash2, CheckCircle2, ArrowLeft, Star, Heart, Share2, Ticket, QrCode, Gift, Zap, Download, Copy } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,8 +33,10 @@ export default function StoreFront() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const found = MOCK_MERCHANTS.find(m => m.slug === slug);
-    if (found) setMerchant(found);
+    if (slug) {
+      const found = MOCK_MERCHANTS.find(m => m.slug === slug);
+      if (found) setMerchant(found);
+    }
   }, [slug]);
 
   const products = MOCK_PRODUCTS.filter(p => p.merchantId === merchant?.id);
