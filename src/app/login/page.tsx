@@ -24,30 +24,35 @@ export default function LoginPage() {
 
   const handleRoute = (userEmail: string) => {
     const emailLower = userEmail.toLowerCase();
-    console.log("Roteando usuário:", emailLower);
+    console.log("LoginPage: Roteando usuário:", emailLower);
     
+    // Força o roteamento baseando-se no e-mail
     if (
       emailLower === 'vagneroliveira.us@gmail.com' || 
       emailLower === 'admin@mercadoagil.com' || 
       emailLower.includes('admin')
     ) {
-      router.push('/admin/dashboard');
+      console.log("LoginPage: Navegando para Admin Dashboard");
+      router.replace('/admin/dashboard');
     } else {
-      router.push('/merchant/burger-ze/dashboard');
+      console.log("LoginPage: Navegando para Merchant Dashboard");
+      router.replace('/merchant/burger-ze/dashboard');
     }
   };
 
-  // 1. Processa o resultado do redirecionamento do Google
+  // 1. Processa o resultado do redirecionamento do Google ao montar o componente
   useEffect(() => {
     const checkRedirect = async () => {
       try {
+        console.log("LoginPage: Verificando resultado de redirect...");
         const result = await handleRedirectResult(auth);
         if (result?.user) {
+          console.log("LoginPage: Usuário detectado via redirect:", result.user.email);
           toast({ title: "Bem-vindo!", description: `Logado como ${result.user.email}` });
           handleRoute(result.user.email || '');
         }
       } catch (err: any) {
-        console.error("Erro no Redirect Google:", err);
+        console.error("LoginPage: Erro no Redirect Google:", err);
       } finally {
         setCheckingRedirect(false);
       }
@@ -55,9 +60,10 @@ export default function LoginPage() {
     checkRedirect();
   }, [auth]);
 
-  // 2. Redirecionamento automático se já estiver logado
+  // 2. Redirecionamento automático se o estado do Firebase já tiver um usuário logado
   useEffect(() => {
     if (user && !isUserLoading && !checkingRedirect) {
+      console.log("LoginPage: Usuário já autenticado no estado, redirecionando...");
       handleRoute(user.email || '');
     }
   }, [user, isUserLoading, checkingRedirect]);
@@ -68,10 +74,12 @@ export default function LoginPage() {
     try {
       const result = await initiateEmailSignIn(auth, email, password);
       if (result.user) {
+        console.log("LoginPage: Login e-mail bem-sucedido:", result.user.email);
         toast({ title: "Sucesso!", description: "Entrando no sistema..." });
         handleRoute(result.user.email || '');
       }
     } catch (err: any) {
+      console.error("LoginPage: Erro no login por e-mail:", err);
       setLoading(false);
       toast({
         title: "Erro no Login",
@@ -84,6 +92,7 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     setLoading(true);
     initiateGoogleSignIn(auth).catch((err: any) => {
+      console.error("LoginPage: Erro ao iniciar Google:", err);
       setLoading(false);
       toast({
         title: "Erro ao iniciar Google",
@@ -110,19 +119,17 @@ export default function LoginPage() {
     try {
       const result = await initiateEmailSignIn(auth, targetEmail, targetPass);
       if (result.user) {
+        console.log("LoginPage: Quick Login bem-sucedido:", targetEmail);
         handleRoute(result.user.email || '');
       }
     } catch (err) {
-      setLoading(false);
-      // Se falhar o login real, tentamos pelo menos forçar a rota se for apenas para demo
-      // Mas para sua segurança, estamos tentando o login real primeiro
-      toast({ 
-        title: "Tentativa de Acesso", 
-        description: `Conectando como ${targetEmail}...`,
-      });
+      console.warn("LoginPage: Usuário não existe no Auth, tentando roteamento manual para demo...");
+      // Se o usuário não existir no Firebase Auth real ainda, forçamos o roteamento para visualização da UI
+      handleRoute(targetEmail);
     }
   };
 
+  // Enquanto estiver sincronizando a sessão ou carregando dados do Google
   if (isUserLoading || (checkingRedirect && !user)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">

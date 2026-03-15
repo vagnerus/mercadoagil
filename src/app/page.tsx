@@ -56,7 +56,7 @@ export default function LandingPage() {
     setIsMagicAnimating(true);
     setLoading(true);
     
-    // Simulação do processamento da mágica (apenas visual)
+    // Simulação do processamento da mágica (apenas visual conforme solicitado)
     setTimeout(() => {
       setLoading(false);
       if (aiSectionRef.current) {
@@ -69,6 +69,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen font-body selection:bg-primary selection:text-white">
+      {/* Social Proof Toast */}
       <div className={cn(
         "fixed bottom-6 left-6 z-[100] transition-all duration-500 transform",
         socialProof ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0 pointer-events-none"
