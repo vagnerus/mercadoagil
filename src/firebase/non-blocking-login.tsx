@@ -5,8 +5,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup,
   signInWithRedirect,
+  getRedirectResult,
   UserCredential
 } from 'firebase/auth';
 
@@ -30,4 +30,9 @@ export async function initiateGoogleSignIn(authInstance: Auth): Promise<void> {
   const provider = new GoogleAuthProvider();
   // Using Redirect instead of Popup because popups are often blocked or fail in cloud IDEs
   return signInWithRedirect(authInstance, provider);
+}
+
+/** Get the result of a Google Redirect login. */
+export function handleRedirectResult(authInstance: Auth): Promise<UserCredential | null> {
+  return getRedirectResult(authInstance);
 }
