@@ -1,15 +1,23 @@
 
-export type PlanType = 'Free' | 'Basic' | 'Pro';
-export type UserRole = 'Admin' | 'Chef' | 'Waiter' | 'Manager';
+export type PlanType = 'Free' | 'Pro' | 'Pro II';
+export type UserRole = 'SUPER_ADMIN' | 'MERCHANT_ADMIN' | 'MERCHANT_STAFF';
 
-export interface StaffMember {
+export interface PlatformUser {
   id: string;
-  name: string;
-  role: UserRole;
   email: string;
-  avatar: string;
-  performanceScore: number; // 0-100
-  ordersHandled: number;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  merchantId?: string;
+  isActive: boolean;
+}
+
+export interface Plan {
+  id: string;
+  name: PlanType;
+  price: number;
+  durationDays?: number;
+  features: string[];
 }
 
 export interface Merchant {
@@ -18,20 +26,93 @@ export interface Merchant {
   slug: string;
   logoUrl: string;
   bannerUrl: string;
-  plan: PlanType;
-  isOpen: boolean;
-  themeColor: string;
-  status: 'active' | 'blocked';
+  planId: string;
+  planName: PlanType;
+  status: 'active' | 'blocked' | 'expired';
   createdAt: string;
   mrr: number;
   franchiseGroup?: string;
+  platformUserId: string;
 }
 
-export interface Category {
+export const SYSTEM_PLANS: Plan[] = [
+  { 
+    id: 'p_free', 
+    name: 'Free', 
+    price: 0, 
+    durationDays: 30, 
+    features: ['Vitrine Web', 'Até 20 produtos', 'Gestão de Pedidos'] 
+  },
+  { 
+    id: 'p_pro', 
+    name: 'Pro', 
+    price: 150, 
+    features: ['Tudo do Free', 'Produtos Ilimitados', 'IA Gerativa', 'Suporte WhatsApp', 'Desktop App'] 
+  },
+  { 
+    id: 'p_pro2', 
+    name: 'Pro II', 
+    price: 300, 
+    features: ['Tudo do Pro', 'Multi-unidades', 'Analytics Avançado', 'Custom Domain', 'Consultoria IA'] 
+  }
+];
+
+export const MOCK_MERCHANTS: Merchant[] = [
+  {
+    id: 'm1',
+    name: 'Burger King do Zé',
+    slug: 'burger-ze',
+    logoUrl: 'https://picsum.photos/seed/logo1/200/200',
+    bannerUrl: 'https://picsum.photos/seed/banner1/1200/400',
+    planId: 'p_pro',
+    planName: 'Pro',
+    status: 'active',
+    createdAt: '2024-01-01',
+    mrr: 150.00,
+    franchiseGroup: 'Rede Burger',
+    platformUserId: 'u1'
+  },
+  {
+    id: 'm2',
+    name: 'Pizza Express',
+    slug: 'pizza-express',
+    logoUrl: 'https://picsum.photos/seed/logo2/200/200',
+    bannerUrl: 'https://picsum.photos/seed/banner2/1200/400',
+    planId: 'p_free',
+    planName: 'Free',
+    status: 'active',
+    createdAt: new Date().toISOString(),
+    mrr: 0,
+    franchiseGroup: 'Italian Foods',
+    platformUserId: 'u2'
+  }
+];
+
+export interface StaffMember {
   id: string;
-  merchantId: string;
   name: string;
+  role: string;
+  email: string;
+  avatar: string;
+  performanceScore: number;
+  ordersHandled: number;
 }
+
+export const MOCK_STAFF: StaffMember[] = [
+  { id: 's1', name: 'Ricardo Chef', role: 'Chef', email: 'ricardo@burger.com', avatar: 'https://i.pravatar.cc/150?u=s1', performanceScore: 98, ordersHandled: 450 },
+  { id: 's2', name: 'Ana Gerente', role: 'Manager', email: 'ana@burger.com', avatar: 'https://i.pravatar.cc/150?u=s2', performanceScore: 95, ordersHandled: 1200 },
+  { id: 's3', name: 'Lucas Garçom', role: 'Waiter', email: 'lucas@burger.com', avatar: 'https://i.pravatar.cc/150?u=s3', performanceScore: 88, ordersHandled: 310 },
+];
+
+export const MOCK_AUDIT_LOGS = [
+  { id: 'l1', user: 'Ana Gerente', action: 'Alteração de Preço', timestamp: '2024-03-20 14:30', details: 'X-Tudo Monstro de R$ 32,90 para R$ 35,90' },
+  { id: 'l2', user: 'Ricardo Chef', action: 'Item Indisponível', timestamp: '2024-03-20 12:15', details: 'Coca-Cola 2L marcada como fora de estoque' },
+];
+
+export const MOCK_CATEGORIES = [
+  { id: 'c1', merchantId: 'm1', name: 'Hambúrgueres' },
+  { id: 'c2', merchantId: 'm1', name: 'Bebidas' },
+];
 
 export interface Product {
   id: string;
@@ -44,97 +125,10 @@ export interface Product {
   imageUrl: string;
   isAvailable: boolean;
   stock?: number;
-  tags?: string[];
-  rating?: number;
-  salesCount?: number;
   isLoyaltyExclusive?: boolean;
   requiredTier?: 'Bronze' | 'Silver' | 'Gold';
-  stockForecastDays?: number; // IA Forecast
+  stockForecastDays?: number;
 }
-
-export type OrderStatus = 'new' | 'preparing' | 'delivering' | 'finished' | 'cancelled';
-
-export interface Order {
-  id: string;
-  merchantId: string;
-  customerName: string;
-  customerPhone: string;
-  address: string;
-  total: number;
-  status: OrderStatus;
-  createdAt: string;
-  items: OrderItem[];
-}
-
-export interface OrderItem {
-  id: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  price: number;
-}
-
-export interface Coupon {
-  id: string;
-  code: string;
-  discount: number;
-  type: 'fixed' | 'percent';
-}
-
-export interface AuditLog {
-  id: string;
-  user: string;
-  action: string;
-  timestamp: string;
-  details: string;
-}
-
-export const MOCK_MERCHANTS: Merchant[] = [
-  {
-    id: 'm1',
-    name: 'Burger King do Zé',
-    slug: 'burger-ze',
-    logoUrl: 'https://picsum.photos/seed/logo1/200/200',
-    bannerUrl: 'https://picsum.photos/seed/banner1/1200/400',
-    plan: 'Pro',
-    isOpen: true,
-    themeColor: '#28A1DB',
-    status: 'active',
-    createdAt: '2023-10-01',
-    mrr: 149.00,
-    franchiseGroup: 'Rede Burger'
-  },
-  {
-    id: 'm2',
-    name: 'Pizza Express',
-    slug: 'pizza-express',
-    logoUrl: 'https://picsum.photos/seed/logo2/200/200',
-    bannerUrl: 'https://picsum.photos/seed/banner2/1200/400',
-    plan: 'Basic',
-    isOpen: true,
-    themeColor: '#FF5733',
-    status: 'active',
-    createdAt: '2023-11-15',
-    mrr: 79.00,
-    franchiseGroup: 'Italian Foods'
-  }
-];
-
-export const MOCK_STAFF: StaffMember[] = [
-  { id: 's1', name: 'Ricardo Chef', role: 'Chef', email: 'ricardo@burger.com', avatar: 'https://i.pravatar.cc/150?u=s1', performanceScore: 98, ordersHandled: 450 },
-  { id: 's2', name: 'Ana Gerente', role: 'Manager', email: 'ana@burger.com', avatar: 'https://i.pravatar.cc/150?u=s2', performanceScore: 95, ordersHandled: 1200 },
-  { id: 's3', name: 'Lucas Garçom', role: 'Waiter', email: 'lucas@burger.com', avatar: 'https://i.pravatar.cc/150?u=s3', performanceScore: 88, ordersHandled: 310 },
-];
-
-export const MOCK_AUDIT_LOGS: AuditLog[] = [
-  { id: 'l1', user: 'Ana Gerente', action: 'Alteração de Preço', timestamp: '2024-03-20 14:30', details: 'X-Tudo Monstro de R$ 32,90 para R$ 35,90' },
-  { id: 'l2', user: 'Ricardo Chef', action: 'Item Indisponível', timestamp: '2024-03-20 12:15', details: 'Coca-Cola 2L marcada como fora de estoque' },
-];
-
-export const MOCK_CATEGORIES: Category[] = [
-  { id: 'c1', merchantId: 'm1', name: 'Hambúrgueres' },
-  { id: 'c2', merchantId: 'm1', name: 'Bebidas' },
-];
 
 export const MOCK_PRODUCTS: Product[] = [
   {
@@ -148,9 +142,6 @@ export const MOCK_PRODUCTS: Product[] = [
     imageUrl: 'https://picsum.photos/seed/burger1/400/300',
     isAvailable: true,
     stock: 5,
-    rating: 4.8,
-    salesCount: 1240,
-    tags: ['Pimenta'],
     stockForecastDays: 2
   },
   {
@@ -164,25 +155,7 @@ export const MOCK_PRODUCTS: Product[] = [
     imageUrl: 'https://picsum.photos/seed/coke/400/300',
     isAvailable: true,
     stock: 50,
-    rating: 5.0,
-    salesCount: 3500,
     stockForecastDays: 12
-  },
-  {
-    id: 'p3',
-    merchantId: 'm1',
-    categoryId: 'c1',
-    name: 'Smash Ágil',
-    description: 'Dois blends prensados, queijo cheddar derretido e molho especial.',
-    price: 24.90,
-    costPrice: 9.80,
-    imageUrl: 'https://picsum.photos/seed/smash/400/300',
-    isAvailable: true,
-    stock: 12,
-    rating: 4.9,
-    salesCount: 890,
-    tags: ['Vegano'],
-    stockForecastDays: 5
   },
   {
     id: 'p4',
@@ -195,11 +168,23 @@ export const MOCK_PRODUCTS: Product[] = [
     imageUrl: 'https://picsum.photos/seed/goldburger/400/300',
     isAvailable: true,
     isLoyaltyExclusive: true,
-    requiredTier: 'Gold',
-    rating: 5.0,
-    salesCount: 15
+    requiredTier: 'Gold'
   }
 ];
+
+export type OrderStatus = 'new' | 'preparing' | 'delivering' | 'finished' | 'cancelled';
+
+export interface Order {
+  id: string;
+  merchantId: string;
+  customerName: string;
+  customerPhone: string;
+  address: string;
+  total: number;
+  status: OrderStatus;
+  createdAt: string;
+  items: { id: string; productId: string; productName: string; quantity: number; price: number; }[];
+}
 
 export const MOCK_ORDERS: Order[] = [
   {
@@ -215,23 +200,10 @@ export const MOCK_ORDERS: Order[] = [
       { id: 'oi1', productId: 'p1', productName: 'X-Tudo Monstro', quantity: 1, price: 35.90 },
       { id: 'oi2', productId: 'p2', productName: 'Coca-Cola 2L', quantity: 1, price: 12.00 }
     ]
-  },
-  {
-    id: 'o2',
-    merchantId: 'm1',
-    customerName: 'Maria Santos',
-    customerPhone: '(11) 97777-6666',
-    address: 'Av. Paulista, 1000, São Paulo - SP',
-    total: 24.90,
-    status: 'preparing',
-    createdAt: new Date(Date.now() - 15 * 60000).toISOString(),
-    items: [
-      { id: 'oi3', productId: 'p3', productName: 'Smash Ágil', quantity: 1, price: 24.90 }
-    ]
   }
 ];
 
-export const MOCK_COUPONS: Coupon[] = [
+export const MOCK_COUPONS = [
   { id: 'cp1', code: 'PRIMEIRACOMPRA', discount: 10, type: 'percent' },
   { id: 'cp2', code: 'DEZOFF', discount: 10, type: 'fixed' }
 ];

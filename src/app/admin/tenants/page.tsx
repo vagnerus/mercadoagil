@@ -1,16 +1,35 @@
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Store, Search, Filter, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutGrid, Database, Server, MoreHorizontal } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Store, Search, Filter, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutGrid, Database, Server, MoreHorizontal, Plus, UserPlus, Mail, Key, Globe, Loader2, Monitor } from "lucide-react";
 import Link from 'next/link';
-import { MOCK_MERCHANTS } from "@/lib/mock-data";
+import { MOCK_MERCHANTS, SYSTEM_PLANS, PlanType } from "@/lib/mock-data";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminTenants() {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleCreateStore = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => {
+      setIsCreateOpen(false);
+      setLoading(false);
+      toast({ title: "Loja Criada!", description: "O lojista recebeu os dados de acesso por e-mail." });
+    }, 2000);
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
@@ -40,6 +59,13 @@ export default function AdminTenants() {
           </Link>
         </nav>
         <div className="p-4 border-t">
+          <div className="px-4 py-3 bg-slate-900 rounded-2xl mb-4 flex items-center gap-3">
+             <Monitor className="h-4 w-4 text-primary" />
+             <div>
+                <p className="text-[10px] font-black text-white uppercase tracking-widest">Platform v2.9</p>
+                <p className="text-[8px] font-bold text-slate-400">Desktop App Ready</p>
+             </div>
+          </div>
           <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2 hover:text-red-500" asChild>
             <Link href="/"><LogOut className="h-4 w-4" /> Sair</Link>
           </Button>
@@ -53,11 +79,77 @@ export default function AdminTenants() {
             <p className="text-slate-500 font-medium">Monitoramento individual de cada lojista (tenant).</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
+             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                <DialogTrigger asChild>
+                   <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic shadow-xl shadow-primary/20 px-6">
+                      <Plus className="h-5 w-5" /> Cadastrar Loja
+                   </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
+                   <div className="bg-primary p-10 text-white relative overflow-hidden">
+                      <div className="relative z-10">
+                         <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Nova Loja & Usuário</DialogTitle>
+                         <p className="text-white/80 font-bold mt-2 uppercase text-[10px] tracking-widest">Configuração de novo lojista na plataforma.</p>
+                      </div>
+                      <Store className="absolute -bottom-10 -right-10 h-40 w-40 opacity-10" />
+                   </div>
+                   <form onSubmit={handleCreateStore} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar">
+                      <div className="grid grid-cols-2 gap-6">
+                         <div className="space-y-4">
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Dados da Loja</h3>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nome da Loja</Label>
+                               <Input placeholder="Ex: Pizzaria Roma" className="h-12 rounded-xl bg-slate-50 border-none font-bold" required />
+                            </div>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Slug / URL</Label>
+                               <div className="flex items-center">
+                                  <Input placeholder="pizzaria-roma" className="h-12 rounded-l-xl bg-slate-50 border-none font-bold border-r border-slate-200" required />
+                                  <div className="h-12 px-3 bg-slate-100 flex items-center rounded-r-xl text-[10px] font-black text-slate-400">.agil.com</div>
+                               </div>
+                            </div>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Plano Mercado Ágil</Label>
+                               <Select defaultValue="p_free">
+                                  <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
+                                     <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-2xl border-none shadow-xl">
+                                     {SYSTEM_PLANS.map(p => (
+                                       <SelectItem key={p.id} value={p.id} className="font-bold">
+                                          {p.name} - {p.price === 0 ? 'Grátis (30 dias)' : `R$ ${p.price}/mês`}
+                                       </SelectItem>
+                                     ))}
+                                  </SelectContent>
+                               </Select>
+                            </div>
+                         </div>
+                         <div className="space-y-4">
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Usuário Master Lojista</h3>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nome Completo</Label>
+                               <Input placeholder="Ricardo Silva" className="h-12 rounded-xl bg-slate-50 border-none font-bold" required />
+                            </div>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">E-mail de Acesso</Label>
+                               <Input type="email" placeholder="ricardo@email.com" className="h-12 rounded-xl bg-slate-50 border-none font-bold" required />
+                            </div>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Senha Temporária</Label>
+                               <Input type="password" placeholder="••••••••" className="h-12 rounded-xl bg-slate-50 border-none font-bold" required />
+                            </div>
+                         </div>
+                      </div>
+                      <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl">
+                         {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Confirmar Cadastro'}
+                      </Button>
+                   </form>
+                </DialogContent>
+             </Dialog>
              <div className="relative flex-1 md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input className="pl-12 h-12 rounded-2xl bg-white border-none shadow-sm font-medium" placeholder="Buscar por CNPJ, URL ou Nome..." />
              </div>
-             <Button variant="outline" className="h-12 rounded-2xl gap-2 font-bold"><Filter className="h-4 w-4" /> Filtros</Button>
           </div>
         </header>
 
@@ -68,46 +160,47 @@ export default function AdminTenants() {
                 <TableRow>
                   <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Lojista / Slug</TableHead>
                   <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano Atual</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Uso de Dados</TableHead>
+                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Criado em</TableHead>
                   <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status</TableHead>
                   <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {MOCK_MERCHANTS.map((m) => (
-                  <TableRow key={m.id} className="hover:bg-slate-50 transition-colors">
-                    <TableCell className="px-8 py-6">
-                       <div className="flex flex-col">
-                          <span className="font-black text-slate-900 text-lg italic">{m.name}</span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{m.slug}.mercadoagil.com</span>
-                       </div>
-                    </TableCell>
-                    <TableCell>
-                       <Badge className={`font-black italic border-none ${
-                         m.plan === 'Pro' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'
-                       }`}>
-                         {m.plan}
-                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                       <div className="flex flex-col gap-1 w-24">
-                          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                             <div className="h-full bg-primary w-[45%]" />
-                          </div>
-                          <span className="text-[9px] font-black text-slate-400 uppercase">1.2GB / 5GB</span>
-                       </div>
-                    </TableCell>
-                    <TableCell>
-                       <div className="flex items-center gap-2">
-                          <div className={`h-2 w-2 rounded-full ${m.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`} />
-                          <span className="font-bold text-slate-600 capitalize">{m.status}</span>
-                       </div>
-                    </TableCell>
-                    <TableCell className="text-right px-8">
-                       <Button variant="ghost" size="icon" className="rounded-xl"><MoreHorizontal className="h-5 w-5 text-slate-400" /></Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {MOCK_MERCHANTS.map((m) => {
+                  const isExpired = m.planName === 'Free' && (Date.now() - new Date(m.createdAt).getTime() > 30 * 24 * 60 * 60 * 1000);
+                  return (
+                    <TableRow key={m.id} className="hover:bg-slate-50 transition-colors">
+                      <TableCell className="px-8 py-6">
+                         <div className="flex flex-col">
+                            <span className="font-black text-slate-900 text-lg italic">{m.name}</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{m.slug}.mercadoagil.com</span>
+                         </div>
+                      </TableCell>
+                      <TableCell>
+                         <Badge className={`font-black italic border-none ${
+                           m.planName === 'Pro II' ? 'bg-orange-100 text-orange-700' : 
+                           m.planName === 'Pro' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'
+                         }`}>
+                           {m.planName}
+                         </Badge>
+                      </TableCell>
+                      <TableCell className="font-bold text-slate-400 text-xs">
+                         {new Date(m.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                         <div className="flex items-center gap-2">
+                            <div className={`h-2 w-2 rounded-full ${isExpired ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                            <span className={`font-black text-[10px] uppercase ${isExpired ? 'text-red-500' : 'text-slate-600'}`}>
+                               {isExpired ? 'Desativada (Expira Free)' : 'Ativa'}
+                            </span>
+                         </div>
+                      </TableCell>
+                      <TableCell className="text-right px-8">
+                         <Button variant="ghost" size="icon" className="rounded-xl"><MoreHorizontal className="h-5 w-5 text-slate-400" /></Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>
