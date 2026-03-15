@@ -90,8 +90,6 @@ const VIDEO_SAMPLES = [
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackAds.mp4"
 ];
 
-const CATEGORIES = ["Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
-
 const TOPICS_POOL = [
   { cat: "Beleza", topics: ["Corte Masculino Moderno", "Barboterapia Pro", "Visagismo Aplicado", "Colorimetria de Salão", "Manicure e Nail Art", "Gestão de Barbearias", "Biossegurança em Estética", "Técnicas de Penteado", "Design de Sobrancelhas", "Maquiagem Social"] },
   { cat: "Varejo", topics: ["Exposição de Gôndolas", "Técnicas de Venda PDV", "Gestão de Estoque", "Prevenção de Perdas", "Visual Merchandising", "Atendimento de Excelência", "Logística de Entrega", "Embalagem Criativa", "Curva ABC na Prática", "Compras Estratégicas"] },
@@ -100,6 +98,15 @@ const TOPICS_POOL = [
   { cat: "Saúde", topics: ["Telemedicina na Prática", "Gestão de Clínicas", "Humanização no Atendimento", "LGPD para Saúde", "Biossegurança Hospitalar", "Marketing Médico Ético", "Financeiro para Consultórios", "Novas Tecnologias em Saúde", "Prontuário Digital", "Experiência do Paciente"] },
   { cat: "Tecnologia", topics: ["IA para Negócios", "Segurança da Informação", "E-commerce do Zero", "Automação de Processos", "Cloud Computing MEI", "Ferramentas No-Code", "Análise de Dados BI", "Transformação Digital", "Suporte Técnico Pro", "Desenvolvimento Web Básico"] }
 ];
+
+const CATEGORY_CONTENT: Record<string, string> = {
+  "Beleza": "O mercado de beleza exige precisão técnica e atendimento humanizado. Este material cobre desde a anatomia capilar até a psicologia do visagismo. Aprenda a manipular ferramentas profissionais com segurança e a oferecer rituais de cuidado que fidelizam o cliente pelo valor agregado, não apenas pelo preço.",
+  "Varejo": "Vender é uma ciência baseada em dados e psicologia do consumo. Neste guia, exploramos a curva ABC de estoque, técnicas de fechamento no PDV e como transformar a experiência de compra em um momento memorável. Descubra como a exposição correta de produtos pode aumentar suas vendas em até 40% sem investimento extra.",
+  "Gestão": "Gestão eficiente é o coração de qualquer negócio escalável. Aprenda a ler seu DRE, gerenciar o capital de giro e liderar equipes de alta performance. Este material detalha rotinas administrativas essenciais para manter sua operação saudável e preparada para o crescimento multi-unidade.",
+  "Marketing": "No mundo digital, quem não é visto não é lembrado. Domine o algoritmo das redes sociais, aprenda a criar anúncios que convertem e utilize a inteligência artificial para produzir conteúdo profissional em minutos. Este guia prático ensina estratégias de growth hacking para pequenos e médios negócios.",
+  "Saúde": "A área da saúde exige rigor ético e conformidade total com a LGPD. Explore como a telemedicina pode ampliar seu raio de atuação, como gerenciar prontuários digitais com segurança e técnicas de acolhimento que melhoram o NPS da sua clínica ou consultório.",
+  "Tecnologia": "A tecnologia é a ferramenta que automatiza o sucesso. Aprenda a integrar seu e-commerce com ERPs, descubra o poder do Cloud Computing e entenda como ferramentas No-Code podem acelerar seus processos internos. Este conteúdo desmistifica a complexidade técnica para o empreendedor."
+};
 
 // Gerador de Conteúdo Didático Realista
 const generateCourses = () => {
@@ -110,6 +117,7 @@ const generateCourses = () => {
     const topic = poolItem.topics[i % poolItem.topics.length];
     const cat = poolItem.cat;
     const videoUrl = VIDEO_SAMPLES[i % VIDEO_SAMPLES.length];
+    const baseContent = CATEGORY_CONTENT[cat];
     
     courses.push({
       id: `c${i}`,
@@ -147,9 +155,24 @@ const generateCourses = () => {
         }
       ],
       materials: [
-        { title: `Guia de Estudo: ${topic}`, type: "PDF", size: "3.2MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
-        { title: `Checklist de Implementação - ${cat}`, type: "PDF", size: "1.5MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
-        { title: `Planilha de Resultados ${topic}`, type: "XLSX", size: "2.1MB", url: "https://file-examples.com/wp-content/uploads/2017/02/file_example_XLSX_10.xlsx" }
+        { 
+          title: `Guia Master: ${topic}`, 
+          type: "PDF", 
+          size: "4.2MB", 
+          content: `${baseContent}\n\nEste guia aborda especificamente os pilares de ${topic}. Recomendamos a leitura atenta de cada capítulo e a aplicação imediata no seu painel Mercado Ágil para validar os conceitos aprendidos.`
+        },
+        { 
+          title: `Checklist Prático - ${cat}`, 
+          type: "PDF", 
+          size: "1.8MB", 
+          content: `CHECKLIST DE IMPLEMENTAÇÃO: ${topic}\n\n1. Auditoria inicial do processo atual.\n2. Configuração das ferramentas de automação no painel.\n3. Treinamento da equipe de linha de frente.\n4. Definição de metas de curto prazo (30 dias).\n5. Monitoramento diário via dashboard de BI.`
+        },
+        { 
+          title: `Template de Planilha de Resultados`, 
+          type: "XLSX", 
+          size: "2.1MB", 
+          content: `Relatório de Performance - ${topic}\n\nColunas sugeridas para sua planilha:\n- Data do Evento\n- Valor do Investimento\n- Retorno Financeiro (ROI)\n- Custo de Aquisição de Cliente (CAC)\n- Taxa de Conversão Final.`
+        }
       ],
       syllabus: [
         `Domínio completo das ferramentas de ${topic}`,

@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { COURSE_LIBRARY } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { jsPDF } from "jspdf";
 
 export default function CoursePlayer() {
   const { slug, courseId } = useParams();
@@ -56,8 +57,50 @@ export default function CoursePlayer() {
   };
 
   const handleDownload = (material: any) => {
-    window.open(material.url, '_blank');
-    toast({ title: "Download Iniciado", description: `Baixando ${material.title}...` });
+    try {
+      const doc = new jsPDF();
+      
+      // Header do PDF
+      doc.setFillColor(37, 99, 235); // Cor primária
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text("ÁGIL ACADEMY", 10, 20);
+      
+      doc.setFontSize(10);
+      doc.text("MATERIAL DIDÁTICO EXCLUSIVO PARA LOJISTAS", 10, 30);
+      
+      // Título do Material
+      doc.setTextColor(33, 33, 33);
+      doc.setFontSize(18);
+      doc.text(material.title, 10, 55);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Curso: ${course?.title}`, 10, 65);
+      
+      doc.line(10, 70, 200, 70);
+      
+      // Conteúdo Real
+      doc.setTextColor(51, 65, 85);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      
+      const splitText = doc.splitTextToSize(material.content || "Nenhum conteúdo adicional disponível para este material.", 180);
+      doc.text(splitText, 10, 85);
+      
+      // Footer
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("© 2024 Mercado Ágil - Este material é de uso exclusivo dos assinantes da plataforma.", 10, 280);
+      
+      doc.save(`${material.title}.pdf`);
+      toast({ title: "Documento Gerado!", description: "O material real do curso foi baixado com sucesso." });
+    } catch (e) {
+      toast({ title: "Erro no Download", description: "Não foi possível gerar o PDF agora.", variant: "destructive" });
+    }
   };
 
   if (!course || !currentLesson) return null;
@@ -189,7 +232,7 @@ export default function CoursePlayer() {
                </TabsContent>
 
                <TabsContent value="materials" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
-                  <h3 className="text-2xl font-black italic uppercase text-white mb-6">Downloads e Referências Externas</h3>
+                  <h3 className="text-2xl font-black italic uppercase text-white mb-6">Downloads e Conteúdo Real</h3>
                   {course.materials.map((mat: any, i: number) => (
                     <div key={i} className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 bg-white/5 rounded-[30px] border border-white/5 hover:bg-white/10 transition-all gap-4">
                        <div className="flex items-center gap-4">
@@ -206,7 +249,7 @@ export default function CoursePlayer() {
                         variant="outline" 
                         className="w-full md:w-auto rounded-xl h-10 border-white/10 hover:bg-white hover:text-black gap-2 text-[10px] font-black uppercase"
                        >
-                          <Download className="h-4 w-4" /> Baixar Arquivo
+                          <Download className="h-4 w-4" /> Baixar PDF Completo
                        </Button>
                     </div>
                   ))}
