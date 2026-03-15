@@ -10,11 +10,13 @@ import { Input } from "@/components/ui/input";
 import { 
   GraduationCap, Monitor, Play, BookOpen, 
   Users, MessageSquare, FileText, LayoutDashboard,
-  Zap, Star, Award, Loader2, Search, Filter, PlayCircle, Clock
+  Zap, Star, Award, Loader2, Search, Filter, PlayCircle, Clock, Sparkles,
+  ShoppingBag, CheckCircle2, TrendingUp
 } from "lucide-react";
 import Link from 'next/link';
 import { COURSE_LIBRARY } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const CATEGORIES = ["Todos", "Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
 
@@ -22,12 +24,20 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
   const { slug } = React.use(params);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
 
   const filteredCourses = COURSE_LIBRARY.filter(course => {
     const matchesCategory = selectedCategory === "Todos" || course.category === selectedCategory;
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const handleEnroll = (courseName: string) => {
+    toast({
+      title: "Inscrição Iniciada",
+      description: `Processando aquisição do curso: ${courseName}`,
+    });
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-900 text-white font-body overflow-x-hidden">
@@ -45,21 +55,25 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
       <main className="flex-1 overflow-y-auto p-4 lg:p-8">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
+            <div className="flex items-center gap-2 mb-2">
+               <Badge className="bg-yellow-500 text-black border-none font-black italic px-3 py-1 rounded-full text-[10px]">VALOR ÚNICO: R$ 25,00</Badge>
+               <Badge className="bg-primary/20 text-primary border-none font-black text-[10px]">150 CURSOS DISPONÍVEIS</Badge>
+            </div>
             <h1 className="text-4xl font-black tracking-tighter italic uppercase text-white">Ágil Academy <span className="text-primary not-italic">PRO</span></h1>
-            <p className="text-slate-500 font-medium italic mt-1">Biblioteca corporativa com 50+ cursos exclusivos para sua equipe.</p>
+            <p className="text-slate-500 font-medium italic mt-1">A maior biblioteca corporativa do Brasil para o seu negócio.</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
              <div className="relative flex-1 md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                 <Input 
-                  placeholder="Pesquisar curso..." 
+                  placeholder="O que você quer aprender hoje?" 
                   className="bg-white/5 border-white/10 rounded-2xl h-12 pl-12 text-white font-bold"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
              </div>
-             <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic px-8 shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
-                <Zap className="h-4 w-4" /> Live Training
+             <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic px-8 shadow-xl shadow-primary/20 hover:scale-105 transition-transform text-white">
+                <TrendingUp className="h-4 w-4" /> MEU PROGRESSO
              </Button>
           </div>
         </header>
@@ -72,7 +86,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
               onClick={() => setSelectedCategory(cat)}
               className={cn(
                 "px-6 py-2.5 rounded-full whitespace-nowrap font-black italic text-[10px] uppercase tracking-widest transition-all",
-                selectedCategory === cat ? "bg-primary text-white shadow-lg" : "bg-white/5 text-slate-500 hover:bg-white/10"
+                selectedCategory === cat ? "bg-primary text-white shadow-lg shadow-primary/30" : "bg-white/5 text-slate-500 hover:bg-white/10"
               )}
              >
                {cat}
@@ -82,15 +96,18 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
 
         {/* Featured Banner */}
         <div className="mb-16 aspect-[21/9] w-full rounded-[40px] relative overflow-hidden group border-4 border-white/5 shadow-2xl">
-           <img src="https://picsum.photos/seed/main/1600/600" className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-1000" />
+           <img src="https://picsum.photos/seed/education_hero/1600/600" className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-1000" />
            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
            <div className="absolute bottom-10 left-10 max-w-2xl space-y-6">
-              <Badge className="bg-primary text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">LANÇAMENTO</Badge>
-              <h2 className="text-5xl font-black italic uppercase tracking-tighter">Automação de Vendas com Inteligência Artificial</h2>
-              <p className="text-slate-300 font-medium leading-relaxed italic text-lg">Aprenda a configurar fluxos automáticos de atendimento e fechamento usando a engine do Mercado Ágil.</p>
+              <div className="flex gap-2">
+                <Badge className="bg-primary text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">LANÇAMENTO</Badge>
+                <Badge className="bg-white/10 text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">MAIS VENDIDO</Badge>
+              </div>
+              <h2 className="text-5xl font-black italic uppercase tracking-tighter">Máquina de Vendas no Automático</h2>
+              <p className="text-slate-300 font-medium leading-relaxed italic text-lg">Descubra como lojistas do Mercado Ágil estão triplicando o faturamento usando nossa IA de vendas 24h por dia.</p>
               <div className="flex gap-4">
-                 <Button className="h-14 px-10 rounded-2xl bg-white text-slate-900 font-black italic text-lg gap-3">
-                    <Play className="h-6 w-6 fill-current" /> ASSISTIR AGORA
+                 <Button className="h-14 px-10 rounded-2xl bg-white text-slate-900 font-black italic text-lg gap-3" onClick={() => handleEnroll("Máquina de Vendas")}>
+                    <ShoppingBag className="h-6 w-6" /> ADQUIRIR POR R$ 25,00
                  </Button>
                  <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-white/5 border border-white/10 font-black italic">
                     DETALHES DO CURSO
@@ -108,11 +125,14 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {filteredCourses.map((course) => (
-                <div key={course.id} className="group cursor-pointer">
+                <div key={course.id} className="group flex flex-col">
                    <div className="aspect-video rounded-[30px] overflow-hidden relative border-2 border-white/5 bg-slate-800 mb-4">
                       <img src={course.thumb} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                          <PlayCircle className="h-16 w-16 text-white" />
+                      </div>
+                      <div className="absolute top-4 left-4">
+                         <Badge className="bg-yellow-500 text-black border-none font-black italic text-[10px]">R$ 25,00</Badge>
                       </div>
                       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                          <Badge className="bg-black/60 backdrop-blur-md text-white border-none font-black italic text-[8px] uppercase">{course.category}</Badge>
@@ -121,12 +141,18 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                          </span>
                       </div>
                    </div>
-                   <div className="space-y-2 px-2">
+                   <div className="space-y-3 px-2 flex-1 flex flex-col">
                       <h4 className="font-black italic text-lg leading-tight group-hover:text-primary transition-colors truncate">{course.title}</h4>
                       <div className="flex items-center gap-4 text-slate-500 font-bold text-[10px] uppercase tracking-widest">
                          <span className="flex items-center gap-1"><Play className="h-3 w-3" /> {course.lessons} Aulas</span>
                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {course.duration}</span>
                       </div>
+                      <Button 
+                        onClick={() => handleEnroll(course.title)}
+                        className="w-full bg-white/5 hover:bg-primary hover:text-white border border-white/10 rounded-xl h-10 font-black italic text-[10px] uppercase transition-all mt-auto group-hover:border-primary"
+                      >
+                        ADQUIRIR ACESSO
+                      </Button>
                    </div>
                 </div>
               ))}
@@ -150,10 +176,15 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                        <Award className="h-12 w-12 text-white" />
                     </div>
                     <h3 className="text-5xl font-black italic uppercase tracking-tighter leading-[0.9]">Certificações Profissionais Reconhecidas</h3>
-                    <p className="text-xl font-medium opacity-80 italic leading-relaxed">Cada curso concluído gera um certificado digital com QR Code de autenticidade para fortalecer o currículo da sua equipe.</p>
-                    <Button className="h-16 px-10 rounded-2xl bg-white text-primary font-black italic text-xl shadow-2xl hover:scale-105 transition-transform">
-                       EMITIR MEUS CERTIFICADOS
-                    </Button>
+                    <p className="text-xl font-medium opacity-80 italic leading-relaxed">Invista em você por apenas R$ 25,00 por curso. Cada conclusão gera um certificado digital com QR Code de autenticidade para fortalecer o currículo da sua equipe.</p>
+                    <div className="flex gap-4">
+                       <Button className="h-16 px-10 rounded-2xl bg-white text-primary font-black italic text-xl shadow-2xl hover:scale-105 transition-transform">
+                          EXPLORAR TODOS
+                       </Button>
+                       <Button variant="ghost" className="h-16 px-8 rounded-2xl bg-white/10 border border-white/20 font-black italic text-white hover:bg-white/20">
+                          VER MEUS CERTIFICADOS
+                       </Button>
+                    </div>
                  </div>
                  <div className="hidden lg:flex justify-end">
                     <div className="grid grid-cols-2 gap-6 rotate-3">
