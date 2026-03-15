@@ -2,109 +2,174 @@
 "use client";
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   GraduationCap, Monitor, Play, BookOpen, 
   Users, MessageSquare, FileText, LayoutDashboard,
-  Zap, Star, Award, Loader2
+  Zap, Star, Award, Loader2, Search, Filter, PlayCircle, Clock
 } from "lucide-react";
 import Link from 'next/link';
+import { COURSE_LIBRARY } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+
+const CATEGORIES = ["Todos", "Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
 
 export default function EducationAVA({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredCourses = COURSE_LIBRARY.filter(course => {
+    const matchesCategory = selectedCategory === "Todos" || course.category === selectedCategory;
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
-    <div className="flex min-h-screen bg-slate-900 text-white font-body">
-      <aside className="w-64 border-r border-white/10 bg-black hidden lg:flex flex-col sticky top-0 h-screen">
+    <div className="flex min-h-screen bg-slate-900 text-white font-body overflow-x-hidden">
+      <aside className="w-64 border-r border-white/10 bg-black hidden lg:flex flex-col sticky top-0 h-screen shrink-0">
         <div className="p-6">
           <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">MERCADO ÁGIL</Link>
         </div>
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar">
           <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:bg-white/5 rounded-xl transition-colors font-medium"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
-          <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><Monitor className="h-5 w-5" /> Ambiente (AVA)</Link>
-          <Link href={`/merchant/${slug}/education/academic`} className="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:bg-white/5 rounded-xl transition-colors font-medium"><BookOpen className="h-5 w-5" /> Aulas & Materiais</Link>
+          <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><Monitor className="h-5 w-5" /> Ágil Academy</Link>
+          <Link href={`/merchant/${slug}/education/academic`} className="flex items-center gap-3 px-4 py-2.5 text-slate-400 hover:bg-white/5 rounded-xl transition-colors font-medium"><BookOpen className="h-5 w-5" /> Gestão Escolar</Link>
         </nav>
       </aside>
 
-      <main className="flex-1 p-8 overflow-y-auto">
-        <header className="flex justify-between items-center mb-10">
+      <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
-            <h1 className="text-3xl font-black tracking-tighter italic uppercase">Ambiente Virtual (AVA)</h1>
-            <p className="text-slate-500 font-medium italic">E-learning Experience v2.4 - Estilo Netflix.</p>
+            <h1 className="text-4xl font-black tracking-tighter italic uppercase text-white">Ágil Academy <span className="text-primary not-italic">PRO</span></h1>
+            <p className="text-slate-500 font-medium italic mt-1">Biblioteca corporativa com 50+ cursos exclusivos para sua equipe.</p>
           </div>
-          <div className="flex gap-3">
-             <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic px-8 shadow-xl shadow-primary/20">
-                <Play className="h-4 w-4" /> Live Streaming
+          <div className="flex gap-3 w-full md:w-auto">
+             <div className="relative flex-1 md:w-80">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                <Input 
+                  placeholder="Pesquisar curso..." 
+                  className="bg-white/5 border-white/10 rounded-2xl h-12 pl-12 text-white font-bold"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+             </div>
+             <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic px-8 shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
+                <Zap className="h-4 w-4" /> Live Training
              </Button>
           </div>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-           <div className="lg:col-span-2 space-y-8">
-              <div className="aspect-video rounded-[40px] bg-black border-4 border-white/5 relative overflow-hidden group">
-                 <img src="https://picsum.photos/seed/edu/1200/800" className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-1000" />
-                 <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center shadow-3xl shadow-primary/40 cursor-pointer hover:scale-110 transition-transform">
-                       <Play className="h-10 w-10 fill-white" />
-                    </div>
-                 </div>
-                 <div className="absolute bottom-10 left-10 right-10">
-                    <Badge className="bg-red-500 text-white border-none font-black italic mb-4">LIVE NOW</Badge>
-                    <h2 className="text-3xl font-black italic uppercase">Aula 04: Estratégias Avançadas de Vendas</h2>
-                    <p className="text-slate-400 font-medium mt-2">Prof. Ricardo Oliveira • 1.2k Alunos assistindo</p>
-                 </div>
+        {/* Categories Bar */}
+        <div className="flex gap-3 overflow-x-auto no-scrollbar mb-12 pb-2">
+           {CATEGORIES.map(cat => (
+             <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={cn(
+                "px-6 py-2.5 rounded-full whitespace-nowrap font-black italic text-[10px] uppercase tracking-widest transition-all",
+                selectedCategory === cat ? "bg-primary text-white shadow-lg" : "bg-white/5 text-slate-500 hover:bg-white/10"
+              )}
+             >
+               {cat}
+             </button>
+           ))}
+        </div>
+
+        {/* Featured Banner */}
+        <div className="mb-16 aspect-[21/9] w-full rounded-[40px] relative overflow-hidden group border-4 border-white/5 shadow-2xl">
+           <img src="https://picsum.photos/seed/main/1600/600" className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-1000" />
+           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+           <div className="absolute bottom-10 left-10 max-w-2xl space-y-6">
+              <Badge className="bg-primary text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">LANÇAMENTO</Badge>
+              <h2 className="text-5xl font-black italic uppercase tracking-tighter">Automação de Vendas com Inteligência Artificial</h2>
+              <p className="text-slate-300 font-medium leading-relaxed italic text-lg">Aprenda a configurar fluxos automáticos de atendimento e fechamento usando a engine do Mercado Ágil.</p>
+              <div className="flex gap-4">
+                 <Button className="h-14 px-10 rounded-2xl bg-white text-slate-900 font-black italic text-lg gap-3">
+                    <Play className="h-6 w-6 fill-current" /> ASSISTIR AGORA
+                 </Button>
+                 <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-white/5 border border-white/10 font-black italic">
+                    DETALHES DO CURSO
+                 </Button>
               </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                 {[
-                   { icon: BookOpen, label: "Materiais PDF", count: "12" },
-                   { icon: MessageSquare, label: "Fórum Ativo", count: "42" },
-                   { icon: Award, label: "Certificados", count: "02" },
-                 ].map((item, i) => (
-                   <Card key={i} className="bg-white/5 border-none rounded-[30px] p-6 hover:bg-white/10 transition-colors">
-                      <item.icon className="h-8 w-8 text-primary mb-4" />
-                      <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{item.label}</p>
-                      <p className="text-2xl font-black italic mt-1">{item.count}</p>
-                   </Card>
-                 ))}
-              </div>
-           </div>
-
-           <div className="space-y-8">
-              <Card className="bg-white/5 border-none rounded-[40px] p-8">
-                 <CardTitle className="text-xl font-black italic mb-6">Trilha de Conhecimento</CardTitle>
-                 <div className="space-y-6">
-                    {[
-                      { title: "Introdução ao Mercado", progress: 100, status: "Done" },
-                      { title: "Arquitetura SaaS", progress: 65, status: "Doing" },
-                      { title: "IA & Automação", progress: 0, status: "Locked" },
-                    ].map((step, i) => (
-                      <div key={i} className="space-y-2">
-                         <div className="flex justify-between items-center text-[10px] font-black uppercase">
-                            <span className={step.status === 'Locked' ? 'text-slate-600' : 'text-slate-300'}>{step.title}</span>
-                            <span className="text-primary">{step.progress}%</span>
-                         </div>
-                         <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary rounded-full" style={{width: `${step.progress}%`}}></div>
-                         </div>
-                      </div>
-                    ))}
-                 </div>
-              </Card>
-
-              <Card className="bg-primary rounded-[40px] p-8 text-white relative overflow-hidden">
-                 <div className="relative z-10 space-y-4">
-                    <Zap className="h-10 w-10 text-white" />
-                    <h3 className="text-xl font-black italic uppercase">Upsell IA</h3>
-                    <p className="text-xs font-bold opacity-80 leading-relaxed italic">"Baseado no seu progresso, sugerimos o curso de 'Liderança Exponencial' para dobrar seus ganhos."</p>
-                    <Button className="w-full bg-white text-primary font-black italic rounded-2xl h-12">Ver Oferta VIP</Button>
-                 </div>
-                 <Star className="absolute -bottom-10 -right-10 h-40 w-40 opacity-10" />
-              </Card>
            </div>
         </div>
+
+        {/* Course Grid */}
+        <div className="space-y-12">
+           <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-black italic uppercase tracking-tighter">{selectedCategory} <span className="text-slate-600 font-bold ml-2">({filteredCourses.length})</span></h3>
+              <div className="h-1 flex-1 mx-8 bg-white/5 rounded-full"></div>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredCourses.map((course) => (
+                <div key={course.id} className="group cursor-pointer">
+                   <div className="aspect-video rounded-[30px] overflow-hidden relative border-2 border-white/5 bg-slate-800 mb-4">
+                      <img src={course.thumb} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                         <PlayCircle className="h-16 w-16 text-white" />
+                      </div>
+                      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                         <Badge className="bg-black/60 backdrop-blur-md text-white border-none font-black italic text-[8px] uppercase">{course.category}</Badge>
+                         <span className="text-[10px] font-black text-white flex items-center gap-1 bg-primary/80 px-2 py-1 rounded-lg">
+                            <Star className="h-3 w-3 fill-white" /> {course.rating}
+                         </span>
+                      </div>
+                   </div>
+                   <div className="space-y-2 px-2">
+                      <h4 className="font-black italic text-lg leading-tight group-hover:text-primary transition-colors truncate">{course.title}</h4>
+                      <div className="flex items-center gap-4 text-slate-500 font-bold text-[10px] uppercase tracking-widest">
+                         <span className="flex items-center gap-1"><Play className="h-3 w-3" /> {course.lessons} Aulas</span>
+                         <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {course.duration}</span>
+                      </div>
+                   </div>
+                </div>
+              ))}
+           </div>
+
+           {filteredCourses.length === 0 && (
+             <div className="p-20 text-center bg-white/5 rounded-[40px] border-2 border-dashed border-white/10">
+                <Monitor className="h-16 w-16 text-slate-700 mx-auto mb-6" />
+                <p className="text-xl font-black italic text-slate-500 uppercase">Nenhum curso encontrado nesta categoria.</p>
+                <p className="text-sm text-slate-600 mt-2">Tente mudar o filtro ou termo de pesquisa.</p>
+             </div>
+           )}
+        </div>
+
+        {/* Professional Certifications */}
+        <section className="mt-24 pt-16 border-t border-white/5">
+           <Card className="bg-primary rounded-[50px] p-12 text-white relative overflow-hidden border-none shadow-3xl shadow-primary/20">
+              <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                 <div className="space-y-8">
+                    <div className="h-20 w-20 rounded-3xl bg-white/20 flex items-center justify-center">
+                       <Award className="h-12 w-12 text-white" />
+                    </div>
+                    <h3 className="text-5xl font-black italic uppercase tracking-tighter leading-[0.9]">Certificações Profissionais Reconhecidas</h3>
+                    <p className="text-xl font-medium opacity-80 italic leading-relaxed">Cada curso concluído gera um certificado digital com QR Code de autenticidade para fortalecer o currículo da sua equipe.</p>
+                    <Button className="h-16 px-10 rounded-2xl bg-white text-primary font-black italic text-xl shadow-2xl hover:scale-105 transition-transform">
+                       EMITIR MEUS CERTIFICADOS
+                    </Button>
+                 </div>
+                 <div className="hidden lg:flex justify-end">
+                    <div className="grid grid-cols-2 gap-6 rotate-3">
+                       {[1,2,3,4].map(i => (
+                         <div key={i} className="h-40 w-40 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[30px] flex flex-col items-center justify-center gap-3">
+                            <GraduationCap className="h-10 w-10 text-white/40" />
+                            <div className="h-2 w-20 bg-white/20 rounded-full"></div>
+                            <div className="h-2 w-12 bg-white/10 rounded-full"></div>
+                         </div>
+                       ))}
+                    </div>
+                 </div>
+              </div>
+              <Sparkles className="absolute -bottom-20 -right-20 h-80 w-80 opacity-10" />
+           </Card>
+        </section>
       </main>
     </div>
   );
