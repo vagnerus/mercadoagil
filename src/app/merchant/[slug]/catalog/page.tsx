@@ -6,37 +6,65 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Plus, Search, Trash2, Edit2, LayoutDashboard, List, 
-  ShoppingBag, Settings, Package, Image as ImageIcon, 
-  Wand2, Download, TrendingUp, Sparkles, Box, RefreshCw, 
-  FileSpreadsheet, MousePointer2, Layers
+  TrendingUp, MousePointer2, Loader2, Package
 } from "lucide-react";
-import { MOCK_PRODUCTS, Product } from "@/lib/mock-data";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
+import { useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { collection, query, doc, orderBy } from 'firebase/firestore';
 
 export default function MerchantCatalog({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const db = useFirestore();
+
+  const productsQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'products'), orderBy('createdAt', 'desc')), [db]);
+  const { data: products, isLoading: loadingProducts } = useCollection(productsQuery);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    price: 0,
+    category: "Geral"
+  });
+
+  const handleCreateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const newProduct = {
+      name: formData.name,
+      price: Number(formData.price),
+      category: formData.category,
+      imageUrl: `https://picsum.photos/seed/${formData.name}/200/200`,
+      isAvailable: true,
+      createdAt: new Date().toISOString()
+    };
+
+    addDocumentNonBlocking(collection(db, 'merchants', 'm1', 'products'), newProduct);
+    
+    setLoading(false);
+    setIsCreateOpen(false);
+    toast({ title: "Produto Adicionado", description: `${formData.name} agora faz parte do seu catálogo.` });
+  };
 
   const toggleSelect = (id: string) => {
     setSelectedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  const handleBulkPriceChange = () => {
-    toast({ title: "Edição em Massa", description: `Ajustando preço de ${selectedItems.length} itens em +10% conforme solicitado.` });
-    setSelectedItems([]);
-    setIsBulkMode(false);
+  const handleDelete = (id: string) => {
+    deleteDocumentNonBlocking(doc(db, 'merchants', 'm1', 'products', id));
+    toast({ title: "Excluído", description: "O item foi removido do catálogo." });
   };
 
   return (
@@ -59,7 +87,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
           </div>
           <div className="flex gap-2">
             {selectedItems.length > 0 ? (
-              <Button onClick={handleBulkPriceChange} className="bg-primary rounded-2xl h-12 gap-2 font-black italic px-6 animate-pulse">
+              <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic px-6 animate-pulse text-white">
                 <TrendingUp className="h-4 w-4" /> Reajustar {selectedItems.length} Selecionados
               </Button>
             ) : (
@@ -67,7 +95,39 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                 <MousePointer2 className="h-4 w-4" /> {isBulkMode ? 'Cancelar Seleção' : 'Edição em Massa'}
               </Button>
             )}
-            <Button className="bg-slate-900 rounded-2xl h-12 gap-2 font-bold px-6"><Plus className="h-5 w-5" /> Novo Item</Button>
+            
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-slate-900 rounded-2xl h-12 gap-2 font-bold px-6 text-white shadow-xl">
+                  <Plus className="h-5 w-5" /> Novo Item
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md rounded-[40px] p-0 overflow-hidden border-none shadow-2xl">
+                <div className="bg-accent p-8 text-white">
+                  <DialogTitle className="text-2xl font-black italic uppercase text-white">Novo Produto</DialogTitle>
+                  <p className="text-white/70 text-xs font-bold mt-1">Adicione itens físicos ao seu inventário.</p>
+                </div>
+                <form onSubmit={handleCreateProduct} className="p-8 space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400">Nome do Produto</Label>
+                    <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" placeholder="Ex: Pomada Modeladora" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Preço Venda (R$)</Label>
+                      <Input type="number" required value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Categoria</Label>
+                      <Input required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                    </div>
+                  </div>
+                  <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg text-white">
+                    {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'CADASTRAR PRODUTO'}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </header>
 
@@ -82,42 +142,53 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow>
-                  {isBulkMode && <TableHead className="w-12 px-8"></TableHead>}
-                  <TableHead className="px-8 font-black uppercase text-[10px] tracking-widest">Produto</TableHead>
-                  <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Preço</TableHead>
-                  <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Status</TableHead>
-                  <TableHead className="text-right px-8 font-black uppercase text-[10px] tracking-widest">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id} className="hover:bg-slate-50 transition-colors">
-                    {isBulkMode && (
-                      <TableCell className="px-8">
-                        <Checkbox checked={selectedItems.includes(product.id)} onCheckedChange={() => toggleSelect(product.id)} />
-                      </TableCell>
-                    )}
-                    <TableCell className="py-6 px-8">
-                      <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-sm border"><img src={product.imageUrl} className="h-full w-full object-cover" /></div>
-                        <div><p className="font-black text-slate-900 italic">{product.name}</p><p className="text-[10px] font-bold text-slate-400 uppercase">SKU: {product.id.toUpperCase()}</p></div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center font-black text-primary italic text-lg">R$ {product.price.toFixed(2)}</TableCell>
-                    <TableCell className="text-center"><Badge className="bg-green-100 text-green-700 font-black italic border-none">Disponível</Badge></TableCell>
-                    <TableCell className="text-right px-8">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" className="rounded-xl"><Edit2 className="h-4 w-4 text-slate-400" /></Button>
-                        <Button variant="ghost" size="icon" className="rounded-xl hover:text-red-500"><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </TableCell>
+            {loadingProducts ? (
+              <div className="p-20 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /></div>
+            ) : (
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow>
+                    {isBulkMode && <TableHead className="w-12 px-8"></TableHead>}
+                    <TableHead className="px-8 font-black uppercase text-[10px] tracking-widest">Produto</TableHead>
+                    <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Preço</TableHead>
+                    <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Status</TableHead>
+                    <TableHead className="text-right px-8 font-black uppercase text-[10px] tracking-widest">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {products?.map((product: any) => (
+                    <TableRow key={product.id} className="hover:bg-slate-50 transition-colors">
+                      {isBulkMode && (
+                        <TableCell className="px-8">
+                          <Checkbox checked={selectedItems.includes(product.id)} onCheckedChange={() => toggleSelect(product.id)} />
+                        </TableCell>
+                      )}
+                      <TableCell className="py-6 px-8">
+                        <div className="flex items-center gap-4">
+                          <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-sm border bg-slate-100 flex items-center justify-center">
+                            {product.imageUrl ? <img src={product.imageUrl} className="h-full w-full object-cover" /> : <Package className="h-6 w-6 text-slate-300" />}
+                          </div>
+                          <div><p className="font-black text-slate-900 italic">{product.name}</p><p className="text-[10px] font-bold text-slate-400 uppercase">{product.category}</p></div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center font-black text-primary italic text-lg">R$ {product.price.toFixed(2)}</TableCell>
+                      <TableCell className="text-center"><Badge className="bg-green-100 text-green-700 font-black italic border-none">Disponível</Badge></TableCell>
+                      <TableCell className="text-right px-8">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" className="rounded-xl"><Edit2 className="h-4 w-4 text-slate-400" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)} className="rounded-xl hover:text-red-500"><Trash2 className="h-4 w-4 text-slate-400" /></Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {products?.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-40 text-center text-slate-400 font-bold italic uppercase tracking-widest text-xs">Catálogo vazio.</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </main>

@@ -2,42 +2,89 @@
 "use client";
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Calendar as CalendarIcon, Clock, User, Plus, 
   LayoutDashboard, Settings, Users, Scissors, 
   MoreVertical, CheckCircle2, AlertCircle, Phone, 
-  Smartphone, Filter, ChevronLeft, ChevronRight,
-  TrendingUp, Wallet, Bell, History
+  History, TrendingUp, Wallet, Bell, Loader2
 } from "lucide-react";
 import Link from 'next/link';
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
-import { MOCK_STAFF, MOCK_SERVICES } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
-
-const appointments = [
-  { id: 'ap1', customer: 'João Silva', service: 'Corte Degradê', time: '14:00', duration: 45, staff: 'Ricardo Barber', status: 'confirmed', phone: '(11) 99999-8888' },
-  { id: 'ap2', customer: 'Maria Santos', service: 'Coloração Pro', time: '15:30', duration: 90, staff: 'Ana Estética', status: 'pending', phone: '(11) 97777-6666' },
-  { id: 'ap3', customer: 'Pedro Souza', service: 'Barba Terapia', time: '16:00', duration: 30, staff: 'Ricardo Barber', status: 'confirmed', phone: '(11) 98888-5555' },
-];
+import { useFirestore, useCollection, addDocumentNonBlocking, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy, doc, where } from 'firebase/firestore';
 
 export default function MerchantAppointments({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [view, setView] = useState<'daily' | 'weekly'>('daily');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const db = useFirestore();
+
+  // Fetch Appointments from Firestore
+  const appointmentsQuery = useMemoFirebase(() => {
+    return query(collection(db, 'merchants', 'm1', 'appointments'), orderBy('time', 'asc'));
+  }, [db]);
+  const { data: appointments, isLoading: loadingAppointments } = useCollection(appointmentsQuery);
+
+  // Fetch Staff for Selection
+  const staffQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'staff')), [db]);
+  const { data: staffList } = useCollection(staffQuery);
+
+  // Fetch Services for Selection
+  const servicesQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'services')), [db]);
+  const { data: servicesList } = useCollection(servicesQuery);
+
+  const [formData, setFormData] = useState({
+    customer: "",
+    phone: "",
+    serviceId: "",
+    staffId: "",
+    time: "14:00"
+  });
+
+  const handleCreateAppointment = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const service = servicesList?.find(s => s.id === formData.serviceId);
+    const staff = staffList?.find(s => s.id === formData.staffId);
+
+    const newAppointment = {
+      customer: formData.customer,
+      phone: formData.phone,
+      service: service?.name || "Serviço",
+      staff: staff?.name || "Profissional",
+      time: formData.time,
+      date: date?.toISOString().split('T')[0],
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    addDocumentNonBlocking(collection(db, 'merchants', 'm1', 'appointments'), newAppointment);
+    
+    setLoading(false);
+    setIsCreateOpen(false);
+    toast({ title: "Horário Marcado!", description: `Agendamento para ${formData.customer} realizado.` });
+  };
 
   const handleConfirm = (id: string) => {
-    toast({ title: "Agendamento Confirmado", description: "Notificação enviada via WhatsApp." });
+    const docRef = doc(db, 'merchants', 'm1', 'appointments', id);
+    updateDocumentNonBlocking(docRef, { status: 'confirmed' });
+    toast({ title: "Confirmado", description: "O agendamento foi marcado como concluído." });
   };
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
-      {/* Sidebar Mobile Otimizada */}
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">MERCADO ÁGIL</Link>
@@ -54,27 +101,78 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
       <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Controle de Agenda Mobile</h1>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Controle de Agenda</h1>
             <p className="text-slate-500 font-medium">Gestão enterprise de horários e profissionais.</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
              <Button variant="outline" className="rounded-2xl h-12 flex-1 md:flex-none font-bold border-slate-200"><History className="h-4 w-4 mr-2" /> Histórico</Button>
-             <Button className="bg-slate-900 rounded-2xl h-12 flex-1 md:flex-none gap-2 font-bold shadow-xl shadow-slate-200"><Plus className="h-4 w-4" /> Novo Horário</Button>
+             
+             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-slate-900 rounded-2xl h-12 flex-1 md:flex-none gap-2 font-bold shadow-xl shadow-slate-200"><Plus className="h-4 w-4" /> Novo Horário</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md rounded-[40px] p-0 overflow-hidden border-none shadow-2xl">
+                  <div className="bg-primary p-8 text-white">
+                    <DialogTitle className="text-2xl font-black italic uppercase text-white">Novo Agendamento</DialogTitle>
+                    <p className="text-white/70 text-xs font-bold mt-1">Reserve um horário manualmente na agenda.</p>
+                  </div>
+                  <form onSubmit={handleCreateAppointment} className="p-8 space-y-6">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Cliente</Label>
+                      <Input required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" placeholder="Nome Completo" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">WhatsApp</Label>
+                      <Input required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" placeholder="(00) 00000-0000" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase text-slate-400">Serviço</Label>
+                        <Select onValueChange={v => setFormData({...formData, serviceId: v})}>
+                          <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
+                            <SelectValue placeholder="Escolha" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {servicesList?.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase text-slate-400">Hora</Label>
+                        <Input type="time" required value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Profissional</Label>
+                      <Select onValueChange={v => setFormData({...formData, staffId: v})}>
+                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
+                          <SelectValue placeholder="Selecione o Barbeiro" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {staffList?.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg text-white">
+                      {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'CONFIRMAR RESERVA'}
+                    </Button>
+                  </form>
+                </DialogContent>
+             </Dialog>
           </div>
         </header>
 
         <div className="grid lg:grid-cols-12 gap-8">
-           {/* Agenda Central */}
            <div className="lg:col-span-8 space-y-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                 {MOCK_STAFF.map(staff => (
+                 {staffList?.map(staff => (
                    <Card key={staff.id} className="border-none shadow-sm rounded-3xl p-4 bg-white flex items-center gap-3 hover:ring-2 ring-primary transition-all cursor-pointer">
                       <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-primary/20 shrink-0">
-                         <img src={staff.avatar} className="h-full w-full object-cover" />
+                         <img src={staff.avatar || `https://picsum.photos/seed/${staff.id}/100/100`} className="h-full w-full object-cover" />
                       </div>
                       <div className="min-w-0">
                          <p className="font-black text-[10px] text-slate-900 truncate uppercase">{staff.name.split(' ')[0]}</p>
-                         <p className="text-[8px] font-bold text-slate-400 uppercase">08 Marcados</p>
+                         <p className="text-[8px] font-bold text-slate-400 uppercase">Ativo</p>
                       </div>
                    </Card>
                  ))}
@@ -86,50 +184,52 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
                        <CardTitle className="text-xl font-black italic">Agenda do Dia</CardTitle>
                        <Badge className="bg-primary/10 text-primary border-none font-black text-[10px] uppercase">{date?.toLocaleDateString()}</Badge>
                     </div>
-                    <div className="flex gap-2">
-                       <Button variant="ghost" size="icon" className="rounded-xl"><ChevronLeft className="h-5 w-5" /></Button>
-                       <Button variant="ghost" size="icon" className="rounded-xl"><ChevronRight className="h-5 w-5" /></Button>
-                    </div>
                  </CardHeader>
                  <CardContent className="p-0">
-                    <div className="divide-y divide-slate-50">
-                       {appointments.map(ap => (
-                         <div key={ap.id} className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between group hover:bg-slate-50 transition-colors gap-6">
-                            <div className="flex items-center gap-6">
-                               <div className="text-center w-16">
-                                  <p className="text-2xl font-black italic text-slate-900">{ap.time}</p>
-                                  <p className="text-[9px] font-black text-slate-400 uppercase">{ap.duration} MIN</p>
-                               </div>
-                               <div className="h-12 w-1 bg-primary/20 rounded-full hidden md:block"></div>
-                               <div>
-                                  <div className="flex items-center gap-2">
-                                     <p className="font-black text-slate-900 italic text-lg uppercase">{ap.customer}</p>
-                                     <Badge variant="secondary" className="bg-blue-50 text-blue-700 font-black text-[8px] uppercase border-none h-5 px-2">{ap.service}</Badge>
-                                  </div>
-                                  <div className="flex items-center gap-4 mt-1">
-                                     <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase"><User className="h-3 w-3" /> {ap.staff}</span>
-                                     <span className="text-[10px] font-bold text-primary flex items-center gap-1 uppercase"><Phone className="h-3 w-3" /> {ap.phone}</span>
-                                  </div>
-                               </div>
-                            </div>
-                            <div className="flex items-center gap-3 w-full md:w-auto">
-                               {ap.status === 'pending' ? (
-                                 <Button size="sm" onClick={() => handleConfirm(ap.id)} className="bg-green-500 hover:bg-green-600 rounded-xl h-10 flex-1 md:flex-none px-6 font-black italic text-xs gap-2">
-                                    <CheckCircle2 className="h-4 w-4" /> Confirmar
-                                 </Button>
-                               ) : (
-                                 <Badge className="bg-green-100 text-green-700 border-none font-black italic uppercase text-[9px] px-4 py-2 rounded-xl">Confirmado</Badge>
-                               )}
-                               <Button variant="ghost" size="icon" className="rounded-xl"><MoreVertical className="h-4 w-4 text-slate-400" /></Button>
-                            </div>
-                         </div>
-                       ))}
-                    </div>
+                    {loadingAppointments ? (
+                      <div className="p-20 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /></div>
+                    ) : (
+                      <div className="divide-y divide-slate-50">
+                        {appointments?.map((ap: any) => (
+                          <div key={ap.id} className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between group hover:bg-slate-50 transition-colors gap-6">
+                              <div className="flex items-center gap-6">
+                                <div className="text-center w-16">
+                                    <p className="text-2xl font-black italic text-slate-900">{ap.time}</p>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase">Marcado</p>
+                                </div>
+                                <div className="h-12 w-1 bg-primary/20 rounded-full hidden md:block"></div>
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-black text-slate-900 italic text-lg uppercase">{ap.customer}</p>
+                                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 font-black text-[8px] uppercase border-none h-5 px-2">{ap.service}</Badge>
+                                    </div>
+                                    <div className="flex items-center gap-4 mt-1">
+                                      <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase"><User className="h-3 w-3" /> {ap.staff}</span>
+                                      <span className="text-[10px] font-bold text-primary flex items-center gap-1 uppercase"><Phone className="h-3 w-3" /> {ap.phone}</span>
+                                    </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3 w-full md:w-auto">
+                                {ap.status === 'pending' ? (
+                                  <Button size="sm" onClick={() => handleConfirm(ap.id)} className="bg-green-500 hover:bg-green-600 rounded-xl h-10 flex-1 md:flex-none px-6 font-black italic text-xs gap-2 text-white">
+                                      <CheckCircle2 className="h-4 w-4" /> Confirmar
+                                  </Button>
+                                ) : (
+                                  <Badge className="bg-green-100 text-green-700 border-none font-black italic uppercase text-[9px] px-4 py-2 rounded-xl">Confirmado</Badge>
+                                )}
+                                <Button variant="ghost" size="icon" className="rounded-xl"><MoreVertical className="h-4 w-4 text-slate-400" /></Button>
+                              </div>
+                          </div>
+                        ))}
+                        {appointments?.length === 0 && (
+                          <div className="p-20 text-center text-slate-400 font-bold italic uppercase tracking-widest text-xs">Nenhum agendamento para hoje.</div>
+                        )}
+                      </div>
+                    )}
                  </CardContent>
               </Card>
            </div>
 
-           {/* Painel Lateral / Calendário */}
            <div className="lg:col-span-4 space-y-8">
               <Card className="border-none shadow-sm rounded-[40px] p-6 bg-white overflow-hidden">
                  <Calendar mode="single" selected={date} onSelect={setDate} className="mx-auto" />
@@ -141,16 +241,7 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
                        <TrendingUp className="h-8 w-8" />
                     </div>
                     <h3 className="text-2xl font-black italic tracking-tighter">Taxa de Ocupação</h3>
-                    <div className="space-y-2">
-                       <div className="flex justify-between text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                          <span>Hoje (Meta 85%)</span>
-                          <span className="text-primary">92%</span>
-                       </div>
-                       <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-primary w-[92%] rounded-full animate-pulse"></div>
-                       </div>
-                    </div>
-                    <p className="text-slate-400 text-xs font-medium leading-relaxed italic">"Seu salão está operando acima da média nacional de produtividade."</p>
+                    <p className="text-slate-400 text-xs font-medium leading-relaxed italic">"Sua agenda está com alta visibilidade. Recomende novos serviços no checkout."</p>
                  </div>
               </Card>
 
@@ -161,12 +252,12 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
                        <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
                        <div className="flex-1">
                           <p className="text-xs font-black text-orange-700 uppercase">Conflito de Profissional</p>
-                          <p className="text-[10px] font-bold text-orange-600 mt-1">Ricardo Barber possui 2 agendamentos para às 14:00.</p>
+                          <p className="text-[10px] font-bold text-orange-600 mt-1">Verifique duplicidade de horários.</p>
                        </div>
                     </div>
                     <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-center gap-3">
                        <Bell className="h-5 w-5 text-blue-500 shrink-0" />
-                       <p className="text-[10px] font-bold text-blue-700 uppercase">03 clientes pediram lembrete WhatsApp.</p>
+                       <p className="text-[10px] font-bold text-blue-700 uppercase">Lembretes WhatsApp ativados.</p>
                     </div>
                  </div>
               </Card>
