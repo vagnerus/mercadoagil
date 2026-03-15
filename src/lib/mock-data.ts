@@ -160,7 +160,7 @@ A saúde 4.0 exige tecnologia integrada para que o profissional possa focar no q
 MANUAL DE TECNOLOGIA APLICADA:
 1. CIBERSEGURANÇA: Proteja sua loja contra ataques de ransomware e roubo de dados de cartões.
 2. CLOUD COMPUTING: Por que usar a nuvem? Escalabilidade, segurança e acesso global aos dados do seu negócio.
-3. AUTOMAÇÃO E IA: Como usar robôs para responder chats e IAs para prever o estoque futuro.
+3. AUTOMAÇÃO E IA: Como usar robôr para responder chats e IAs para prever o estoque futuro.
 4. DESENVOLVIMENTO NO-CODE: Crie soluções internas sem precisar de programadores caros.
 5. DATA SCIENCE: Transforme montanhas de dados em decisões claras. O BI (Business Intelligence) é o futuro da gestão.
 
