@@ -1,22 +1,49 @@
+
 "use client";
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, Phone, MapPin } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, MapPin, ArrowRight } from "lucide-react";
 import Link from 'next/link';
 import { MOCK_ORDERS, OrderStatus } from "@/lib/mock-data";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MerchantOrders({ params }: { params: { slug: string } }) {
   const [orders, setOrders] = useState(MOCK_ORDERS);
+  const { toast } = useToast();
 
-  const columns: { label: string; status: OrderStatus; color: string }[] = [
-    { label: "Novos", status: "new", color: "bg-blue-500" },
-    { label: "Em Preparo", status: "preparing", color: "bg-orange-500" },
-    { label: "Em Entrega", status: "delivering", color: "bg-purple-500" },
+  const columns: { label: string; status: OrderStatus; color: string; nextStatus?: OrderStatus }[] = [
+    { label: "Novos", status: "new", color: "bg-blue-500", nextStatus: "preparing" },
+    { label: "Em Preparo", status: "preparing", color: "bg-orange-500", nextStatus: "delivering" },
+    { label: "Em Entrega", status: "delivering", color: "bg-purple-500", nextStatus: "finished" },
     { label: "Concluídos", status: "finished", color: "bg-green-500" },
   ];
+
+  const moveOrder = (orderId: string, currentStatus: OrderStatus) => {
+    const currentCol = columns.find(c => c.status === currentStatus);
+    if (currentCol?.nextStatus) {
+      setOrders(prev => prev.map(o => 
+        o.id === orderId ? { ...o, status: currentCol.nextStatus as OrderStatus } : o
+      ));
+      toast({
+        title: "Status Atualizado",
+        description: `O pedido #${orderId.toUpperCase()} avançou na fila.`,
+      });
+    }
+  };
+
+  const cancelOrder = (orderId: string) => {
+    setOrders(prev => prev.map(o => 
+      o.id === orderId ? { ...o, status: 'cancelled' } : o
+    ));
+    toast({
+      title: "Pedido Cancelado",
+      description: `O pedido #${orderId.toUpperCase()} foi marcado como cancelado.`,
+      variant: "destructive"
+    });
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -74,7 +101,7 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
 
               <div className="flex-1 bg-slate-100/50 p-2 rounded-xl border border-dashed border-slate-300 overflow-y-auto space-y-4">
                 {orders.filter(o => o.status === col.status).map((order) => (
-                  <Card key={order.id} className="border-none shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                  <Card key={order.id} className="border-none shadow-sm hover:shadow-md transition-shadow group">
                     <CardContent className="p-4 space-y-3">
                       <div className="flex justify-between items-start">
                         <span className="font-bold text-slate-900 text-sm">#{order.id.toUpperCase()}</span>
@@ -100,9 +127,18 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
 
                       <div className="flex justify-between items-center pt-2">
                         <span className="font-bold text-accent">R$ {order.total.toFixed(2)}</span>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full">
-                           <ChevronRight className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                           {col.nextStatus && (
+                             <Button size="sm" variant="outline" className="h-8 px-2 text-xs gap-1" onClick={() => moveOrder(order.id, order.status)}>
+                               Avançar <ArrowRight className="h-3 w-3" />
+                             </Button>
+                           )}
+                           {order.status === 'new' && (
+                             <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-red-500 hover:text-red-600" onClick={() => cancelOrder(order.id)}>
+                               Cancelar
+                             </Button>
+                           )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

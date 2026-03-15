@@ -1,10 +1,15 @@
+
 "use client";
 
 import { useState } from 'react';
 import { MOCK_MERCHANTS, MOCK_CATEGORIES, MOCK_PRODUCTS, Product } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Clock, Info, Search, MapPin, ChevronRight, Plus } from "lucide-react";
+import { ShoppingCart, Clock, Info, Search, MapPin, ChevronRight, Plus, Minus, Trash2, CheckCircle2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
 
 export default function StoreFront({ params }: { params: { slug: string } }) {
@@ -13,6 +18,9 @@ export default function StoreFront({ params }: { params: { slug: string } }) {
   const products = MOCK_PRODUCTS.filter(p => p.merchantId === merchant?.id);
 
   const [cart, setCart] = useState<{product: Product, quantity: number}[]>([]);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [orderFinished, setOrderFinished] = useState(false);
+  const { toast } = useToast();
 
   const addToCart = (product: Product) => {
     setCart(prev => {
@@ -22,10 +30,41 @@ export default function StoreFront({ params }: { params: { slug: string } }) {
       }
       return [...prev, { product, quantity: 1 }];
     });
+    toast({
+      title: "Adicionado!",
+      description: `${product.name} foi adicionado ao carrinho.`,
+    });
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prev => prev.filter(item => item.product.id !== productId));
+  };
+
+  const updateQuantity = (productId: string, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.product.id === productId) {
+        const newQty = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }));
   };
 
   const cartTotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const handleFinishOrder = () => {
+    setOrderFinished(true);
+    setTimeout(() => {
+      setCart([]);
+      setIsCheckoutOpen(false);
+      setOrderFinished(false);
+      toast({
+        title: "Pedido Enviado!",
+        description: "Seu pedido foi recebido pelo estabelecimento.",
+      });
+    }, 2000);
+  };
 
   if (!merchant) return <div className="p-10 text-center">Loja não encontrada.</div>;
 
@@ -102,10 +141,83 @@ export default function StoreFront({ params }: { params: { slug: string } }) {
         ))}
       </div>
 
+      {/* Checkout Dialog */}
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Seu Carrinho</DialogTitle>
+          </DialogHeader>
+          
+          {orderFinished ? (
+            <div className="py-10 flex flex-col items-center justify-center space-y-4 animate-in fade-in zoom-in">
+              <CheckCircle2 className="h-16 w-16 text-green-500" />
+              <h2 className="text-xl font-bold">Pedido Finalizado!</h2>
+              <p className="text-slate-500 text-center">Estamos preparando tudo para você.</p>
+            </div>
+          ) : cart.length === 0 ? (
+            <div className="py-10 text-center text-slate-500">Seu carrinho está vazio.</div>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-4">
+                {cart.map(item => (
+                  <div key={item.product.id} className="flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{item.product.name}</p>
+                      <p className="text-xs text-primary font-bold">R$ {(item.product.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center bg-slate-100 rounded-lg">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, -1)}><Minus className="h-3 w-3" /></Button>
+                        <span className="text-sm font-bold w-6 text-center">{item.quantity}</span>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, 1)}><Plus className="h-3 w-3" /></Button>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={() => removeFromCart(item.product.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t pt-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="address">Endereço de Entrega</Label>
+                  <Input id="address" placeholder="Rua, número, bairro..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone para Contato</Label>
+                  <Input id="phone" placeholder="(00) 00000-0000" />
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-4 rounded-xl space-y-2">
+                 <div className="flex justify-between text-sm text-slate-500">
+                    <span>Subtotal</span>
+                    <span>R$ {cartTotal.toFixed(2)}</span>
+                 </div>
+                 <div className="flex justify-between text-sm text-slate-500">
+                    <span>Taxa de Entrega</span>
+                    <span>R$ 5,00</span>
+                 </div>
+                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                    <span>Total</span>
+                    <span className="text-accent">R$ {(cartTotal + 5).toFixed(2)}</span>
+                 </div>
+              </div>
+
+              <Button className="w-full bg-accent hover:bg-accent/90 py-6" onClick={handleFinishOrder}>
+                Confirmar e Enviar Pedido
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Floating Cart Button */}
       {cartCount > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-50 animate-in slide-in-from-bottom-10">
-          <Button className="w-full bg-accent hover:bg-accent/90 py-6 rounded-2xl shadow-2xl flex justify-between px-6 h-auto">
+          <Button 
+            onClick={() => setIsCheckoutOpen(true)}
+            className="w-full bg-accent hover:bg-accent/90 py-6 rounded-2xl shadow-2xl flex justify-between px-6 h-auto"
+          >
             <div className="flex items-center gap-3">
                <div className="relative">
                  <div className="bg-white/20 p-2 rounded-lg">
