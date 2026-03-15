@@ -55,7 +55,7 @@ export default function LandingPage() {
     setIsMagicAnimating(true);
     setLoading(true);
     
-    // Simulação de visualização mágica
+    // Simulation of magic generation
     setTimeout(() => {
       setLoading(false);
       if (aiSectionRef.current) {

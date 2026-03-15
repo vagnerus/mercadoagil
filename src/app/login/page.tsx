@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, AlertCircle } from "lucide-react";
+import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, AlertCircle, Info } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn } from '@/firebase';
@@ -22,14 +21,12 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
 
-  // Redirecionamento automático quando o usuário logar
   useEffect(() => {
     if (user && !isUserLoading) {
       if (user.email?.toLowerCase().includes('admin')) {
         router.push('/admin/dashboard');
         toast({ title: "Bem-vindo", description: "Acesso administrativo liberado." });
       } else {
-        // Em um sistema real, buscaríamos o slug do lojista no Firestore baseado no UID/Email
         router.push('/merchant/burger-ze/dashboard');
         toast({ title: "Bem-vindo", description: "Painel da sua loja carregado." });
       }
@@ -43,7 +40,7 @@ export default function LoginPage() {
       setLoading(false);
       toast({
         title: "Erro no Login",
-        description: "Verifique suas credenciais. " + err.message,
+        description: err.message,
         variant: "destructive"
       });
     });
@@ -51,17 +48,12 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     setLoading(true);
+    // Redirect doesn't return a promise we catch here, it reloads the page
     initiateGoogleSignIn(auth).catch((err: any) => {
       setLoading(false);
-      console.error("Google Login Error:", err);
-      
-      const isPopupError = err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request';
-      
       toast({
-        title: "Erro no Google Login",
-        description: isPopupError 
-          ? "A janela de login foi fechada. Se o problema persistir, verifique os bloqueadores de popup." 
-          : err.message,
+        title: "Erro ao iniciar Google Login",
+        description: err.message,
         variant: "destructive"
       });
     });
@@ -71,12 +63,10 @@ export default function LoginPage() {
     setLoading(true);
     const targetEmail = type === 'admin' ? 'admin@mercadoagil.com' : 'lojista@mercadoagil.com';
     initiateEmailSignIn(auth, targetEmail, 'password123').catch(() => {
-      // Se o usuário não existir no seu Firebase Auth ainda, ele vai dar erro.
-      // Em um ambiente real, você criaria esses usuários no console.
       setLoading(false);
       toast({ 
         title: "Usuário Demo", 
-        description: "Para acesso real, crie estes usuários no Console Firebase ou use o Google Login.",
+        description: "Configure este usuário no Console Firebase para acesso rápido.",
         variant: "destructive"
       });
     });
@@ -95,6 +85,14 @@ export default function LoginPage() {
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Acesso ao Painel</h1>
           <p className="text-slate-500 font-medium italic opacity-70">Gerencie sua loja ou a plataforma global.</p>
         </div>
+
+        <Alert className="bg-blue-50 border-blue-200 text-blue-800 rounded-3xl">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertTitle className="font-black text-xs uppercase tracking-widest">Dica de Estabilidade</AlertTitle>
+          <AlertDescription className="text-xs font-medium">
+            O Login com Google agora usa redirecionamento para evitar bloqueios de popup no seu ambiente.
+          </AlertDescription>
+        </Alert>
 
         <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
           <CardHeader className="p-10 pb-4">
