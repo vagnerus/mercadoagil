@@ -11,14 +11,16 @@ import {
   ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, 
   Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, 
   ShieldCheck, ShoppingBag, MapPin, Phone, User, Check,
-  Download, Copy
+  Download, Copy, TrendingUp
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
+import { useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection, serverTimestamp } from 'firebase/firestore';
 
 export default function StoreFront() {
   const params = useParams();
@@ -39,6 +41,7 @@ export default function StoreFront() {
   });
 
   const { toast } = useToast();
+  const db = useFirestore();
 
   useEffect(() => {
     if (slug) {
@@ -53,6 +56,18 @@ export default function StoreFront() {
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // IA de Upselling: Sugere uma bebida se houver um hambúrguer no carrinho
+  const getUpsellSuggestion = () => {
+    const hasBurger = cart.some(i => i.product.categoryId === 'c1');
+    const hasDrink = cart.some(i => i.product.categoryId === 'c2');
+    if (hasBurger && !hasDrink) {
+      return products.find(p => p.categoryId === 'c2');
+    }
+    return null;
+  };
+
+  const upsellProduct = getUpsellSuggestion();
 
   const addToCart = (product: Product) => {
     if (product.isLoyaltyExclusive && product.requiredTier === 'Gold' && userTier !== 'Gold') {
@@ -81,17 +96,37 @@ export default function StoreFront() {
     }).filter(item => item.quantity > 0));
   };
 
-  const handleFinishOrder = () => {
+  const handleFinishOrder = async () => {
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
       toast({ title: "Dados incompletos", description: "Por favor, preencha todas as informações de entrega.", variant: "destructive" });
       return;
     }
     
-    toast({ title: "Pedido enviado!", description: "Seu pedido está sendo preparado." });
-    setIsCheckoutOpen(false);
-    // Simula geração de ID de pedido
-    const orderId = Math.random().toString(36).substring(7);
-    router.push(`/store/${slug}/track/${orderId}`);
+    try {
+      const orderId = Math.random().toString(36).substring(7);
+      await addDocumentNonBlocking(collection(db, 'merchants', merchant!.id, 'orders'), {
+        id: orderId,
+        customerName: customerInfo.name,
+        customerPhone: customerInfo.phone,
+        address: customerInfo.address,
+        total: finalTotal,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+        timestamp: serverTimestamp(),
+        items: cart.map(i => ({
+          productId: i.product.id,
+          productName: i.product.name,
+          quantity: i.quantity,
+          price: i.product.price
+        }))
+      });
+
+      toast({ title: "Pedido enviado!", description: "Seu pedido está sendo preparado." });
+      setIsCheckoutOpen(false);
+      router.push(`/store/${slug}/track/${orderId}`);
+    } catch (e) {
+      toast({ title: "Erro", description: "Falha ao enviar pedido.", variant: "destructive" });
+    }
   };
 
   const cartTotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
@@ -205,45 +240,6 @@ export default function StoreFront() {
         })}
       </div>
 
-      {/* Product Details Dialog */}
-      <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-        <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-[40px] border-none shadow-2xl">
-           {selectedProduct && (
-             <div className="flex flex-col">
-                <div className="h-64 w-full relative">
-                   <img src={selectedProduct.imageUrl} className="w-full h-full object-cover" alt="" />
-                   {selectedProduct.isLoyaltyExclusive && (
-                     <div className="absolute top-4 right-4 bg-yellow-400 text-white px-4 py-1 rounded-full text-[10px] font-black flex items-center gap-1">
-                        <Sparkles className="h-3 w-3" /> EXCLUSIVO GOLD
-                     </div>
-                   )}
-                </div>
-                <div className="p-8 space-y-6 bg-white">
-                   <div>
-                      <h2 className="text-2xl font-black italic">{selectedProduct.name}</h2>
-                      <p className="text-sm text-slate-500 mt-2 font-bold">{selectedProduct.description}</p>
-                   </div>
-                   
-                   <div className="space-y-4">
-                      <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Instruções</Label>
-                      <Textarea placeholder="Alguma preferência?" className="rounded-[20px] bg-slate-50 border-none font-bold" />
-                   </div>
-
-                   <Button 
-                    className={`w-full h-16 rounded-[30px] font-black text-lg italic shadow-xl ${
-                      selectedProduct.isLoyaltyExclusive && userTier !== 'Gold' ? 'bg-slate-300' : 'bg-primary shadow-primary/20'
-                    }`} 
-                    onClick={() => addToCart(selectedProduct)}
-                    disabled={selectedProduct.isLoyaltyExclusive && userTier !== 'Gold'}
-                   >
-                    {selectedProduct.isLoyaltyExclusive && userTier !== 'Gold' ? 'Nível Insuficiente' : 'Adicionar à Sacola'}
-                   </Button>
-                </div>
-             </div>
-           )}
-        </DialogContent>
-      </Dialog>
-
       {/* Checkout Dialog */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
         <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-[40px] border-none shadow-2xl font-body">
@@ -276,6 +272,28 @@ export default function StoreFront() {
                     </div>
                   </div>
                 ))}
+
+                {/* IA UPSELL SUGGESTION */}
+                {upsellProduct && (
+                  <div className="p-6 bg-primary/5 border-2 border-dashed border-primary/20 rounded-[30px] space-y-4 animate-in zoom-in-95 duration-500">
+                     <div className="flex items-center gap-2 text-primary">
+                        <TrendingUp className="h-4 w-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Sugestão Mercado Ágil IA</span>
+                     </div>
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                           <div className="h-10 w-10 rounded-xl overflow-hidden border border-white">
+                              <img src={upsellProduct.imageUrl} className="h-full w-full object-cover" alt="" />
+                           </div>
+                           <div>
+                              <p className="text-xs font-black text-slate-800">{upsellProduct.name}</p>
+                              <p className="text-[10px] font-bold text-primary">Só + R$ {upsellProduct.price.toFixed(2)}</p>
+                           </div>
+                        </div>
+                        <Button size="sm" variant="outline" className="rounded-xl font-black text-[10px] h-8 border-primary/20 text-primary" onClick={() => addToCart(upsellProduct)}>ADICIONAR</Button>
+                     </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -338,27 +356,6 @@ export default function StoreFront() {
            </div>
         </DialogContent>
       </Dialog>
-
-      {/* Share/Info Overlay for Demo */}
-      <div className="px-6 mt-8">
-         <Card className="rounded-[35px] border-none shadow-sm p-8 bg-white space-y-6">
-            <h3 className="text-lg font-black italic">Informações da Loja</h3>
-            <div className="grid grid-cols-2 gap-4">
-               <div className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-1">
-                  <span className="text-[10px] font-black uppercase text-slate-400">Tempo de Entrega</span>
-                  <span className="text-sm font-bold">25-45 min</span>
-               </div>
-               <div className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-1">
-                  <span className="text-[10px] font-black uppercase text-slate-400">Pedido Mínimo</span>
-                  <span className="text-sm font-bold">R$ 20,00</span>
-               </div>
-            </div>
-            <div className="flex gap-2">
-               <Button variant="outline" className="flex-1 rounded-2xl h-14 font-black italic gap-2"><Download className="h-4 w-4" /> Baixar</Button>
-               <Button className="flex-1 bg-slate-900 rounded-2xl h-14 font-black italic gap-2"><Copy className="h-4 w-4" /> Copiar Link</Button>
-            </div>
-         </Card>
-      </div>
 
       {/* Floating Cart Button */}
       {cart.length > 0 && (
