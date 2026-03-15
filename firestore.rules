@@ -1,9 +1,3 @@
-/**
- * Firestore Security Rules - Mercado Ágil Enterprise
- * 
- * CORE PHILOSOPHY:
- * Proteção multi-tenant com fallback para Super Admin mestre.
- */
 
 rules_version = '2';
 service cloud.firestore {
@@ -34,28 +28,30 @@ service cloud.firestore {
     // --- COLLECTION RULES ---
 
     match /platformUsers/{platformUserId} {
-      // Permitir leitura e listagem para que o sistema de login identifique o cargo do usuário
-      allow get, list: if isSignedIn();
-      // Criar e atualizar permitido para o próprio usuário ou master
-      allow create, update: if isSignedIn();
-      allow delete: if isSuperAdmin();
-    }
-
-    match /plans/{planId} {
-      allow get, list: if true;
-      allow write: if isSuperAdmin();
+      // Permitir leitura e escrita para o próprio usuário gerenciar seu perfil
+      allow get, write: if isSignedIn() && (request.auth.uid == platformUserId || isMasterAdmin());
+      // Permitir listagem via query de e-mail para o fluxo de login
+      allow list: if isSignedIn();
     }
 
     match /merchants/{merchantId} {
-      allow get, list: if true; 
+      // Permitir que usuários logados criem suas próprias lojas
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (resource.data.platformUserId == request.auth.uid || isSuperAdmin());
-      allow delete: if isSuperAdmin();
+      // Permitir leitura pública para a vitrine
+      allow get, list: if true; 
+      // Permitir atualização para o dono da loja ou master
+      allow update: if isSignedIn() && (resource.data.platformUserId == request.auth.uid || isMasterAdmin());
+      allow delete: if isMasterAdmin();
 
       // Subcoleções de cada lojista (Agenda, Pedidos, etc)
       match /{allSubcollections=**} {
         allow read, write: if isSignedIn();
       }
+    }
+
+    match /plans/{planId} {
+      allow get, list: if true;
+      allow write: if isSuperAdmin();
     }
 
     match /auditLogs/{auditLogId} {

@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Store, ShieldCheck, ArrowRight, Loader2, Star, AlertCircle } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, useUser, initiateEmailSignIn, initiateEmailSignUp, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, limit } from 'firebase/firestore';
+import { useAuth, useUser, initiateEmailSignIn, initiateEmailSignUp, useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { collection, query, where, limit, doc } from 'firebase/firestore';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -32,17 +32,26 @@ export default function LoginPage() {
   const { data: userProfiles, isLoading: loadingProfile } = useCollection(userProfileQuery);
 
   useEffect(() => {
-    if (user && userProfiles && userProfiles.length > 0) {
-      const profile = userProfiles[0];
-      if (profile.role === 'SUPER_ADMIN' || user.email === 'vagneroliveira.us@gmail.com') {
-        router.replace('/admin/dashboard');
-      } else if (profile.role === 'MERCHANT_ADMIN' || profile.role === 'MERCHANT_STAFF') {
-        const slug = profile.merchantSlug || 'demo';
-        router.replace(`/merchant/${slug}/dashboard`);
-      }
-    } else if (user && userProfiles && userProfiles.length === 0 && !loadingProfile) {
+    if (user && !loadingProfile) {
+      // Prioridade absoluta: Vagner no Master Admin
       if (user.email === 'vagneroliveira.us@gmail.com') {
         router.replace('/admin/dashboard');
+        return;
+      }
+
+      if (userProfiles && userProfiles.length > 0) {
+        const profile = userProfiles[0];
+        if (profile.role === 'SUPER_ADMIN') {
+          router.replace('/admin/dashboard');
+        } else if (profile.merchantSlug) {
+          router.replace(`/merchant/${profile.merchantSlug}/dashboard`);
+        } else {
+          // Usuário sem loja vinculada -> Onboarding
+          router.replace('/onboarding');
+        }
+      } else {
+        // Usuário recém criado sem perfil no Firestore -> Onboarding
+        router.replace('/onboarding');
       }
     }
   }, [user, userProfiles, loadingProfile, router]);
@@ -53,7 +62,7 @@ export default function LoginPage() {
     try {
       if (isRegistering) {
         await initiateEmailSignUp(auth, email, password);
-        toast({ title: "Conta Criada!", description: "Agora você pode acessar o painel." });
+        toast({ title: "Conta Criada!", description: "Vamos configurar seu negócio." });
       } else {
         await initiateEmailSignIn(auth, email, password);
       }
