@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -7,13 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ProductAiGenerator } from "@/components/merchant/product-ai-generator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Trash2, Edit2, LayoutDashboard, List, ShoppingBag, Settings, Package, Image as ImageIcon, Video, Wand2, Download, Copy, TrendingUp, Wallet, Users } from "lucide-react";
-import { MOCK_PRODUCTS, MOCK_CATEGORIES } from "@/lib/mock-data";
+import { Plus, Search, Trash2, Edit2, LayoutDashboard, List, ShoppingBag, Settings, Package, Image as ImageIcon, Wand2, Download, TrendingUp, Sparkles, AlertCircle, Lock } from "lucide-react";
+import { MOCK_PRODUCTS } from "@/lib/mock-data";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,11 +29,6 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
 
   const toggleSelect = (id: string) => {
     setSelectedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const handleBulkDelete = () => {
-    toast({ title: "Ação em Massa", description: `${selectedItems.length} itens removidos.` });
-    setSelectedItems([]);
   };
 
   const calculateMargin = () => {
@@ -66,12 +61,6 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
           <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <List className="h-5 w-5" /> Catálogo
           </Link>
-          <Link href={`/merchant/${slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Users className="h-5 w-5" /> CRM Clientes
-          </Link>
-          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Wallet className="h-5 w-5" /> Financeiro
-          </Link>
           <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
@@ -82,7 +71,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
         <header className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Gestão de Cardápio</h1>
-            <p className="text-slate-500 font-medium">Crie produtos incríveis com o poder da IA.</p>
+            <p className="text-slate-500 font-medium">Controle de estoque e previsão IA integrados.</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="rounded-xl h-12"><Download className="h-4 w-4 mr-2" /> Exportar</Button>
@@ -100,17 +89,11 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                 <div className="space-y-4">
                   <div className="h-48 w-full rounded-3xl bg-slate-100 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center overflow-hidden relative group">
                     {imageUrl ? (
-                      <div className="relative w-full h-full">
-                        <img src={imageUrl} className="h-full w-full object-cover" alt="Preview" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                           <Button size="sm" variant="secondary" className="rounded-full"><Edit2 className="h-4 w-4" /></Button>
-                           <Button size="sm" variant="destructive" className="rounded-full" onClick={() => setImageUrl("")}><Trash2 className="h-4 w-4" /></Button>
-                        </div>
-                      </div>
+                      <img src={imageUrl} className="h-full w-full object-cover" alt="Preview" />
                     ) : (
                       <>
                         <ImageIcon className="h-10 w-10 text-slate-300 mb-2" />
-                        <span className="text-xs text-slate-400 font-black uppercase tracking-widest">Foto do Produto</span>
+                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Foto</span>
                       </>
                     )}
                   </div>
@@ -120,7 +103,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nome</Label>
                     <Input 
-                      placeholder="Ex: Hambúrguer de Picanha" 
+                      placeholder="Ex: Hambúrguer" 
                       value={productName}
                       onChange={(e) => setProductName(e.target.value)}
                       className="rounded-2xl h-12 bg-slate-50 border-none font-bold"
@@ -132,7 +115,6 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Venda (R$)</Label>
                       <Input 
                         type="number" 
-                        step="0.01" 
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
                         className="rounded-2xl h-12 bg-slate-50 border-none font-bold text-primary" 
@@ -142,7 +124,6 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Custo (R$)</Label>
                       <Input 
                         type="number" 
-                        step="0.01" 
                         value={costPrice}
                         onChange={(e) => setCostPrice(e.target.value)}
                         className="rounded-2xl h-12 bg-slate-50 border-none font-bold text-slate-400" 
@@ -152,7 +133,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
 
                   {calculateMargin() && (
                     <div className="p-4 bg-green-50 rounded-2xl border border-green-100 flex items-center justify-between">
-                       <span className="text-[10px] font-black uppercase text-green-700 tracking-widest">Margem de Lucro</span>
+                       <span className="text-[10px] font-black uppercase text-green-700 tracking-widest">Margem</span>
                        <Badge className="bg-green-500 text-white font-black italic">{calculateMargin()}%</Badge>
                     </div>
                   )}
@@ -161,7 +142,6 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Descrição</Label>
                     <Textarea 
                       rows={3} 
-                      placeholder="Descreva os ingredientes..." 
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="rounded-2xl bg-slate-50 border-none font-medium resize-none"
@@ -169,11 +149,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                   </div>
                 </div>
 
-                <ProductAiGenerator 
-                  productName={productName} 
-                  onDescriptionGenerated={setDescription} 
-                  onImageGenerated={setImageUrl}
-                />
+                <ProductAiGenerator productName={productName} onDescriptionGenerated={setDescription} onImageGenerated={setImageUrl} />
 
                 <Button className="w-full bg-accent hover:bg-accent/90 h-16 rounded-[28px] text-lg font-black italic shadow-xl shadow-accent/20">Salvar no Cardápio</Button>
               </CardContent>
@@ -183,21 +159,11 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-none shadow-sm rounded-[40px] overflow-hidden">
               <CardHeader className="bg-white p-8 border-b">
-                <div className="flex flex-col md:flex-row justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-xl font-black italic">Catálogo Ativo</CardTitle>
-                    {selectedItems.length > 0 && (
-                      <p className="text-sm font-bold text-accent mt-1">{selectedItems.length} itens selecionados</p>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="relative w-full md:w-64">
-                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                       <Input className="pl-12 bg-slate-100 border-none rounded-2xl h-12 font-medium" placeholder="Buscar produto..." />
-                    </div>
-                    {selectedItems.length > 0 && (
-                      <Button variant="destructive" className="rounded-2xl h-12" onClick={handleBulkDelete}><Trash2 className="h-4 w-4" /></Button>
-                    )}
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-xl font-black italic">Catálogo Ativo</CardTitle>
+                  <div className="relative w-64">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input className="pl-12 bg-slate-100 border-none rounded-2xl h-12 font-medium" placeholder="Buscar..." />
                   </div>
                 </div>
               </CardHeader>
@@ -207,8 +173,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                     <TableRow>
                       <TableHead className="w-12 px-8"></TableHead>
                       <TableHead className="font-black uppercase text-[10px] tracking-widest">Item</TableHead>
-                      <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Preço</TableHead>
-                      <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Lucro Est.</TableHead>
+                      <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Preço / IA Forecast</TableHead>
                       <TableHead className="font-black uppercase text-[10px] tracking-widest text-right px-8">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -216,30 +181,45 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                     {MOCK_PRODUCTS.map((product) => (
                       <TableRow key={product.id} className="hover:bg-slate-50 transition-colors">
                         <TableCell className="px-8">
-                          <Checkbox checked={selectedItems.includes(product.id)} onCheckedChange={() => toggleSelect(product.id)} className="rounded-md border-slate-300" />
+                          <Checkbox checked={selectedItems.includes(product.id)} onCheckedChange={() => toggleSelect(product.id)} className="rounded-md" />
                         </TableCell>
                         <TableCell className="py-6">
                           <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 rounded-2xl bg-slate-200 overflow-hidden shadow-sm border border-white">
+                            <div className="h-16 w-16 rounded-2xl bg-slate-200 overflow-hidden shadow-sm border border-white relative">
                               <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                              {product.isLoyaltyExclusive && (
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                   <Lock className="h-4 w-4 text-yellow-400" />
+                                </div>
+                              )}
                             </div>
                             <div className="flex flex-col">
                               <span className="font-black text-slate-900">{product.name}</span>
-                              <Badge variant="outline" className="w-fit text-[9px] font-black uppercase tracking-tighter mt-1 bg-white">Hambúrgueres</Badge>
+                              <div className="flex gap-1 mt-1">
+                                {product.isLoyaltyExclusive && (
+                                  <Badge className="bg-yellow-100 text-yellow-700 text-[8px] font-black uppercase px-2 py-0">VIP {product.requiredTier}</Badge>
+                                )}
+                                <Badge variant="outline" className="text-[8px] font-black uppercase">Estoque: {product.stock || 0}</Badge>
+                              </div>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell className="text-center">
-                          <span className="font-black text-accent italic">R$ {product.price.toFixed(2)}</span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                           <Badge variant="secondary" className="bg-green-100 text-green-700 font-black italic">35%</Badge>
+                          <div className="flex flex-col items-center">
+                             <span className="font-black text-accent italic">R$ {product.price.toFixed(2)}</span>
+                             {product.stockForecastDays && (
+                               <Badge className={`mt-1 text-[8px] font-black flex items-center gap-1 border-none ${
+                                 product.stockForecastDays <= 3 ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+                               }`}>
+                                 <Sparkles className="h-2 w-2" /> Esgota em {product.stockForecastDays} dias
+                               </Badge>
+                             )}
+                          </div>
                         </TableCell>
                         <TableCell className="text-right px-8">
                           <div className="flex justify-end gap-2">
                             <Button variant="ghost" size="icon" className="rounded-2xl hover:bg-slate-200"><Wand2 className="h-4 w-4 text-slate-400" /></Button>
                             <Button variant="ghost" size="icon" className="rounded-2xl hover:bg-slate-200"><Edit2 className="h-4 w-4 text-slate-400" /></Button>
-                            <Button variant="ghost" size="icon" className="rounded-2xl text-red-500 hover:text-red-600 hover:bg-red-50"><Trash2 className="h-4 w-4" /></Button>
                           </div>
                         </TableCell>
                       </TableRow>
