@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,9 @@ export default function LandingPage() {
   const [latency, setLatency] = useState(42);
   const [socialProof, setSocialProof] = useState<{name: string, city: string} | null>(null);
   const [aiStep, setAiStep] = useState(0); // 0: raw, 1: processing, 2: final
+  const [isMagicAnimating, setIsMagicAnimating] = useState(false);
+  
+  const aiSectionRef = useRef<HTMLDivElement>(null);
 
   // Simulação de Métricas de Infra
   useEffect(() => {
@@ -44,6 +47,15 @@ export default function LandingPage() {
     }, 8000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleMagicClick = () => {
+    setIsMagicAnimating(true);
+    setTimeout(() => setIsMagicAnimating(false), 2000);
+    
+    if (aiSectionRef.current) {
+      aiSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen font-body selection:bg-primary selection:text-white">
@@ -113,7 +125,10 @@ export default function LandingPage() {
                     value={storeName}
                     onChange={(e) => setStoreName(e.target.value)}
                    />
-                   <Button className="absolute right-2 top-2 bottom-2 h-12 px-6 rounded-xl font-black italic gap-2 shadow-xl shadow-primary/20">
+                   <Button 
+                    onClick={handleMagicClick}
+                    className="absolute right-2 top-2 bottom-2 h-12 px-6 rounded-xl font-black italic gap-2 shadow-xl shadow-primary/20"
+                   >
                       Ver Mágica <Zap className="h-4 w-4 fill-current" />
                    </Button>
                 </div>
@@ -133,7 +148,10 @@ export default function LandingPage() {
 
             {/* Live Smartphone Mockup */}
             <div className="relative flex justify-center perspective-[1000px]">
-              <div className="w-[320px] h-[640px] bg-slate-800 rounded-[50px] border-[12px] border-slate-900 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden transition-all duration-700 transform hover:rotate-y-12">
+              <div className={cn(
+                "w-[320px] h-[640px] bg-slate-800 rounded-[50px] border-[12px] border-slate-900 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden transition-all duration-700 transform hover:rotate-y-12",
+                isMagicAnimating && "ring-8 ring-primary ring-opacity-50 scale-105"
+              )}>
                 {/* Camera notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-24 bg-slate-900 rounded-b-2xl z-20"></div>
                 
@@ -180,7 +198,7 @@ export default function LandingPage() {
         </section>
 
         {/* AI Interactive Showcase */}
-        <section className="py-24 bg-slate-900 text-white overflow-hidden">
+        <section ref={aiSectionRef} className="py-24 bg-slate-900 text-white overflow-hidden scroll-mt-20">
            <div className="container px-4 md:px-6 mx-auto">
               <div className="grid lg:grid-cols-2 gap-20 items-center">
                  <div className="space-y-8">

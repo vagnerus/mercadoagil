@@ -7,7 +7,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { MOCK_MERCHANTS, MOCK_CATEGORIES, MOCK_PRODUCTS, Product, Merchant } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, ShieldCheck, ShoppingBag, MapPin, Phone, User, Check } from "lucide-react";
+import { 
+  ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, 
+  Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, 
+  ShieldCheck, ShoppingBag, MapPin, Phone, User, Check,
+  Download, Copy
+} from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -333,6 +338,27 @@ export default function StoreFront() {
            </div>
         </DialogContent>
       </Dialog>
+
+      {/* Share/Info Overlay for Demo */}
+      <div className="px-6 mt-8">
+         <Card className="rounded-[35px] border-none shadow-sm p-8 bg-white space-y-6">
+            <h3 className="text-lg font-black italic">Informações da Loja</h3>
+            <div className="grid grid-cols-2 gap-4">
+               <div className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-1">
+                  <span className="text-[10px] font-black uppercase text-slate-400">Tempo de Entrega</span>
+                  <span className="text-sm font-bold">25-45 min</span>
+               </div>
+               <div className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-1">
+                  <span className="text-[10px] font-black uppercase text-slate-400">Pedido Mínimo</span>
+                  <span className="text-sm font-bold">R$ 20,00</span>
+               </div>
+            </div>
+            <div className="flex gap-2">
+               <Button variant="outline" className="flex-1 rounded-2xl h-14 font-black italic gap-2"><Download className="h-4 w-4" /> Baixar</Button>
+               <Button className="flex-1 bg-slate-900 rounded-2xl h-14 font-black italic gap-2"><Copy className="h-4 w-4" /> Copiar Link</Button>
+            </div>
+         </Card>
+      </div>
 
       {/* Floating Cart Button */}
       {cart.length > 0 && (
