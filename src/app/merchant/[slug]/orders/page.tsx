@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef } from 'react';
@@ -6,16 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, MapPin, ArrowRight, Volume2, Loader2, Printer, Ban, LayoutGrid, CheckCheck, Map } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, MapPin, ArrowRight, Volume2, Loader2, Printer, Ban, LayoutGrid, CheckCheck, Map, Smartphone, ExternalLink } from "lucide-react";
 import Link from 'next/link';
-import { MOCK_ORDERS, OrderStatus } from "@/lib/mock-data";
+import { MOCK_ORDERS, OrderStatus, Order } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import { textToSpeech } from "@/ai/flows/text-to-speech-flow";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function MerchantOrders({ params }: { params: { slug: string } }) {
   const [orders, setOrders] = useState(MOCK_ORDERS);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'kds'>('kanban');
+  const [printOrder, setPrintOrder] = useState<Order | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
@@ -62,8 +63,8 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
     }
   };
 
-  const handlePrint = (orderId: string) => {
-    toast({ title: "Imprimindo...", description: `Cupom do pedido #${orderId.toUpperCase()} enviado para impressora.` });
+  const handlePrint = (order: Order) => {
+    setPrintOrder(order);
   };
 
   return (
@@ -114,7 +115,7 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
               className="rounded-xl font-black italic gap-2 h-10 px-6"
               onClick={() => setViewMode('kds')}
             >
-              <UtensilsCrossed className="h-4 w-4" /> Modo Cozinha
+              <ShoppingBag className="h-4 w-4" /> Modo Cozinha
             </Button>
           </div>
         </header>
@@ -142,17 +143,11 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
                              <span className="font-black text-slate-900 text-sm italic">#{order.id.toUpperCase()}</span>
                              <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Via App Web</span>
                           </div>
-                          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-none font-bold text-[10px] rounded-lg">
-                             {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </Badge>
                         </div>
                         
                         <div className="space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                           <div className="flex items-center gap-2 text-sm font-black text-slate-800 italic">
                             <User className="h-4 w-4 text-primary" /> {order.customerName}
-                          </div>
-                          <div className="flex items-start gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
-                            <MapPin className="h-3.5 w-3.5 text-slate-300 mt-0.5" /> {order.address}
                           </div>
                         </div>
 
@@ -169,7 +164,7 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
                         <div className="flex justify-between items-center pt-4 border-t border-dashed">
                           <span className="font-black text-primary italic text-xl">R$ {order.total.toFixed(2)}</span>
                           <div className="flex gap-2">
-                             <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-slate-100 text-slate-400" onClick={() => handlePrint(order.id)}>
+                             <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-slate-100 text-slate-400" onClick={() => handlePrint(order)}>
                                <Printer className="h-4 w-4" />
                              </Button>
                              {col.nextStatus && (
@@ -191,9 +186,9 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
              {orders.filter(o => o.status === 'preparing').map((order) => (
                <Card key={order.id} className="border-4 border-orange-200 shadow-2xl rounded-[40px] overflow-hidden bg-white">
                  <div className="bg-orange-500 p-6 text-white flex justify-between items-center">
-                    <h3 className="text-2xl font-black italic">Mesa #4 / {order.id.toUpperCase()}</h3>
+                    <h3 className="text-2xl font-black italic">#{order.id.toUpperCase()}</h3>
                     <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-2xl font-black">
-                       <Clock className="h-5 w-5" /> 12:45
+                       <Clock className="h-5 w-5" /> {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                  </div>
                  <CardContent className="p-8 space-y-6">
@@ -209,24 +204,63 @@ export default function MerchantOrders({ params }: { params: { slug: string } })
                        <Button className="flex-1 h-16 bg-green-500 hover:bg-green-600 rounded-2xl font-black text-xl italic shadow-xl shadow-green-100 gap-3" onClick={() => moveOrder(order.id, 'preparing')}>
                           <CheckCheck className="h-6 w-6" /> PRONTO
                        </Button>
-                       <Button variant="outline" size="icon" className="h-16 w-16 rounded-2xl border-2 border-slate-100 hover:bg-slate-50" onClick={() => handlePrint(order.id)}>
+                       <Button variant="outline" size="icon" className="h-16 w-16 rounded-2xl border-2 border-slate-100 hover:bg-slate-50" onClick={() => handlePrint(order)}>
                           <Printer className="h-6 w-6 text-slate-400" />
                        </Button>
                     </div>
                  </CardContent>
                </Card>
              ))}
-             {orders.filter(o => o.status === 'preparing').length === 0 && (
-               <div className="col-span-full py-40 text-center space-y-4">
-                  <div className="h-32 w-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
-                     <UtensilsCrossed className="h-16 w-16 text-slate-300" />
-                  </div>
-                  <p className="text-slate-400 font-black uppercase text-sm tracking-widest">Nenhum pedido em preparo no momento</p>
-               </div>
-             )}
           </div>
         )}
       </main>
+
+      <Dialog open={!!printOrder} onOpenChange={() => setPrintOrder(null)}>
+        <DialogContent className="sm:max-w-xs rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-mono">
+           <div className="p-10 space-y-6 text-slate-800 text-center">
+              <div className="border-b-2 border-dashed border-slate-200 pb-4">
+                 <h2 className="text-2xl font-black uppercase tracking-tighter">MERCADO ÁGIL</h2>
+                 <p className="text-xs font-bold mt-1">{params.slug.toUpperCase()}</p>
+                 <p className="text-[10px] mt-2">--------------------------------</p>
+                 <p className="text-sm font-black mt-2">PEDIDO: #{printOrder?.id.toUpperCase()}</p>
+                 <p className="text-[10px]">{new Date().toLocaleString()}</p>
+              </div>
+              
+              <div className="space-y-2 text-left text-sm">
+                 <p className="font-bold">CLIENTE: {printOrder?.customerName}</p>
+                 <p className="text-[10px]">ENDEREÇO: {printOrder?.address}</p>
+              </div>
+
+              <div className="border-y-2 border-dashed border-slate-200 py-4 text-left">
+                 {printOrder?.items.map(item => (
+                   <div key={item.id} className="flex justify-between text-xs font-bold mb-1">
+                      <span>{item.quantity}x {item.productName}</span>
+                      <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
+                   </div>
+                 ))}
+              </div>
+
+              <div className="flex justify-between items-center text-xl font-black">
+                 <span>TOTAL:</span>
+                 <span>R$ {printOrder?.total.toFixed(2)}</span>
+              </div>
+
+              <div className="pt-4 flex flex-col items-center gap-4">
+                 <div className="h-32 w-32 bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-300">
+                    <Smartphone className="h-12 w-12 text-slate-300" />
+                 </div>
+                 <p className="text-[10px] uppercase font-bold text-slate-400">Escaneie para rastrear</p>
+              </div>
+
+              <Button className="w-full bg-slate-900 text-white rounded-2xl gap-2 font-bold" onClick={() => {
+                window.print();
+                setPrintOrder(null);
+              }}>
+                 <Printer className="h-4 w-4" /> Imprimir Agora
+              </Button>
+           </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -12,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductAiGenerator } from "@/components/merchant/product-ai-generator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Search, Trash2, Edit2, LayoutDashboard, List, ShoppingBag, Settings, Package, Image as ImageIcon, Video, Wand2, Download, Copy } from "lucide-react";
+import { Plus, Search, Trash2, Edit2, LayoutDashboard, List, ShoppingBag, Settings, Package, Image as ImageIcon, Video, Wand2, Download, Copy, TrendingUp, Wallet } from "lucide-react";
 import { MOCK_PRODUCTS, MOCK_CATEGORIES } from "@/lib/mock-data";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +20,8 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [price, setPrice] = useState("");
+  const [costPrice, setCostPrice] = useState("");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const { toast } = useToast();
 
@@ -33,15 +34,13 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
     setSelectedItems([]);
   };
 
-  const handleExport = () => {
-    const data = JSON.stringify(MOCK_PRODUCTS, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'catalogo.json';
-    a.click();
-    toast({ title: "Sucesso", description: "Catálogo exportado com sucesso." });
+  const calculateMargin = () => {
+    if (!price || !costPrice) return null;
+    const p = parseFloat(price);
+    const c = parseFloat(costPrice);
+    if (isNaN(p) || isNaN(c) || p === 0) return null;
+    const margin = ((p - c) / p) * 100;
+    return margin.toFixed(1);
   };
 
   return (
@@ -65,6 +64,12 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
           <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <List className="h-5 w-5" /> Catálogo
           </Link>
+          <Link href={`/merchant/${params.slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Users className="h-5 w-5" /> CRM Clientes
+          </Link>
+          <Link href={`/merchant/${params.slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Wallet className="h-5 w-5" /> Financeiro
+          </Link>
           <Link href={`/merchant/${params.slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
@@ -78,7 +83,7 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
             <p className="text-slate-500 font-medium">Crie produtos incríveis com o poder da IA.</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="rounded-xl h-12" onClick={handleExport}><Download className="h-4 w-4 mr-2" /> Exportar</Button>
+            <Button variant="outline" className="rounded-xl h-12"><Download className="h-4 w-4 mr-2" /> Exportar</Button>
             <Button className="bg-slate-900 rounded-xl h-12 gap-2 font-bold"><Plus className="h-5 w-5" /> Novo Item</Button>
           </div>
         </header>
@@ -107,11 +112,6 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
                       </>
                     )}
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1 rounded-2xl h-10 text-xs font-bold gap-2"><ImageIcon className="h-4 w-4" /> Galeria</Button>
-                    <Button variant="outline" className="flex-1 rounded-2xl h-10 text-xs font-bold gap-2"><Video className="h-4 w-4" /> Vídeo IA</Button>
-                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -127,29 +127,39 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Categoria</Label>
-                      <Select>
-                        <SelectTrigger className="rounded-2xl h-12 bg-slate-50 border-none font-bold">
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {MOCK_CATEGORIES.map(cat => (
-                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Venda (R$)</Label>
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        className="rounded-2xl h-12 bg-slate-50 border-none font-bold text-primary" 
+                      />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Preço (R$)</Label>
-                      <Input type="number" step="0.01" placeholder="0,00" className="rounded-2xl h-12 bg-slate-50 border-none font-bold" />
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Custo (R$)</Label>
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        value={costPrice}
+                        onChange={(e) => setCostPrice(e.target.value)}
+                        className="rounded-2xl h-12 bg-slate-50 border-none font-bold text-slate-400" 
+                      />
                     </div>
                   </div>
+
+                  {calculateMargin() && (
+                    <div className="p-4 bg-green-50 rounded-2xl border border-green-100 flex items-center justify-between">
+                       <span className="text-[10px] font-black uppercase text-green-700 tracking-widest">Margem de Lucro</span>
+                       <Badge className="bg-green-500 text-white font-black italic">{calculateMargin()}%</Badge>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Descrição</Label>
                     <Textarea 
                       rows={3} 
-                      placeholder="Descreva os ingredientes e diferenciais..." 
+                      placeholder="Descreva os ingredientes..." 
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="rounded-2xl bg-slate-50 border-none font-medium resize-none"
@@ -196,7 +206,7 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
                       <TableHead className="w-12 px-8"></TableHead>
                       <TableHead className="font-black uppercase text-[10px] tracking-widest">Item</TableHead>
                       <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Preço</TableHead>
-                      <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Estoque</TableHead>
+                      <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Lucro Est.</TableHead>
                       <TableHead className="font-black uppercase text-[10px] tracking-widest text-right px-8">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -221,12 +231,7 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
                           <span className="font-black text-accent italic">R$ {product.price.toFixed(2)}</span>
                         </TableCell>
                         <TableCell className="text-center">
-                           <div className="flex flex-col items-center">
-                              <span className={`text-xs font-black ${product.stock && product.stock < 10 ? 'text-red-500 animate-pulse' : 'text-slate-500'}`}>
-                                {product.stock || 0} un
-                              </span>
-                              {product.stock && product.stock < 10 && <span className="text-[8px] font-bold text-red-400 uppercase">Crítico</span>}
-                           </div>
+                           <Badge variant="secondary" className="bg-green-100 text-green-700 font-black italic">35%</Badge>
                         </TableCell>
                         <TableCell className="text-right px-8">
                           <div className="flex justify-end gap-2">
