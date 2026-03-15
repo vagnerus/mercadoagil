@@ -29,7 +29,6 @@ export default function StoreFront() {
   const db = useFirestore();
   const { toast } = useToast();
 
-  // 1. Buscar dados do Lojista via Slug
   const merchantQuery = useMemoFirebase(() => query(
     collection(db, 'merchants'), 
     where('slug', '==', slug), 
@@ -38,14 +37,12 @@ export default function StoreFront() {
   const { data: merchantData, isLoading: loadingMerchant } = useCollection(merchantQuery);
   const merchant = merchantData?.[0];
 
-  // 2. Buscar Produtos do Lojista
   const productsQuery = useMemoFirebase(() => {
     if (!merchant?.id) return null;
     return query(collection(db, 'merchants', merchant.id, 'products'), orderBy('createdAt', 'desc'));
   }, [db, merchant?.id]);
   const { data: products, isLoading: loadingProducts } = useCollection(productsQuery);
 
-  // 3. Buscar Serviços do Lojista
   const servicesQuery = useMemoFirebase(() => {
     if (!merchant?.id) return null;
     return query(collection(db, 'merchants', merchant.id, 'services'), orderBy('createdAt', 'desc'));
@@ -54,12 +51,13 @@ export default function StoreFront() {
 
   const [cart, setCart] = useState<{item: any, type: 'product' | 'service', quantity: number}[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [orderFinished, setOrderFinished] = useState<string | null>(null);
   
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     phone: "",
     address: "",
-    time: ""
+    time: "14:00"
   });
 
   const isServiceBusiness = merchant?.segment === 'BEAUTY' || merchant?.segment === 'HEALTH' || merchant?.segment === 'SERVICE';
@@ -90,29 +88,53 @@ export default function StoreFront() {
       const orderId = Math.random().toString(36).substring(7);
       const total = cart.reduce((acc, i) => acc + (i.item.price * i.quantity), 0);
 
-      addDocumentNonBlocking(collection(db, 'merchants', merchant?.id!, 'orders'), {
+      const orderData = {
         id: orderId,
         customerName: customerInfo.name,
         customerPhone: customerInfo.phone,
         address: customerInfo.address,
         orderType: isServiceBusiness ? 'appointment' : 'delivery',
-        status: isServiceBusiness ? 'scheduled' : 'new',
+        status: isServiceBusiness ? 'pending' : 'new',
         createdAt: new Date().toISOString(),
         timestamp: serverTimestamp(),
         total,
+        time: customerInfo.time,
         items: cart.map(i => ({
           name: i.item.name,
           quantity: i.quantity,
           price: i.item.price
         }))
-      });
+      };
 
-      toast({ title: "Sucesso!", description: "Pedido processado com sucesso." });
+      addDocumentNonBlocking(collection(db, 'merchants', merchant?.id!, 'orders'), orderData);
+      
+      if (isServiceBusiness) {
+        addDocumentNonBlocking(collection(db, 'merchants', merchant?.id!, 'appointments'), {
+          customer: customerInfo.name,
+          phone: customerInfo.phone,
+          service: cart[0]?.item?.name || "Serviço",
+          staff: "Qualquer Profissional",
+          time: customerInfo.time,
+          date: new Date().toISOString().split('T')[0],
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      setOrderFinished(orderId);
       setIsCheckoutOpen(false);
-      router.push(`/store/${slug}/track/${orderId}`);
+      toast({ title: "Sucesso!", description: "Seu agendamento foi enviado." });
     } catch (e) {
       toast({ title: "Erro", description: "Falha ao processar pedido.", variant: "destructive" });
     }
+  };
+
+  const handleWhatsAppConfirm = () => {
+    if (!merchant?.settings?.whatsapp) return;
+    const cleanStorePhone = merchant.settings.whatsapp.replace(/\D/g, '');
+    const serviceName = cart[0]?.item?.name || "Serviço";
+    const message = `Olá! Acabei de fazer um agendamento de *${serviceName}* para as *${customerInfo.time}* hoje no nome de *${customerInfo.name}*. Aguardo confirmação!`;
+    window.open(`https://wa.me/55${cleanStorePhone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   if (loadingMerchant) {
@@ -152,94 +174,133 @@ export default function StoreFront() {
          <Link href={`/store/${slug}/profile`} className="p-2 bg-slate-50 rounded-full"><User className="h-5 w-5 text-slate-400" /></Link>
       </div>
 
-      <div className="relative h-48 w-full">
-        <img src={merchant.bannerUrl || `https://picsum.photos/seed/${slug}/1200/400`} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent"></div>
-      </div>
-
-      <div className="px-6 -mt-10 relative z-10 space-y-10">
-         <div className="bg-white rounded-[40px] shadow-2xl p-8 border border-slate-50">
-            <div className="flex justify-between items-start">
-               <div className="space-y-1">
-                  <h2 className="text-2xl font-black italic tracking-tighter uppercase">{merchant.name}</h2>
-                  <Badge className="bg-green-500 text-white border-none font-black italic text-[8px] uppercase">ONLINE & ABERTO</Badge>
-               </div>
-               <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" className="rounded-full bg-slate-50"><Heart className="h-4 w-4" /></Button>
-               </div>
-            </div>
-            <div className="flex gap-2 mt-6 overflow-x-auto no-scrollbar">
-               <Button variant="outline" className="rounded-2xl gap-2 font-bold h-10 border-slate-100 text-slate-600"><MapIcon className="h-4 w-4" /> Mapa</Button>
-               <Button variant="outline" className="rounded-2xl gap-2 font-bold h-10 border-slate-100 text-slate-600"><MessageCircle className="h-4 w-4" /> WhatsApp</Button>
-            </div>
-         </div>
-
-         {isServiceBusiness ? (
-           <div className="space-y-6">
-              <h3 className="text-lg font-black italic uppercase tracking-tighter">Agenda Online</h3>
-              <div className="grid gap-4">
-                 {services?.length === 0 ? (
-                   <div className="p-10 text-center bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200">
-                      <p className="text-xs font-bold text-slate-400 uppercase italic">Nenhum serviço disponível.</p>
-                   </div>
-                 ) : (
-                   services?.map(s => (
-                     <div key={s.id} onClick={() => addToCart(s, 'service')} className="p-5 bg-slate-50 rounded-[35px] flex items-center gap-4 cursor-pointer active:scale-95 transition-all">
-                        <div className="h-16 w-16 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-slate-400">
-                           <Scissors className="h-8 w-8" />
-                        </div>
-                        <div className="flex-1">
-                           <p className="font-black text-slate-900 uppercase italic text-sm">{s.name}</p>
-                           <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">{s.duration} min</p>
-                           <p className="font-black text-primary italic mt-1">R$ {s.price.toFixed(2)}</p>
-                        </div>
-                        <Plus className="h-5 w-5 text-primary mr-2" />
-                     </div>
-                   ))
-                 )}
-              </div>
+      {orderFinished ? (
+        <div className="p-8 text-center space-y-8 animate-in zoom-in-95 duration-500">
+           <div className="h-24 w-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-green-100">
+              <CheckCircle2 className="h-12 w-12" />
            </div>
-         ) : (
-           <div className="space-y-6">
-              <h3 className="text-lg font-black italic uppercase tracking-tighter">Cardápio & Vitrine</h3>
-              <div className="grid grid-cols-2 gap-4">
-                 {products?.length === 0 ? (
-                   <div className="col-span-2 p-10 text-center bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200">
-                      <p className="text-xs font-bold text-slate-400 uppercase italic">Catálogo vazio no momento.</p>
-                   </div>
-                 ) : (
-                   products?.map(p => (
-                     <div key={p.id} onClick={() => addToCart(p, 'product')} className="bg-slate-50 p-4 rounded-[35px] space-y-3 cursor-pointer active:scale-95 transition-all">
-                        <div className="h-32 w-full bg-white rounded-2xl overflow-hidden shadow-inner border border-white">
-                          <img src={p.imageUrl || `https://picsum.photos/seed/${p.id}/200/200`} className="h-full w-full object-cover" />
-                        </div>
-                        <div>
-                          <p className="font-black text-[10px] uppercase italic truncate">{p.name}</p>
-                          <p className="font-black text-primary italic text-sm">R$ {p.price.toFixed(2)}</p>
-                        </div>
-                     </div>
-                   ))
-                 )}
-              </div>
+           <div className="space-y-2">
+              <h2 className="text-3xl font-black italic tracking-tighter uppercase">Agendamento Realizado!</h2>
+              <p className="text-slate-500 font-medium italic">Seu horário foi enviado para aprovação.</p>
            </div>
-         )}
-      </div>
+           <Card className="border-none bg-slate-50 p-6 rounded-[35px] text-left space-y-4">
+              <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400">
+                 <span>Protocolo</span>
+                 <span>#{orderFinished.toUpperCase()}</span>
+              </div>
+              <div className="space-y-1">
+                 <p className="text-xl font-black italic text-slate-900 uppercase">{cart[0]?.item?.name}</p>
+                 <p className="text-sm font-bold text-primary italic uppercase">{customerInfo.time} - Hoje</p>
+              </div>
+           </Card>
+           <Button 
+            onClick={handleWhatsAppConfirm} 
+            className="w-full h-16 bg-green-500 hover:bg-green-600 text-white rounded-[30px] font-black italic text-lg shadow-2xl flex gap-3"
+           >
+              <MessageCircle className="h-6 w-6" /> NOTIFICAR VIA WHATSAPP
+           </Button>
+           <Button variant="ghost" onClick={() => setOrderFinished(null)} className="font-bold text-slate-400 uppercase text-xs">Voltar para a Loja</Button>
+        </div>
+      ) : (
+        <>
+          <div className="relative h-48 w-full">
+            <img src={merchant.bannerUrl || `https://picsum.photos/seed/${slug}/1200/400`} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent"></div>
+          </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-white border-t rounded-t-[45px] shadow-[0_-20px_50px_-15px_rgba(0,0,0,0.15)] z-50">
-         <Button 
-          disabled={cart.length === 0}
-          onClick={() => setIsCheckoutOpen(true)}
-          className="w-full h-16 bg-slate-900 text-white rounded-[30px] font-black italic text-lg shadow-2xl flex justify-between px-10"
-         >
-            <div className="flex items-center gap-3">
-               <div className="bg-primary p-1.5 rounded-lg text-white">
-                  {isServiceBusiness ? <CalendarIcon className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+          <div className="px-6 -mt-10 relative z-10 space-y-10">
+             <div className="bg-white rounded-[40px] shadow-2xl p-8 border border-slate-50">
+                <div className="flex justify-between items-start">
+                   <div className="space-y-1">
+                      <h2 className="text-2xl font-black italic tracking-tighter uppercase">{merchant.name}</h2>
+                      <Badge className="bg-green-500 text-white border-none font-black italic text-[8px] uppercase">ONLINE & ABERTO</Badge>
+                   </div>
+                   <div className="flex gap-2">
+                      <Button variant="ghost" size="icon" className="rounded-full bg-slate-50"><Heart className="h-4 w-4" /></Button>
+                   </div>
+                </div>
+                <div className="flex gap-2 mt-6 overflow-x-auto no-scrollbar">
+                   <Button variant="outline" className="rounded-2xl gap-2 font-bold h-10 border-slate-100 text-slate-600"><MapIcon className="h-4 w-4" /> Mapa</Button>
+                   {merchant.settings?.whatsapp && (
+                     <Button 
+                      variant="outline" 
+                      onClick={() => window.open(`https://wa.me/55${merchant.settings.whatsapp}`, '_blank')}
+                      className="rounded-2xl gap-2 font-bold h-10 border-slate-100 text-green-600"
+                     >
+                        <MessageCircle className="h-4 w-4" /> WhatsApp
+                     </Button>
+                   )}
+                </div>
+             </div>
+
+             {isServiceBusiness ? (
+               <div className="space-y-6">
+                  <h3 className="text-lg font-black italic uppercase tracking-tighter">Agenda Online</h3>
+                  <div className="grid gap-4">
+                     {services?.length === 0 ? (
+                       <div className="p-10 text-center bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200">
+                          <p className="text-xs font-bold text-slate-400 uppercase italic">Nenhum serviço disponível.</p>
+                       </div>
+                     ) : (
+                       services?.map(s => (
+                         <div key={s.id} onClick={() => addToCart(s, 'service')} className="p-5 bg-slate-50 rounded-[35px] flex items-center gap-4 cursor-pointer active:scale-95 transition-all">
+                            <div className="h-16 w-16 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-slate-400">
+                               <Scissors className="h-8 w-8" />
+                            </div>
+                            <div className="flex-1">
+                               <p className="font-black text-slate-900 uppercase italic text-sm">{s.name}</p>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">{s.duration} min</p>
+                               <p className="font-black text-primary italic mt-1">R$ {s.price.toFixed(2)}</p>
+                            </div>
+                            <Plus className="h-5 w-5 text-primary mr-2" />
+                         </div>
+                       ))
+                     )}
+                  </div>
                </div>
-               <span>{isServiceBusiness ? 'AGENDAR AGORA' : 'VER CARRINHO'}</span>
-            </div>
-            <span>R$ {totalCart.toFixed(2)}</span>
-         </Button>
-      </div>
+             ) : (
+               <div className="space-y-6">
+                  <h3 className="text-lg font-black italic uppercase tracking-tighter">Cardápio & Vitrine</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                     {products?.length === 0 ? (
+                       <div className="col-span-2 p-10 text-center bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200">
+                          <p className="text-xs font-bold text-slate-400 uppercase italic">Catálogo vazio no momento.</p>
+                       </div>
+                     ) : (
+                       products?.map(p => (
+                         <div key={p.id} onClick={() => addToCart(p, 'product')} className="bg-slate-50 p-4 rounded-[35px] space-y-3 cursor-pointer active:scale-95 transition-all">
+                            <div className="h-32 w-full bg-white rounded-2xl overflow-hidden shadow-inner border border-white">
+                              <img src={p.imageUrl || `https://picsum.photos/seed/${p.id}/200/200`} className="h-full w-full object-cover" />
+                            </div>
+                            <div>
+                              <p className="font-black text-[10px] uppercase italic truncate">{p.name}</p>
+                              <p className="font-black text-primary italic text-sm">R$ {p.price.toFixed(2)}</p>
+                            </div>
+                         </div>
+                       ))
+                     )}
+                  </div>
+               </div>
+             )}
+          </div>
+
+          <div className="fixed bottom-0 left-0 right-0 p-6 bg-white border-t rounded-t-[45px] shadow-[0_-20px_50px_-15px_rgba(0,0,0,0.15)] z-50">
+             <Button 
+              disabled={cart.length === 0}
+              onClick={() => setIsCheckoutOpen(true)}
+              className="w-full h-16 bg-slate-900 text-white rounded-[30px] font-black italic text-lg shadow-2xl flex justify-between px-10"
+             >
+                <div className="flex items-center gap-3">
+                   <div className="bg-primary p-1.5 rounded-lg text-white">
+                      {isServiceBusiness ? <CalendarIcon className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+                   </div>
+                   <span>{isServiceBusiness ? 'AGENDAR AGORA' : 'VER CARRINHO'}</span>
+                </div>
+                <span>R$ {totalCart.toFixed(2)}</span>
+             </Button>
+          </div>
+        </>
+      )}
 
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
          <DialogContent className="sm:max-w-lg p-0 rounded-[45px] border-none shadow-2xl overflow-hidden font-body">
@@ -257,6 +318,12 @@ export default function StoreFront() {
                     <Label className="text-[10px] font-black uppercase text-slate-400 px-1">WhatsApp</Label>
                     <Input value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" placeholder="(00) 00000-0000" />
                   </div>
+                  {isServiceBusiness && (
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Horário Preferencial</Label>
+                      <Input type="time" value={customerInfo.time} onChange={e => setCustomerInfo({...customerInfo, time: e.target.value})} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" />
+                    </div>
+                  )}
                   {!isServiceBusiness && (
                     <div className="space-y-2">
                       <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Endereço de Entrega</Label>

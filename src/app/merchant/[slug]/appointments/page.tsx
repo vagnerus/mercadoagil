@@ -14,7 +14,7 @@ import {
   Calendar as CalendarIcon, Clock, User, Plus, 
   LayoutDashboard, Settings, Users, Scissors, 
   MoreVertical, CheckCircle2, AlertCircle, Phone, 
-  History, TrendingUp, Wallet, Bell, Loader2
+  History, TrendingUp, Wallet, Bell, Loader2, MessageCircle
 } from "lucide-react";
 import Link from 'next/link';
 import { Calendar } from "@/components/ui/calendar";
@@ -36,7 +36,8 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
     limit(1)
   ), [db, slug]);
   const { data: merchantData } = useCollection(merchantQuery);
-  const merchantId = merchantData?.[0]?.id;
+  const merchant = merchantData?.[0];
+  const merchantId = merchant?.id;
 
   const appointmentsQuery = useMemoFirebase(() => {
     if (!merchantId) return null;
@@ -90,11 +91,20 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
     toast({ title: "Horário Marcado!", description: `Agendamento para ${formData.customer} realizado.` });
   };
 
-  const handleConfirm = (id: string) => {
+  const handleConfirm = (ap: any) => {
     if (!merchantId) return;
-    const docRef = doc(db, 'merchants', merchantId, 'appointments', id);
+    const docRef = doc(db, 'merchants', merchantId, 'appointments', ap.id);
     updateDocumentNonBlocking(docRef, { status: 'confirmed' });
-    toast({ title: "Confirmado", description: "O agendamento foi marcado como concluído." });
+    
+    // WhatsApp Notification Logic
+    if (merchant?.settings?.enableAutoNotify) {
+      const cleanPhone = ap.phone.replace(/\D/g, '');
+      const message = `Olá ${ap.customer}! Seu agendamento para *${ap.service}* no dia *${new Date(ap.date).toLocaleDateString('pt-BR')}* às *${ap.time}* foi CONFIRMADO na *${merchant.name}*. Estamos te aguardando!`;
+      const waUrl = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    toast({ title: "Confirmado!", description: "Status atualizado e notificação enviada." });
   };
 
   return (
@@ -159,7 +169,7 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
                       <Label className="text-[10px] font-black uppercase text-slate-400">Profissional</Label>
                       <Select onValueChange={v => setFormData({...formData, staffId: v})}>
                         <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
-                          <SelectValue placeholder="Selecione o Barbeiro" />
+                          <SelectValue placeholder="Selecione o Profissional" />
                         </SelectTrigger>
                         <SelectContent>
                           {staffList?.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
@@ -195,7 +205,7 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
                  <CardHeader className="p-8 border-b bg-slate-50/30 flex flex-row items-center justify-between">
                     <div className="flex items-center gap-4">
                        <CardTitle className="text-xl font-black italic">Agenda do Dia</CardTitle>
-                       <Badge className="bg-primary/10 text-primary border-none font-black text-[10px] uppercase">{date?.toLocaleDateString()}</Badge>
+                       <Badge className="bg-primary/10 text-primary border-none font-black text-[10px] uppercase">{date?.toLocaleDateString('pt-BR')}</Badge>
                     </div>
                  </CardHeader>
                  <CardContent className="p-0">
@@ -224,11 +234,16 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
                               </div>
                               <div className="flex items-center gap-3 w-full md:w-auto">
                                 {ap.status === 'pending' ? (
-                                  <Button size="sm" onClick={() => handleConfirm(ap.id)} className="bg-green-500 hover:bg-green-600 rounded-xl h-10 flex-1 md:flex-none px-6 font-black italic text-xs gap-2 text-white">
+                                  <Button size="sm" onClick={() => handleConfirm(ap)} className="bg-green-500 hover:bg-green-600 rounded-xl h-10 flex-1 md:flex-none px-6 font-black italic text-xs gap-2 text-white">
                                       <CheckCircle2 className="h-4 w-4" /> Confirmar
                                   </Button>
                                 ) : (
-                                  <Badge className="bg-green-100 text-green-700 border-none font-black italic uppercase text-[9px] px-4 py-2 rounded-xl">Confirmado</Badge>
+                                  <div className="flex items-center gap-2">
+                                    <Badge className="bg-green-100 text-green-700 border-none font-black italic uppercase text-[9px] px-4 py-2 rounded-xl">Confirmado</Badge>
+                                    <Button variant="ghost" size="icon" className="text-green-600" onClick={() => handleConfirm(ap)}>
+                                      <MessageCircle className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 )}
                                 <Button variant="ghost" size="icon" className="rounded-xl"><MoreVertical className="h-4 w-4 text-slate-400" /></Button>
                               </div>
