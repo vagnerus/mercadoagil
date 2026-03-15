@@ -11,12 +11,13 @@ import {
   GraduationCap, Monitor, Play, BookOpen, 
   Users, MessageSquare, FileText, LayoutDashboard,
   Zap, Star, Award, Loader2, Search, Filter, PlayCircle, Clock, Sparkles,
-  ShoppingBag, CheckCircle2, TrendingUp
+  ShoppingBag, CheckCircle2, TrendingUp, ChevronRight, Info
 } from "lucide-react";
 import Link from 'next/link';
 import { COURSE_LIBRARY } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const CATEGORIES = ["Todos", "Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
 
@@ -24,6 +25,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
   const { slug } = React.use(params);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const { toast } = useToast();
 
   const filteredCourses = COURSE_LIBRARY.filter(course => {
@@ -34,9 +36,10 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
 
   const handleEnroll = (courseName: string) => {
     toast({
-      title: "Inscrição Iniciada",
-      description: `Processando aquisição do curso: ${courseName}`,
+      title: "Inscrição Realizada!",
+      description: `Você adquiriu acesso vitalício ao curso: ${courseName}. Valor de R$ 25,00 processado.`,
     });
+    setSelectedCourse(null);
   };
 
   return (
@@ -57,7 +60,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
           <div>
             <div className="flex items-center gap-2 mb-2">
                <Badge className="bg-yellow-500 text-black border-none font-black italic px-3 py-1 rounded-full text-[10px]">VALOR ÚNICO: R$ 25,00</Badge>
-               <Badge className="bg-primary/20 text-primary border-none font-black text-[10px]">150 CURSOS DISPONÍVEIS</Badge>
+               <Badge className="bg-primary/20 text-primary border-none font-black text-[10px]">500 CURSOS DISPONÍVEIS</Badge>
             </div>
             <h1 className="text-4xl font-black tracking-tighter italic uppercase text-white">Ágil Academy <span className="text-primary not-italic">PRO</span></h1>
             <p className="text-slate-500 font-medium italic mt-1">A maior biblioteca corporativa do Brasil para o seu negócio.</p>
@@ -109,9 +112,6 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                  <Button className="h-14 px-10 rounded-2xl bg-white text-slate-900 font-black italic text-lg gap-3" onClick={() => handleEnroll("Máquina de Vendas")}>
                     <ShoppingBag className="h-6 w-6" /> ADQUIRIR POR R$ 25,00
                  </Button>
-                 <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-white/5 border border-white/10 font-black italic">
-                    DETALHES DO CURSO
-                 </Button>
               </div>
            </div>
         </div>
@@ -125,7 +125,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {filteredCourses.map((course) => (
-                <div key={course.id} className="group flex flex-col">
+                <div key={course.id} className="group flex flex-col cursor-pointer" onClick={() => setSelectedCourse(course)}>
                    <div className="aspect-video rounded-[30px] overflow-hidden relative border-2 border-white/5 bg-slate-800 mb-4">
                       <img src={course.thumb} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -142,16 +142,15 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                       </div>
                    </div>
                    <div className="space-y-3 px-2 flex-1 flex flex-col">
-                      <h4 className="font-black italic text-lg leading-tight group-hover:text-primary transition-colors truncate">{course.title}</h4>
+                      <h4 className="font-black italic text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2">{course.title}</h4>
                       <div className="flex items-center gap-4 text-slate-500 font-bold text-[10px] uppercase tracking-widest">
                          <span className="flex items-center gap-1"><Play className="h-3 w-3" /> {course.lessons} Aulas</span>
                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {course.duration}</span>
                       </div>
                       <Button 
-                        onClick={() => handleEnroll(course.title)}
                         className="w-full bg-white/5 hover:bg-primary hover:text-white border border-white/10 rounded-xl h-10 font-black italic text-[10px] uppercase transition-all mt-auto group-hover:border-primary"
                       >
-                        ADQUIRIR ACESSO
+                        VER DETALHES
                       </Button>
                    </div>
                 </div>
@@ -166,6 +165,69 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
              </div>
            )}
         </div>
+
+        {/* Course Details Modal */}
+        <Dialog open={!!selectedCourse} onOpenChange={() => setSelectedCourse(null)}>
+           <DialogContent className="sm:max-w-3xl bg-slate-950 border-white/10 p-0 overflow-hidden text-white rounded-[40px]">
+              {selectedCourse && (
+                <div className="flex flex-col">
+                   <div className="aspect-video w-full relative">
+                      <img src={selectedCourse.thumb} className="w-full h-full object-cover opacity-50" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
+                      <div className="absolute bottom-8 left-8 right-8">
+                         <Badge className="bg-primary text-white border-none font-black italic mb-4 uppercase text-[10px]">{selectedCourse.category}</Badge>
+                         <h2 className="text-4xl font-black italic uppercase tracking-tighter">{selectedCourse.title}</h2>
+                      </div>
+                   </div>
+                   <div className="p-8 space-y-8">
+                      <div className="grid grid-cols-3 gap-4">
+                         <div className="bg-white/5 p-4 rounded-3xl border border-white/5 text-center">
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Duração</p>
+                            <p className="text-lg font-black italic text-primary">{selectedCourse.duration}</p>
+                         </div>
+                         <div className="bg-white/5 p-4 rounded-3xl border border-white/5 text-center">
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Aulas</p>
+                            <p className="text-lg font-black italic text-primary">{selectedCourse.lessons}</p>
+                         </div>
+                         <div className="bg-white/5 p-4 rounded-3xl border border-white/5 text-center">
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Rating</p>
+                            <p className="text-lg font-black italic text-primary">{selectedCourse.rating}/5.0</p>
+                         </div>
+                      </div>
+
+                      <div className="space-y-4">
+                         <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2">
+                            <Info className="h-5 w-5 text-primary" /> Sobre o Curso
+                         </h3>
+                         <p className="text-slate-400 font-medium leading-relaxed italic">{selectedCourse.description}</p>
+                      </div>
+
+                      <div className="space-y-4">
+                         <h3 className="text-xl font-black italic uppercase tracking-tighter">O que você vai aprender:</h3>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {selectedCourse.syllabus.map((item: string, i: number) => (
+                              <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/5">
+                                 <div className="h-6 w-6 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-black text-[10px] italic">{i+1}</div>
+                                 <span className="text-xs font-bold text-slate-300">{item}</span>
+                              </div>
+                            ))}
+                         </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                         <div className="space-y-1">
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Investimento Único</p>
+                            <p className="text-3xl font-black italic text-white">R$ 25,00</p>
+                         </div>
+                         <Button onClick={() => handleEnroll(selectedCourse.title)} className="h-16 px-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-black italic text-xl shadow-2xl shadow-primary/20 gap-3">
+                            <ShoppingBag className="h-6 w-6" /> INSCREVER AGORA
+                         </Button>
+                      </div>
+                   </div>
+                </div>
+              )}
+           </DialogContent>
+        </Dialog>
 
         {/* Professional Certifications */}
         <section className="mt-24 pt-16 border-t border-white/5">

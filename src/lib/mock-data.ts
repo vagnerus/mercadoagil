@@ -77,22 +77,30 @@ export interface Order {
   items: any[];
 }
 
-// Biblioteca de 150 Cursos para o AVA (R$ 25 cada)
+// Biblioteca de 500 Cursos para o AVA (R$ 25 cada)
 const generateCourses = () => {
   const categories = ["Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
   const courses = [];
   
-  for (let i = 1; i <= 150; i++) {
+  for (let i = 1; i <= 500; i++) {
     const cat = categories[Math.floor(Math.random() * categories.length)];
     courses.push({
       id: `c${i}`,
       title: `Curso Especialista ${i}: ${getCourseTopic(i)}`,
+      description: `Domine as técnicas avançadas de ${getCourseTopic(i)} com este treinamento intensivo focado em resultados reais para o seu negócio no Mercado Ágil.`,
       category: cat,
-      duration: `${Math.floor(Math.random() * 20) + 5}h`,
-      lessons: Math.floor(Math.random() * 15) + 5,
+      duration: `${Math.floor(Math.random() * 30) + 10}h`,
+      lessons: Math.floor(Math.random() * 20) + 10,
       rating: (Math.random() * (5 - 4.2) + 4.2).toFixed(1),
       price: 25.00,
-      thumb: `https://picsum.photos/seed/course${i}/400/250`
+      thumb: `https://picsum.photos/seed/course${i}/400/250`,
+      syllabus: [
+        "Introdução e Mentalidade",
+        "Ferramentas e Processos",
+        "Estratégias Avançadas",
+        "Estudo de Caso Real",
+        "Certificação e Próximos Passos"
+      ]
     });
   }
   return courses;
@@ -106,7 +114,8 @@ const getCourseTopic = (i: number) => {
     "Google Ads Local", "Copywriting IA", "SEO para Lojas", "Instagram para Negócios",
     "Primeiros Socorros", "Nutrição Clínica", "Gestão Hospitalar", "Ética na Saúde",
     "JavaScript Moderno", "React do Zero", "Cloud Computing", "Segurança Digital",
-    "Roteirização de Entregas", "Controle de Estoque", "Curva ABC na Prática", "Fidelização 2.0"
+    "Roteirização de Entregas", "Controle de Estoque", "Curva ABC na Prática", "Fidelização 2.0",
+    "Escala de Franquias", "Processos Operacionais", "Venda Consultiva", "Psicologia do Consumidor"
   ];
   return topics[i % topics.length];
 };
