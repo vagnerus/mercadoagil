@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from 'react';
@@ -56,13 +55,13 @@ export default function LandingPage() {
     setIsMagicAnimating(true);
     setLoading(true);
     
-    // Simulação de criação inicial
+    // Simulação de visualização mágica
     setTimeout(() => {
       setLoading(false);
       if (aiSectionRef.current) {
         aiSectionRef.current.scrollIntoView({ behavior: 'smooth' });
       }
-      toast({ title: "Draft Criado!", description: "Role para ver sua vitrine personalizada." });
+      toast({ title: "Preview Gerado!", description: "Veja abaixo como sua loja pode ficar com IA." });
     }, 1500);
   };
 
@@ -300,7 +299,7 @@ export default function LandingPage() {
               ].map((feat, i) => (
                 <div key={i} className="group perspective-[1000px]">
                   <div className="flex flex-col items-center space-y-6 text-center p-12 rounded-[40px] border bg-slate-50/30 transition-all duration-500 transform-gpu group-hover:rotate-x-6 group-hover:-rotate-y-6 group-hover:scale-105 group-hover:shadow-3xl group-hover:bg-white group-hover:border-primary/20 relative overflow-hidden">
-                    <div className={cn("p-6 rounded-[24px] transition-colors bg-opacity-10", `bg-${feat.color}`, `text-${feat.color}`, "group-hover:bg-primary group-hover:text-white")}>
+                    <div className={cn("p-6 rounded-[24px] transition-colors bg-opacity-10", feat.color.includes('-') ? feat.color : `bg-${feat.color}`, feat.color.includes('-') ? `text-${feat.color.replace('bg-','')}` : `text-${feat.color}`, "group-hover:bg-primary group-hover:text-white")}>
                       <feat.icon className="h-10 w-10" />
                     </div>
                     <h3 className="text-2xl font-black italic">{feat.title}</h3>

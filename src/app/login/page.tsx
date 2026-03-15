@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -7,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, LayoutGrid } from "lucide-react";
+import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, AlertCircle } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn } from '@/firebase';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -28,8 +28,6 @@ export default function LoginPage() {
         router.push('/admin/dashboard');
         toast({ title: "Bem-vindo", description: "Acesso administrativo liberado." });
       } else {
-        // No protótipo redirecionamos para uma loja fixa, 
-        // mas em produção buscaríamos o merchantId do perfil do usuário
         router.push('/merchant/burger-ze/dashboard');
         toast({ title: "Bem-vindo", description: "Painel da sua loja carregado." });
       }
@@ -39,20 +37,38 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    initiateEmailSignIn(auth, email, password);
-    // O loading será desativado indiretamente pelo useEffect que observa o 'user'
-    // ou se houver erro (através do FirebaseErrorListener)
+    initiateEmailSignIn(auth, email, password).catch((err: any) => {
+      setLoading(false);
+      toast({
+        title: "Erro no Login",
+        description: "Verifique suas credenciais. " + err.message,
+        variant: "destructive"
+      });
+    });
   };
 
   const handleGoogleLogin = () => {
     setLoading(true);
-    initiateGoogleSignIn(auth);
+    initiateGoogleSignIn(auth).catch((err: any) => {
+      setLoading(false);
+      console.error("Google Login Error:", err);
+      
+      const isPopupError = err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request';
+      
+      toast({
+        title: "Erro no Google Login",
+        description: isPopupError 
+          ? "A janela de login foi fechada. Certifique-se de autorizar este domínio no Console do Firebase." 
+          : err.message,
+        variant: "destructive"
+      });
+    });
   };
 
   const handleQuickDemoLogin = (type: 'admin' | 'merchant') => {
     setLoading(true);
     const targetEmail = type === 'admin' ? 'admin@mercadoagil.com' : 'lojista@mercadoagil.com';
-    initiateEmailSignIn(auth, targetEmail, 'password123');
+    initiateEmailSignIn(auth, targetEmail, 'password123').catch(() => setLoading(false));
   };
 
   return (
@@ -68,6 +84,14 @@ export default function LoginPage() {
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Acesso ao Painel</h1>
           <p className="text-slate-500 font-medium italic opacity-70">Gerencie sua loja ou a plataforma global.</p>
         </div>
+
+        <Alert className="bg-blue-50 border-blue-200 text-blue-800 rounded-3xl">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle className="font-black text-xs uppercase tracking-widest">Dica Técnica</AlertTitle>
+          <AlertDescription className="text-[10px] font-bold">
+            Para o Google Login funcionar neste ambiente, autorize o domínio <code className="bg-blue-100 px-1">*.cloudworkstations.dev</code> no seu Console Firebase.
+          </AlertDescription>
+        </Alert>
 
         <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
           <CardHeader className="p-10 pb-4">
