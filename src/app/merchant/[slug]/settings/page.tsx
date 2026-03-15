@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { collection, query, where, limit, doc } from 'firebase/firestore';
+import { cn } from "@/lib/utils";
 
 export default function MerchantSettings({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -88,6 +89,10 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
     }, 2000);
   };
 
+  if (loadingMerchant) {
+    return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
@@ -130,7 +135,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                          </div>
                       </div>
 
-                      <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl">
+                      <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl text-white">
                         {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Salvar Alterações'}
                       </Button>
                    </div>
@@ -198,7 +203,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                          <p className="text-xs text-slate-400 leading-relaxed">Use este link na sua bio do WhatsApp Business para permitir que clientes agendem sem precisar de um atendente humano.</p>
                          <div className="bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-between">
                             <code className="text-[10px] text-primary font-bold">agil.com/s/{slug}</code>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/20"><QrCode className="h-3 w-3" /></Button>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/20 text-white"><QrCode className="h-3 w-3" /></Button>
                          </div>
                       </div>
                    </Card>
@@ -224,7 +229,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">Google Analytics (G-ID)</Label>
                          <Input value={settings.googleAnalytics} onChange={e => setSettings({...settings, googleAnalytics: e.target.value})} placeholder="ex: G-XXXXXXX" className="h-14 rounded-2xl bg-slate-50 border-none font-mono" />
                       </div>
-                      <Button onClick={handleSave} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl">Salvar Integrações</Button>
+                      <Button onClick={handleSave} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl text-white">Salvar Integrações</Button>
                    </div>
                    <div className="p-8 bg-blue-50 rounded-[40px] border border-blue-100 space-y-4">
                       <Code className="h-10 w-10 text-primary" />
