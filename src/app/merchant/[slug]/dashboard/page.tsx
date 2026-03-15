@@ -6,7 +6,12 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart, Monitor, ChevronRight, MessageCircle, BarChart, Smile, AlertCircle, Heart } from "lucide-react";
+import { 
+  ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, 
+  TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, 
+  PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart, 
+  Monitor, ChevronRight, MessageCircle, BarChart, Smile, AlertCircle, Heart, Globe 
+} from "lucide-react";
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart as ReBarChart, Bar, Cell } from 'recharts';
 import Link from 'next/link';
 import { MOCK_AUDIT_LOGS, MOCK_MERCHANTS } from "@/lib/mock-data";
