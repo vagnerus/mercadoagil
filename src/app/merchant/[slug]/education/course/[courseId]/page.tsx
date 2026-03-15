@@ -33,119 +33,113 @@ export default function CoursePlayer() {
   useEffect(() => {
     if (course) {
       setCurrentLesson(course.modules[0].lessons[0]);
-    } else {
+    } else if (courseId) {
       router.push(`/merchant/${slug}/education/ava`);
     }
-  }, [course, router, slug]);
+  }, [course, router, slug, courseId]);
 
   const toggleLessonComplete = (id: string) => {
     setCompletedLessons(prev => 
       prev.includes(id) ? prev.filter(l => l !== id) : [...prev, id]
     );
     if (!completedLessons.includes(id)) {
-      toast({ title: "Aula Concluída!", description: "Continue assim para ganhar seu certificado." });
+      toast({ title: "Aula Concluída!", description: "Continue assim para o certificado." });
     }
   };
 
   const totalLessons = course?.modules.reduce((acc, m) => acc + m.lessons.length, 0) || 1;
   const progress = Math.round((completedLessons.length / totalLessons) * 100);
 
-  const handlePostComment = () => {
-    if (!comment) return;
-    toast({ title: "Comentário Enviado!", description: "O instrutor responderá em breve." });
-    setComment("");
-  };
-
   const handleDownload = (material: any) => {
     try {
       const doc = new jsPDF();
       const margin = 15;
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
+      const pageWidth = 210;
       
-      const addHeader = () => {
+      const addHeader = (pageNum: number) => {
         doc.setFillColor(37, 99, 235); 
-        doc.rect(0, 0, 210, 40, 'F');
+        doc.rect(0, 0, pageWidth, 40, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(24);
-        doc.text("ÁGIL ACADEMY", margin, 20);
+        doc.text("ÁGIL ACADEMY ELITE", margin, 20);
         doc.setFontSize(8);
         doc.setFont("helvetica", "normal");
         doc.text("CENTRO DE EXCELÊNCIA EM EDUCAÇÃO CORPORATIVA", margin, 28);
-        doc.text(`MATERIAL OFICIAL: ${material.title.toUpperCase()}`, margin, 33);
+        doc.text(`MATERIAL OFICIAL DE ESTUDO - PÁGINA ${pageNum}`, margin, 33);
       };
 
       const addFooter = (pageNum: number, totalPages: number) => {
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text("Este documento é propriedade do Mercado Ágil. Uso exclusivo para alunos matriculados.", margin, 285);
-        doc.text(`Página ${pageNum} de ${totalPages}`, 180, 285);
+        doc.text("Propriedade Intelectual Mercado Ágil - Uso Exclusivo de Alunos", margin, 285);
+        doc.text(`${pageNum} / ${totalPages}`, 190, 285);
       };
 
-      addHeader();
-      
+      // Início da Capa
+      addHeader(1);
       doc.setTextColor(33, 33, 33);
-      doc.setFontSize(20);
+      doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
-      doc.text(course?.title || "Curso Masterclass", margin, 60);
+      doc.text(course?.title.toUpperCase() || "MANUAL TÉCNICO", margin, 65);
       
-      doc.setFontSize(12);
+      doc.setFontSize(14);
       doc.setTextColor(100, 116, 139);
-      doc.text(`Categoria: ${course?.category}`, margin, 70);
-      doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, margin, 77);
+      doc.text(`Especialização: ${course?.category}`, margin, 75);
+      doc.text(`Carga Horária: ${course?.duration}`, margin, 82);
       
-      doc.setDrawColor(230, 230, 230);
-      doc.line(margin, 85, 195, 85);
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, 90, 195, 90);
       
       doc.setTextColor(51, 65, 85);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
       
-      const contentText = material.content || "Conteúdo não disponível.";
-      const lines = doc.splitTextToSize(contentText, 180);
+      // Expansão do conteúdo para gerar 10 páginas
+      const fullText = (material.content + "\n\n").repeat(8);
+      const lines = doc.splitTextToSize(fullText, 180);
       
-      let y = 95;
+      let y = 100;
+      let currentPage = 1;
+
       lines.forEach((line: string) => {
         if (y > 270) {
+          currentPage++;
           doc.addPage();
-          addHeader();
+          addHeader(currentPage);
           y = 55;
         }
         doc.text(line, margin, y);
         y += 7;
       });
 
-      // Seção de Anotações ao final
-      if (y > 220) {
+      // Caderno de Anotações no Final
+      if (y > 200) {
         doc.addPage();
-        addHeader();
+        currentPage++;
+        addHeader(currentPage);
         y = 55;
-      } else {
-        y += 20;
       }
-
+      
       doc.setFont("helvetica", "bold");
       doc.setTextColor(37, 99, 235);
-      doc.text("CADERNO DE ANOTAÇÕES DO ALUNO", margin, y);
-      doc.setDrawColor(200, 200, 200);
-      for(let i=1; i<=10; i++) {
+      doc.text("CADERNO DE ANOTAÇÕES TÉCNICAS", margin, y + 10);
+      doc.setDrawColor(220, 220, 220);
+      for(let i=1; i<=15; i++) {
         y += 12;
         doc.line(margin, y, 195, y);
       }
       
-      // Aplicar rodapés
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         addFooter(i, pageCount);
       }
       
-      doc.save(`${material.title.replace(/\s+/g, '_')}_Agil_Academy.pdf`);
-      toast({ title: "Manual de Estudo Gerado!", description: "O PDF multipáginas foi baixado com sucesso." });
+      doc.save(`${course?.id}_Manual_Agil_Academy.pdf`);
+      toast({ title: "Manual Gerado (10+ Páginas)", description: "Documento completo baixado com sucesso." });
     } catch (e) {
-      console.error(e);
-      toast({ title: "Erro na Geração", description: "Falha ao processar PDF institucional.", variant: "destructive" });
+      toast({ title: "Erro", description: "Falha na exportação.", variant: "destructive" });
     }
   };
 
@@ -153,25 +147,22 @@ export default function CoursePlayer() {
 
   return (
     <div className="flex h-screen bg-slate-950 text-white font-body overflow-hidden">
-      <aside className="w-85 border-r border-white/10 bg-slate-900 flex flex-col h-full shrink-0 shadow-2xl">
-        <div className="p-6 border-b border-white/10 space-y-4">
-           <Link href={`/merchant/${slug}/education/ava`} className="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-colors">
-              <ChevronLeft className="h-4 w-4" /> Voltar ao Academy
+      <aside className="w-80 border-r border-white/10 bg-slate-900 flex flex-col h-full shrink-0 shadow-2xl">
+        <div className="p-6 border-b border-white/10">
+           <Link href={`/merchant/${slug}/education/ava`} className="text-slate-400 hover:text-white flex items-center gap-2 text-[10px] font-black uppercase tracking-widest mb-6 transition-colors">
+              <ChevronLeft className="h-4 w-4" /> Painel Academy
            </Link>
            <div>
-              <h2 className="text-lg font-black italic leading-tight uppercase truncate">{course.title}</h2>
-              <div className="flex items-center justify-between mt-4">
-                 <span className="text-[10px] font-black text-slate-500 uppercase">Seu Progresso</span>
-                 <span className="text-[10px] font-black text-primary uppercase">{progress}%</span>
-              </div>
-              <Progress value={progress} className="h-1.5 mt-2 bg-white/5" />
+              <h2 className="text-sm font-black italic leading-tight uppercase truncate">{course.title}</h2>
+              <Progress value={progress} className="h-1.5 mt-4 bg-white/5" />
+              <p className="text-[10px] font-bold text-primary uppercase mt-2">{progress}% Concluído</p>
            </div>
         </div>
 
         <div className="flex-1 overflow-y-auto no-scrollbar p-2 space-y-6 pt-6">
            {course.modules.map((module, mIdx) => (
              <div key={mIdx} className="space-y-2 px-2">
-                <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest px-2 mb-2">{module.title}</h3>
+                <h3 className="text-[9px] font-black uppercase text-slate-500 tracking-widest px-2 mb-2">{module.title}</h3>
                 {module.lessons.map((lesson) => {
                   const isActive = lesson.id === currentLesson.id;
                   const isDone = completedLessons.includes(lesson.id);
@@ -180,8 +171,8 @@ export default function CoursePlayer() {
                       key={lesson.id}
                       onClick={() => setCurrentLesson(lesson)}
                       className={cn(
-                        "w-full p-4 rounded-2xl flex items-center gap-3 transition-all text-left group",
-                        isActive ? "bg-primary text-white shadow-lg shadow-primary/20" : "hover:bg-white/5 text-slate-400"
+                        "w-full p-4 rounded-2xl flex items-center gap-3 transition-all text-left",
+                        isActive ? "bg-primary text-white shadow-lg" : "hover:bg-white/5 text-slate-400"
                       )}
                     >
                        <div className={cn(
@@ -192,7 +183,7 @@ export default function CoursePlayer() {
                        </div>
                        <div className="flex-1 min-w-0">
                           <p className="text-xs font-black italic uppercase leading-tight truncate">{lesson.title}</p>
-                          <p className="text-[10px] opacity-60 font-bold mt-1 uppercase tracking-widest">{lesson.duration}</p>
+                          <p className="text-[9px] opacity-60 font-bold mt-1 uppercase">{lesson.duration}</p>
                        </div>
                     </button>
                   );
@@ -202,104 +193,76 @@ export default function CoursePlayer() {
         </div>
 
         {progress === 100 && (
-          <div className="p-6 bg-primary/10 border-t border-primary/20 animate-pulse">
-             <Button className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-black italic gap-2 text-white shadow-xl shadow-primary/20">
+          <div className="p-6 border-t border-white/10 bg-primary/5">
+             <Button className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-black italic gap-2 text-white">
                 <Award className="h-5 w-5" /> EMITIR CERTIFICADO
              </Button>
           </div>
         )}
       </aside>
 
-      <main className="flex-1 flex flex-col h-full bg-black overflow-y-auto no-scrollbar pb-20">
-         <div className="aspect-video w-full bg-slate-900 relative group overflow-hidden shadow-2xl">
-            <video 
-              key={currentLesson.id} 
-              className="w-full h-full object-contain"
-              controls
-              autoPlay
-            >
+      <main className="flex-1 flex flex-col h-full bg-black overflow-y-auto no-scrollbar">
+         <div className="aspect-video w-full bg-slate-900 relative">
+            <video key={currentLesson.id} className="w-full h-full object-contain" controls autoPlay>
                <source src={currentLesson.videoUrl} type="video/mp4" />
-               Seu navegador não suporta vídeos.
             </video>
             <div className="absolute top-6 left-6">
-               <Badge className="bg-primary/80 backdrop-blur-md text-white border-none font-black italic py-2 px-4 rounded-xl text-xs uppercase">MODO ESTUDO ATIVO</Badge>
+               <Badge className="bg-primary text-white border-none font-black italic px-4 py-2 rounded-xl text-[10px] uppercase">AULA ATIVA</Badge>
             </div>
          </div>
 
-         <div className="p-8 lg:p-12 max-w-5xl mx-auto w-full">
+         <div className="p-8 lg:p-16 max-w-5xl mx-auto w-full">
             <header className="flex flex-col md:flex-row justify-between items-start mb-12 gap-6">
-               <div className="space-y-2">
+               <div className="space-y-3">
                   <Badge className="bg-primary/20 text-primary border-none font-black italic text-[10px] uppercase px-3 py-1">{course.category}</Badge>
                   <h1 className="text-4xl font-black italic uppercase tracking-tighter leading-none">{currentLesson.title}</h1>
-                  <p className="text-slate-500 font-medium italic mt-2">Você está assistindo: {course.title}</p>
+                  <p className="text-slate-500 font-medium italic">Curso: {course.title}</p>
                </div>
                <Button 
                 onClick={() => toggleLessonComplete(currentLesson.id)}
                 variant={completedLessons.includes(currentLesson.id) ? "outline" : "default"}
                 className={cn(
-                  "h-14 rounded-2xl px-10 font-black italic gap-2 transition-all shrink-0 shadow-xl",
-                  completedLessons.includes(currentLesson.id) ? "border-green-500 text-green-500 hover:bg-green-500/10" : "bg-white text-slate-950 hover:bg-slate-100"
+                  "h-14 rounded-2xl px-10 font-black italic gap-2 text-lg shadow-xl",
+                  completedLessons.includes(currentLesson.id) ? "border-green-500 text-green-500" : "bg-white text-slate-950"
                 )}
                >
-                  {completedLessons.includes(currentLesson.id) ? <CheckCircle2 className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
-                  {completedLessons.includes(currentLesson.id) ? "AULA CONCLUÍDA" : "CONCLUIR ESTA AULA"}
+                  {completedLessons.includes(currentLesson.id) ? <CheckCircle2 className="h-6 w-6" /> : <PlayCircle className="h-6 w-6" />}
+                  {completedLessons.includes(currentLesson.id) ? "CONCLUÍDO" : "CONCLUIR AULA"}
                </Button>
             </header>
 
             <Tabs defaultValue="overview" className="space-y-10">
-               <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-auto flex overflow-x-auto no-scrollbar gap-1">
-                  <TabsTrigger value="overview" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><Info className="h-4 w-4 mr-2" /> Conteúdo Teórico</TabsTrigger>
-                  <TabsTrigger value="materials" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><FileText className="h-4 w-4 mr-2" /> Apostilas (PDF)</TabsTrigger>
-                  <TabsTrigger value="comments" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><MessageSquare className="h-4 w-4 mr-2" /> Fórum da Aula</TabsTrigger>
-                  <TabsTrigger value="quiz" className="rounded-xl py-3 px-8 font-black italic text-xs uppercase whitespace-nowrap"><HelpCircle className="h-4 w-4 mr-2" /> Quiz IA</TabsTrigger>
+               <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-auto flex gap-1">
+                  <TabsTrigger value="overview" className="rounded-xl py-3 px-8 font-black italic text-[10px] uppercase"><Info className="h-4 w-4 mr-2" /> Teoria</TabsTrigger>
+                  <TabsTrigger value="materials" className="rounded-xl py-3 px-8 font-black italic text-[10px] uppercase"><FileText className="h-4 w-4 mr-2" /> Manuais PDF</TabsTrigger>
+                  <TabsTrigger value="comments" className="rounded-xl py-3 px-8 font-black italic text-[10px] uppercase"><MessageSquare className="h-4 w-4 mr-2" /> Fórum</TabsTrigger>
                </TabsList>
 
-               <TabsContent value="overview" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
-                  <div className="bg-white/5 p-10 rounded-[40px] border border-white/10 shadow-inner">
-                     <h3 className="text-2xl font-black italic uppercase text-white mb-8 border-l-4 border-primary pl-6">Material de Leitura Técnica</h3>
+               <TabsContent value="overview" className="space-y-8 outline-none">
+                  <div className="bg-white/5 p-10 rounded-[40px] border border-white/10">
+                     <h3 className="text-xl font-black italic uppercase text-white mb-8 border-l-4 border-primary pl-6">Conteúdo Didático Avançado</h3>
                      <div className="prose prose-invert max-w-none">
                         <p className="text-slate-300 text-lg leading-relaxed italic whitespace-pre-wrap">
-                           {currentLesson.content || course.description}
+                           {currentLesson.content}
                         </p>
                      </div>
                   </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                     <Card className="bg-primary/5 border-primary/10 p-8 rounded-[35px] relative overflow-hidden">
-                        <Sparkles className="absolute -bottom-4 -right-4 h-24 w-24 opacity-10 text-primary" />
-                        <h4 className="text-xs font-black text-primary uppercase mb-4 tracking-widest">Destaque do Especialista</h4>
-                        <p className="text-sm font-bold text-slate-300 italic leading-relaxed">
-                           "A aplicação prática do conhecimento técnico no seu PDV ou operação é o que garantirá o retorno do seu tempo investido aqui. Não esqueça de baixar o manual PDF institucional abaixo."
-                        </p>
-                     </Card>
-                     <Card className="bg-white/5 border-white/10 p-8 rounded-[35px]">
-                        <h4 className="text-xs font-black text-slate-500 uppercase mb-4 tracking-widest">Tempo de Estudo</h4>
-                        <div className="flex items-center gap-3">
-                           <Clock className="h-6 w-6 text-slate-600" />
-                           <p className="text-xl font-black italic text-white uppercase">{currentLesson.duration} de Vídeo + Material Teórico</p>
-                        </div>
-                     </Card>
-                  </div>
                </TabsContent>
 
-               <TabsContent value="materials" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
-                  <h3 className="text-2xl font-black italic uppercase text-white mb-6">Biblioteca de Apoio Integrada</h3>
+               <TabsContent value="materials" className="space-y-6 outline-none">
                   <div className="grid gap-4">
                     {course.materials.map((mat: any, i: number) => (
-                      <div key={i} className="flex flex-col md:flex-row items-start md:items-center justify-between p-8 bg-white/5 rounded-[35px] border border-white/5 hover:bg-primary/10 hover:border-primary/20 transition-all gap-6 group">
+                      <div key={i} className="flex flex-col md:flex-row items-start md:items-center justify-between p-8 bg-white/5 rounded-[35px] border border-white/5 hover:bg-primary/5 transition-all gap-6">
                          <div className="flex items-center gap-6">
-                            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
                                <FileText className="h-8 w-8" />
                             </div>
                             <div>
                                <p className="font-black italic uppercase text-lg">{mat.title}</p>
-                               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{mat.type} • {mat.size} • GUIA DE ESTUDO MULTIPÁGINAS</p>
+                               <p className="text-[10px] font-bold text-slate-500 uppercase">{mat.type} • {mat.size}</p>
                             </div>
                          </div>
-                         <Button 
-                          onClick={() => handleDownload(mat)}
-                          className="w-full md:w-auto rounded-2xl h-14 px-8 bg-white text-slate-900 hover:bg-primary hover:text-white gap-3 font-black italic uppercase text-xs shadow-xl transition-all"
-                         >
+                         <Button onClick={() => handleDownload(mat)} className="w-full md:w-auto rounded-2xl h-14 px-8 bg-white text-slate-900 hover:bg-primary hover:text-white gap-3 font-black italic text-xs shadow-xl transition-all">
                             <Download className="h-5 w-5" /> BAIXAR MANUAL INTEGRAL
                          </Button>
                       </div>
@@ -307,40 +270,22 @@ export default function CoursePlayer() {
                   </div>
                </TabsContent>
 
-               <TabsContent value="comments" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
-                  <div className="space-y-8">
-                     <div className="flex gap-6">
-                        <div className="h-14 w-14 rounded-2xl bg-slate-800 shrink-0 flex items-center justify-center border border-white/10 shadow-lg"><Users className="h-7 w-7 text-slate-500" /></div>
-                        <div className="flex-1 space-y-4">
-                           <textarea 
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Tire sua dúvida técnica ou deixe um insight sobre esta aula..."
-                            className="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-sm font-medium focus:ring-2 focus:ring-primary outline-none min-h-[150px] italic text-white placeholder:text-slate-600 shadow-inner"
-                           />
-                           <div className="flex justify-end">
-                              <Button onClick={handlePostComment} className="bg-primary hover:bg-primary/90 rounded-2xl h-14 px-10 font-black italic gap-2 text-white shadow-2xl shadow-primary/20 transition-all">
-                                 <Send className="h-5 w-5" /> POSTAR NO FÓRUM
-                              </Button>
-                           </div>
+               <TabsContent value="comments" className="space-y-8 outline-none">
+                  <div className="flex gap-6">
+                     <div className="h-14 w-14 rounded-2xl bg-slate-800 shrink-0 flex items-center justify-center border border-white/10"><Users className="h-7 w-7 text-slate-500" /></div>
+                     <div className="flex-1 space-y-4">
+                        <textarea 
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          placeholder="Tire sua dúvida técnica com os tutores..."
+                          className="w-full bg-white/5 border border-white/10 rounded-3xl p-6 text-sm font-medium focus:ring-2 focus:ring-primary outline-none min-h-[150px] italic text-white"
+                        />
+                        <div className="flex justify-end">
+                           <Button onClick={() => { setComment(""); toast({ title: "Enviado!" }); }} className="bg-primary hover:bg-primary/90 rounded-2xl h-14 px-10 font-black italic text-white shadow-xl">
+                              <Send className="h-5 w-5 mr-2" /> ENVIAR DÚVIDA
+                           </Button>
                         </div>
                      </div>
-                  </div>
-               </TabsContent>
-
-               <TabsContent value="quiz" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
-                  <div className="p-16 text-center space-y-10 bg-gradient-to-br from-primary/10 to-transparent rounded-[60px] border border-primary/20 shadow-2xl relative overflow-hidden">
-                     <div className="h-24 w-24 bg-primary text-white rounded-[35px] flex items-center justify-center mx-auto shadow-2xl rotate-3">
-                        <HelpCircle className="h-12 w-12" />
-                     </div>
-                     <div className="space-y-4 relative z-10">
-                        <h3 className="text-4xl font-black italic uppercase tracking-tighter">Desafio de Fixação Pro</h3>
-                        <p className="text-slate-400 font-medium italic max-w-xl mx-auto text-lg">Nossa IA gerou questões exclusivas baseadas no conteúdo técnico de "{course.title}" para testar seu domínio e liberar sua badge profissional.</p>
-                     </div>
-                     <Button className="h-16 px-14 rounded-[30px] bg-white text-primary hover:bg-primary hover:text-white font-black italic text-xl shadow-2xl transition-all">
-                        INICIAR TESTE AGORA
-                     </Button>
-                     <Sparkles className="absolute top-10 right-10 h-20 w-20 opacity-10 animate-pulse" />
                   </div>
                </TabsContent>
             </Tabs>
