@@ -6,17 +6,18 @@ import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, ArrowRight, Printer, CheckCheck, Smartphone, LayoutGrid, Loader2 } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, ArrowRight, Printer, CheckCheck, Smartphone, LayoutGrid, Loader2, Wallet } from "lucide-react";
 import Link from 'next/link';
 import { OrderStatus, Order } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { textToSpeech } from "@/ai/flows/text-to-speech-flow";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useFirestore, useCollection, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, updateDocumentNonBlocking, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 
 export default function MerchantOrders({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
+  const { user } = useUser();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'kds'>('kanban');
   const [printOrder, setPrintOrder] = useState<Order | null>(null);
@@ -24,11 +25,11 @@ export default function MerchantOrders({ params }: { params: Promise<{ slug: str
   const { toast } = useToast();
   const db = useFirestore();
 
-  // Memoziação da query para evitar loops de renderização
+  // Memoziação da query com verificação de AUTH para evitar erros de permissão
   const ordersQuery = useMemoFirebase(() => {
-    // Usamos o ID fixo 'm1' para o demo, mas em produção seria o ID do merchant logado
+    if (!user) return null; // Não tenta buscar se não houver usuário logado
     return query(collection(db, 'merchants', 'm1', 'orders'), orderBy('createdAt', 'desc'));
-  }, [db]);
+  }, [db, user]);
 
   const { data: firestoreOrders, isLoading } = useCollection(ordersQuery);
 
@@ -39,7 +40,6 @@ export default function MerchantOrders({ params }: { params: Promise<{ slug: str
     { label: "Prontos", status: "finished", color: "bg-green-500" },
   ];
 
-  // Efeito para anunciar novos pedidos que entram no sistema
   useEffect(() => {
     if (firestoreOrders && firestoreOrders.length > 0) {
       const newestOrder = firestoreOrders[0];
@@ -103,8 +103,8 @@ export default function MerchantOrders({ params }: { params: Promise<{ slug: str
           <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <ShoppingBag className="h-5 w-5" /> Pedidos
           </Link>
-          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <List className="h-5 w-5" /> Catálogo
+          <Link href={`/merchant/${slug}/payments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Wallet className="h-5 w-5" /> Pagamentos
           </Link>
           <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações

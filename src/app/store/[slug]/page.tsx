@@ -11,16 +11,17 @@ import {
   ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, 
   Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, 
   ShieldCheck, ShoppingBag, MapPin, Phone, User, Check,
-  Download, Copy, TrendingUp
+  Download, Copy, TrendingUp, CreditCard, Landmark, Wallet
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
-import { useFirestore, addDocumentNonBlocking } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useCollection, addDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp, query } from 'firebase/firestore';
 
 export default function StoreFront() {
   const params = useParams();
@@ -37,7 +38,8 @@ export default function StoreFront() {
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     phone: "",
-    address: ""
+    address: "",
+    paymentMethodId: ""
   });
 
   const { toast } = useToast();
@@ -50,24 +52,20 @@ export default function StoreFront() {
     }
   }, [slug]);
 
+  // Busca os métodos de pagamento reais do lojista
+  const paymentsQuery = useMemoFirebase(() => {
+    if (!merchant) return null;
+    return query(collection(db, 'merchants', merchant.id, 'paymentMethods'));
+  }, [db, merchant]);
+
+  const { data: lojistaPayments } = useCollection(paymentsQuery);
+
   const products = MOCK_PRODUCTS.filter(p => p.merchantId === merchant?.id);
   const categories = MOCK_CATEGORIES.filter(c => c.merchantId === merchant?.id);
   
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // IA de Upselling: Sugere uma bebida se houver um hambúrguer no carrinho
-  const getUpsellSuggestion = () => {
-    const hasBurger = cart.some(i => i.product.categoryId === 'c1');
-    const hasDrink = cart.some(i => i.product.categoryId === 'c2');
-    if (hasBurger && !hasDrink) {
-      return products.find(p => p.categoryId === 'c2');
-    }
-    return null;
-  };
-
-  const upsellProduct = getUpsellSuggestion();
 
   const addToCart = (product: Product) => {
     if (product.isLoyaltyExclusive && product.requiredTier === 'Gold' && userTier !== 'Gold') {
@@ -97,18 +95,21 @@ export default function StoreFront() {
   };
 
   const handleFinishOrder = async () => {
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
-      toast({ title: "Dados incompletos", description: "Por favor, preencha todas as informações de entrega.", variant: "destructive" });
+    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address || !customerInfo.paymentMethodId) {
+      toast({ title: "Dados incompletos", description: "Por favor, preencha as informações de entrega e pagamento.", variant: "destructive" });
       return;
     }
     
     try {
       const orderId = Math.random().toString(36).substring(7);
+      const selectedPayment = lojistaPayments?.find(p => p.id === customerInfo.paymentMethodId);
+
       await addDocumentNonBlocking(collection(db, 'merchants', merchant!.id, 'orders'), {
         id: orderId,
         customerName: customerInfo.name,
         customerPhone: customerInfo.phone,
         address: customerInfo.address,
+        paymentMethod: selectedPayment?.type || 'Não informado',
         total: finalTotal,
         status: 'new',
         createdAt: new Date().toISOString(),
@@ -252,48 +253,37 @@ export default function StoreFront() {
            </div>
            
            <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto">
+              {/* Payment Methods Innovation */}
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Itens na Sacola</h3>
-                {cart.map(item => (
-                  <div key={item.product.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-slate-200 overflow-hidden">
-                         <img src={item.product.imageUrl} className="h-full w-full object-cover" alt="" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-black text-slate-900 text-sm">{item.product.name}</span>
-                        <span className="text-[10px] font-bold text-slate-400">R$ {item.product.price.toFixed(2)}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                       <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => updateQuantity(item.product.id, -1)}><Minus className="h-3 w-3" /></Button>
-                       <span className="font-black text-sm">{item.quantity}</span>
-                       <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => updateQuantity(item.product.id, 1)}><Plus className="h-3 w-3" /></Button>
-                    </div>
-                  </div>
-                ))}
-
-                {/* IA UPSELL SUGGESTION */}
-                {upsellProduct && (
-                  <div className="p-6 bg-primary/5 border-2 border-dashed border-primary/20 rounded-[30px] space-y-4 animate-in zoom-in-95 duration-500">
-                     <div className="flex items-center gap-2 text-primary">
-                        <TrendingUp className="h-4 w-4" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Sugestão Mercado Ágil IA</span>
-                     </div>
-                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                           <div className="h-10 w-10 rounded-xl overflow-hidden border border-white">
-                              <img src={upsellProduct.imageUrl} className="h-full w-full object-cover" alt="" />
-                           </div>
-                           <div>
-                              <p className="text-xs font-black text-slate-800">{upsellProduct.name}</p>
-                              <p className="text-[10px] font-bold text-primary">Só + R$ {upsellProduct.price.toFixed(2)}</p>
-                           </div>
+                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Método de Pagamento</h3>
+                <RadioGroup 
+                  className="grid gap-3" 
+                  value={customerInfo.paymentMethodId}
+                  onValueChange={v => setCustomerInfo({...customerInfo, paymentMethodId: v})}
+                >
+                  {lojistaPayments?.filter(p => p.isActive).map(method => (
+                    <Label 
+                      key={method.id}
+                      className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                        customerInfo.paymentMethodId === method.id ? 'border-primary bg-primary/5' : 'border-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value={method.id} id={method.id} />
+                        <div>
+                          <p className="font-black text-sm">{method.type}</p>
+                          <p className="text-[10px] text-slate-400">{method.details}</p>
                         </div>
-                        <Button size="sm" variant="outline" className="rounded-xl font-black text-[10px] h-8 border-primary/20 text-primary" onClick={() => addToCart(upsellProduct)}>ADICIONAR</Button>
-                     </div>
-                  </div>
-                )}
+                      </div>
+                      {method.type === 'PIX' ? <Landmark className="h-4 w-4 text-primary" /> : <CreditCard className="h-4 w-4 text-slate-400" />}
+                    </Label>
+                  ))}
+                  {(!lojistaPayments || lojistaPayments.length === 0) && (
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-dashed text-center">
+                      <p className="text-xs font-bold text-slate-400 italic">Pagamento na Entrega (Padrão)</p>
+                    </div>
+                  )}
+                </RadioGroup>
               </div>
 
               <div className="space-y-4">
