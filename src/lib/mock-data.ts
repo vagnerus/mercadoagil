@@ -1,6 +1,7 @@
 
 export type PlanType = 'Free' | 'Pro' | 'Pro II';
 export type UserRole = 'SUPER_ADMIN' | 'MERCHANT_ADMIN' | 'MERCHANT_STAFF';
+export type MerchantSegment = 'RESTAURANT' | 'RETAIL' | 'SERVICE' | 'GROCERY' | 'PHARMACY';
 
 export interface PlatformUser {
   id: string;
@@ -24,6 +25,7 @@ export interface Merchant {
   id: string;
   name: string;
   slug: string;
+  segment: MerchantSegment;
   logoUrl: string;
   bannerUrl: string;
   planId: string;
@@ -62,6 +64,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     id: 'm1',
     name: 'Burger King do Zé',
     slug: 'burger-ze',
+    segment: 'RESTAURANT',
     logoUrl: 'https://picsum.photos/seed/logo1/200/200',
     bannerUrl: 'https://picsum.photos/seed/banner1/1200/400',
     planId: 'p_pro',
@@ -74,16 +77,16 @@ export const MOCK_MERCHANTS: Merchant[] = [
   },
   {
     id: 'm2',
-    name: 'Pizza Express',
-    slug: 'pizza-express',
-    logoUrl: 'https://picsum.photos/seed/logo2/200/200',
-    bannerUrl: 'https://picsum.photos/seed/banner2/1200/400',
-    planId: 'p_free',
-    planName: 'Free',
+    name: 'Moda Fashion S.A',
+    slug: 'moda-fashion',
+    segment: 'RETAIL',
+    logoUrl: 'https://picsum.photos/seed/logo-fashion/200/200',
+    bannerUrl: 'https://picsum.photos/seed/banner-fashion/1200/400',
+    planId: 'p_pro2',
+    planName: 'Pro II',
     status: 'active',
     createdAt: new Date().toISOString(),
-    mrr: 0,
-    franchiseGroup: 'Italian Foods',
+    mrr: 300.00,
     platformUserId: 'u2'
   }
 ];
@@ -156,19 +159,6 @@ export const MOCK_PRODUCTS: Product[] = [
     isAvailable: true,
     stock: 50,
     stockForecastDays: 12
-  },
-  {
-    id: 'p4',
-    merchantId: 'm1',
-    categoryId: 'c1',
-    name: 'Burguer Ouro 24k',
-    description: 'Edição limitada para clientes VIP. Folha de ouro comestível e trufas negras.',
-    price: 149.90,
-    costPrice: 85.00,
-    imageUrl: 'https://picsum.photos/seed/goldburger/400/300',
-    isAvailable: true,
-    isLoyaltyExclusive: true,
-    requiredTier: 'Gold'
   }
 ];
 

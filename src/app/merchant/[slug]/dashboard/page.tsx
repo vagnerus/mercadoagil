@@ -6,10 +6,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, PieChart as PieChartIcon, Users } from "lucide-react";
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell, PieChart, Pie } from 'recharts';
+import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart } from "lucide-react";
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell } from 'recharts';
 import Link from 'next/link';
-import { MOCK_AUDIT_LOGS } from "@/lib/mock-data";
+import { MOCK_AUDIT_LOGS, MOCK_MERCHANTS } from "@/lib/mock-data";
 import { getBusinessAdvice, BusinessAdvisorOutput } from "@/ai/flows/business-advisor-flow";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -24,13 +24,6 @@ const salesData = [
   { name: 'Dom', sales: 7100 },
 ];
 
-const throughputData = [
-  { station: 'Grelha', time: 12, color: '#f59e0b' },
-  { station: 'Prep', time: 8, color: '#3b82f6' },
-  { station: 'Montagem', time: 5, color: '#10b981' },
-  { station: 'Entrega', time: 15, color: '#8b5cf6' },
-];
-
 export default function MerchantDashboard({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const [loadingAdvice, setLoadingAdvice] = useState(false);
@@ -38,20 +31,34 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const [isAdviceOpen, setIsAdviceOpen] = useState(false);
   const { toast } = useToast();
   
+  const merchant = MOCK_MERCHANTS.find(m => m.slug === slug) || MOCK_MERCHANTS[0];
+  const isRestaurant = merchant.segment === 'RESTAURANT';
+
   const stats = [
     { title: "Vendas Hoje", value: "R$ 1.240", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12.5%" },
     { title: "Ticket Médio", value: "R$ 42,50", icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-100", trend: "+4.2%" },
-    { title: "Uptime KDS", value: "99.9%", icon: Activity, color: "text-purple-600", bg: "bg-purple-100", trend: "Normal" },
-    { title: "Throughput", value: "32 min", icon: Clock, color: "text-orange-600", bg: "bg-orange-100", trend: "-5 min" },
+    { title: isRestaurant ? "Uptime KDS" : "Logística", icon: Activity, value: "99.9%", color: "text-purple-600", bg: "bg-purple-100", trend: "Normal" },
+    { title: isRestaurant ? "Throughput" : "Expedição", value: "32 min", icon: Clock, color: "text-orange-600", bg: "bg-orange-100", trend: "-5 min" },
+  ];
+
+  const throughputData = isRestaurant ? [
+    { station: 'Grelha', time: 12, color: '#f59e0b' },
+    { station: 'Prep', time: 8, color: '#3b82f6' },
+    { station: 'Montagem', time: 5, color: '#10b981' },
+    { station: 'Entrega', time: 15, color: '#8b5cf6' },
+  ] : [
+    { station: 'Separação', time: 5, color: '#3b82f6' },
+    { station: 'Embalagem', time: 4, color: '#10b981' },
+    { station: 'Postagem', time: 10, color: '#8b5cf6' },
   ];
 
   const handleGetAdvice = async () => {
     setLoadingAdvice(true);
     try {
       const result = await getBusinessAdvice({
-        merchantName: slug.replace('-', ' '),
+        merchantName: merchant.name,
         salesData: salesData.map(d => ({ date: d.name, total: d.sales, itemCount: 45 })),
-        topProducts: [{ name: 'Burguer', quantity: 150 }]
+        topProducts: [{ name: 'Item Popular', quantity: 150 }]
       });
       setAdvice(result);
       setIsAdviceOpen(true);
@@ -77,9 +84,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <LayoutDashboard className="h-5 w-5" /> Dashboard
           </Link>
-          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Users className="h-5 w-5" /> Equipe
-          </Link>
           <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <ShoppingBag className="h-5 w-5" /> Pedidos
           </Link>
@@ -95,8 +99,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       <main className="flex-1 p-8 overflow-y-auto">
         <header className="flex justify-between items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">{slug.replace('-', ' ')}</h1>
-            <p className="text-slate-500 font-medium">Inteligência Operacional Multi-Unit.</p>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">{merchant.name}</h1>
+            <p className="text-slate-500 font-medium">Inteligência {merchant.segment === 'RESTAURANT' ? 'Operacional' : 'Comercial'} Ativada.</p>
           </div>
           <div className="flex gap-3">
              <Button onClick={handleGetAdvice} className="bg-primary hover:bg-primary/90 rounded-2xl h-12 gap-2 shadow-xl shadow-primary/20 font-black italic px-8">
@@ -126,7 +130,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
           <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-8">
-             <CardTitle className="text-2xl font-black italic mb-8">Fluxo de Cozinha (Estações)</CardTitle>
+             <CardTitle className="text-2xl font-black italic mb-8">{isRestaurant ? 'Fluxo de Cozinha (Estações)' : 'Fluxo de Expedição'}</CardTitle>
              <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={throughputData} layout="vertical">
@@ -140,20 +144,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                   </BarChart>
                 </ResponsiveContainer>
              </div>
-             <p className="text-[10px] font-black text-center text-slate-400 uppercase tracking-widest mt-4">Tempo médio em minutos por estação</p>
+             <p className="text-[10px] font-black text-center text-slate-400 uppercase tracking-widest mt-4">Tempo médio em minutos por etapa</p>
           </Card>
 
           <div className="space-y-6">
             <Card className="border-none shadow-sm rounded-[40px] p-8 bg-slate-900 text-white relative overflow-hidden h-[200px]">
                <div className="relative z-10">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Throughput IA</p>
-                 <p className="text-2xl font-black italic">Operação Ágil</p>
+                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Monitoramento IA</p>
+                 <p className="text-2xl font-black italic">{isRestaurant ? 'Cozinha Ágil' : 'Estoque Otimizado'}</p>
                  <div className="mt-6 flex items-center gap-3">
                     <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse"></div>
                     <span className="font-bold text-sm">Gargalo: Nenhum</span>
                  </div>
                </div>
-               <MousePointer2 className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5 text-white" />
+               <Activity className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5 text-white" />
             </Card>
 
             <Card className="border-none shadow-sm rounded-[40px] p-8 h-[calc(100%-216px)]">

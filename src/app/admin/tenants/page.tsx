@@ -10,12 +10,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Store, Search, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutGrid, Database, Server, MoreHorizontal, Plus, Loader2, Monitor } from "lucide-react";
+import { Store, Search, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutGrid, Database, Server, MoreHorizontal, Plus, Loader2, Monitor, ShoppingBag, Briefcase, Zap, Pill } from "lucide-react";
 import Link from 'next/link';
-import { SYSTEM_PLANS } from "@/lib/mock-data";
+import { SYSTEM_PLANS, MerchantSegment } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, addDocumentNonBlocking, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { collection, serverTimestamp, query, orderBy, doc } from 'firebase/firestore';
+
+const SEGMENTS: { value: MerchantSegment; label: string; icon: any }[] = [
+  { value: 'RESTAURANT', label: 'Restaurante / Food', icon: ShoppingBag },
+  { value: 'RETAIL', label: 'Varejo / Loja', icon: Briefcase },
+  { value: 'SERVICE', label: 'Serviços / Agenda', icon: Zap },
+  { value: 'GROCERY', label: 'Mercado / Hortifruti', icon: ShoppingBag },
+  { value: 'PHARMACY', label: 'Farmácia / Saúde', icon: Pill },
+];
 
 export default function AdminTenants() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -29,6 +37,7 @@ export default function AdminTenants() {
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
+    segment: "RESTAURANT" as MerchantSegment,
     planId: "p_free",
     email: "",
     ownerName: ""
@@ -41,7 +50,6 @@ export default function AdminTenants() {
     const plan = SYSTEM_PLANS.find(p => p.id === formData.planId);
     const merchantId = Math.random().toString(36).substring(7);
     
-    // 1. Cria a Loja no Firestore
     addDocumentNonBlocking(collection(db, 'merchants'), {
       id: merchantId,
       ...formData,
@@ -52,8 +60,7 @@ export default function AdminTenants() {
       mrr: formData.planId === 'p_free' ? 0 : (formData.planId === 'p_pro' ? 150 : 300)
     });
 
-    // 2. Cria o Perfil de Usuário Master Lojista (Pré-autorização)
-    const userRef = doc(db, 'platformUsers', formData.email.replace(/[.@]/g, '_')); // ID baseado no e-mail para demo
+    const userRef = doc(db, 'platformUsers', formData.email.replace(/[.@]/g, '_'));
     setDocumentNonBlocking(userRef, {
       email: formData.email,
       firstName: formData.ownerName.split(' ')[0],
@@ -65,13 +72,12 @@ export default function AdminTenants() {
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
-    // Feedback imediato ao usuário (Optimistic UI)
     setIsCreateOpen(false);
-    setFormData({ name: "", slug: "", planId: "p_free", email: "", ownerName: "" });
+    setFormData({ name: "", slug: "", segment: "RESTAURANT", planId: "p_free", email: "", ownerName: "" });
     setLoading(false);
     toast({ 
       title: "Provisionamento Concluído!", 
-      description: `A loja ${formData.name} e o usuário ${formData.email} foram criados.` 
+      description: `A instância ${formData.segment} para ${formData.name} foi ativada.` 
     });
   };
 
@@ -104,13 +110,6 @@ export default function AdminTenants() {
           </Link>
         </nav>
         <div className="p-4 border-t">
-          <div className="px-4 py-3 bg-slate-900 rounded-2xl mb-4 flex items-center gap-3">
-             <Monitor className="h-4 w-4 text-primary" />
-             <div>
-                <p className="text-[10px] font-black text-white uppercase tracking-widest">Platform v2.9</p>
-                <p className="text-[8px] font-bold text-slate-400">Desktop App Ready</p>
-             </div>
-          </div>
           <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2 hover:text-red-500" asChild>
             <Link href="/"><LogOut className="h-4 w-4" /> Sair</Link>
           </Button>
@@ -121,13 +120,13 @@ export default function AdminTenants() {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Multi-Tenancy</h1>
-            <p className="text-slate-500 font-medium">Provisionamento e monitoramento individual de lojistas.</p>
+            <p className="text-slate-500 font-medium">Provisionamento de instâncias multi-segmento.</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogTrigger asChild>
                    <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic shadow-xl shadow-primary/20 px-6">
-                      <Plus className="h-5 w-5" /> Cadastrar Loja
+                      <Plus className="h-5 w-5" /> Novo Lojista
                    </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
@@ -143,9 +142,9 @@ export default function AdminTenants() {
                          <div className="space-y-4">
                             <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Configuração do Ambiente</h3>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nome Fantasia</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nome da Empresa</Label>
                                <Input 
-                                placeholder="Ex: Pizzaria Roma" 
+                                placeholder="Ex: Boutique Chic" 
                                 className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
                                 required 
                                 value={formData.name}
@@ -154,19 +153,33 @@ export default function AdminTenants() {
                             </div>
                             <div className="space-y-2">
                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Subdomínio / Slug</Label>
-                               <div className="flex items-center">
-                                  <Input 
-                                    placeholder="pizzaria-roma" 
-                                    className="h-12 rounded-l-xl bg-slate-50 border-none font-bold border-r border-slate-200" 
-                                    required 
-                                    value={formData.slug}
-                                    onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
-                                  />
-                                  <div className="h-12 px-3 bg-slate-100 flex items-center rounded-r-xl text-[10px] font-black text-slate-400">.agil.com</div>
-                               </div>
+                               <Input 
+                                placeholder="boutique-chic" 
+                                className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
+                                required 
+                                value={formData.slug}
+                                onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+                               />
                             </div>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nível de Serviço (Plano)</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Segmento de Atuação</Label>
+                               <Select value={formData.segment} onValueChange={v => setFormData({...formData, segment: v as MerchantSegment})}>
+                                  <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
+                                     <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-2xl border-none shadow-xl">
+                                     {SEGMENTS.map(s => (
+                                       <SelectItem key={s.value} value={s.value} className="font-bold">
+                                          <div className="flex items-center gap-2">
+                                             <s.icon className="h-4 w-4" /> {s.label}
+                                          </div>
+                                       </SelectItem>
+                                     ))}
+                                  </SelectContent>
+                               </Select>
+                            </div>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Plano SaaS</Label>
                                <Select value={formData.planId} onValueChange={v => setFormData({...formData, planId: v})}>
                                   <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
                                      <SelectValue />
@@ -174,7 +187,7 @@ export default function AdminTenants() {
                                   <SelectContent className="rounded-2xl border-none shadow-xl">
                                      {SYSTEM_PLANS.map(p => (
                                        <SelectItem key={p.id} value={p.id} className="font-bold">
-                                          {p.name} - {p.price === 0 ? 'Free (30 dias)' : `R$ ${p.price}/mês`}
+                                          {p.name} - R$ {p.price}/mês
                                        </SelectItem>
                                      ))}
                                   </SelectContent>
@@ -227,9 +240,8 @@ export default function AdminTenants() {
               <Table>
                 <TableHeader className="bg-slate-50">
                   <TableRow>
-                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Loja / Cluster</TableHead>
+                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Loja / Segmento</TableHead>
                     <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano</TableHead>
-                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Criado em</TableHead>
                     <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status Global</TableHead>
                     <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Ações</TableHead>
                   </TableRow>
@@ -237,13 +249,19 @@ export default function AdminTenants() {
                 <TableBody>
                   {merchants?.map((m: any) => {
                     const plan = SYSTEM_PLANS.find(p => p.id === m.planId);
+                    const segment = SEGMENTS.find(s => s.value === m.segment);
                     const isExpired = plan?.name === 'Free' && (Date.now() - new Date(m.createdAt).getTime() > 30 * 24 * 60 * 60 * 1000);
                     return (
                       <TableRow key={m.id} className="hover:bg-slate-50 transition-colors">
                         <TableCell className="px-8 py-6">
-                           <div className="flex flex-col">
-                              <span className="font-black text-slate-900 text-lg italic">{m.name}</span>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{m.slug}.mercadoagil.com</span>
+                           <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                                 {segment ? <segment.icon className="h-5 w-5 text-slate-600" /> : <Store className="h-5 w-5 text-slate-600" />}
+                              </div>
+                              <div className="flex flex-col">
+                                 <span className="font-black text-slate-900 text-lg italic">{m.name}</span>
+                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{m.segment} • {m.slug}.mercadoagil.com</span>
+                              </div>
                            </div>
                         </TableCell>
                         <TableCell>
@@ -253,9 +271,6 @@ export default function AdminTenants() {
                            }`}>
                              {plan?.name || 'SaaS Custom'}
                            </Badge>
-                        </TableCell>
-                        <TableCell className="font-bold text-slate-400 text-xs">
-                           {new Date(m.createdAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
                            <div className="flex items-center gap-2">

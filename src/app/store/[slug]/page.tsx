@@ -11,7 +11,7 @@ import {
   ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, 
   Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, 
   ShieldCheck, ShoppingBag, MapPin, Phone, User, Check,
-  Download, Copy, TrendingUp, CreditCard, Landmark, Wallet
+  Download, Copy, TrendingUp, CreditCard, Landmark, Wallet, Briefcase, Pill
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -31,7 +31,6 @@ export default function StoreFront() {
   const [merchant, setMerchant] = useState<Merchant | null>(null);
   const [cart, setCart] = useState<{product: Product, quantity: number}[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [userTier] = useState<'Bronze' | 'Silver' | 'Gold'>('Silver');
   
@@ -52,7 +51,6 @@ export default function StoreFront() {
     }
   }, [slug]);
 
-  // Busca os métodos de pagamento reais do lojista
   const paymentsQuery = useMemoFirebase(() => {
     if (!merchant) return null;
     return query(collection(db, 'merchants', merchant.id, 'paymentMethods'));
@@ -80,18 +78,7 @@ export default function StoreFront() {
       }
       return [...prev, { product, quantity: 1 }];
     });
-    setSelectedProduct(null);
-    toast({ title: "No carrinho!", description: `${product.name} adicionado.` });
-  };
-
-  const updateQuantity = (productId: string, delta: number) => {
-    setCart(prev => prev.map(item => {
-      if (item.product.id === productId) {
-        const newQty = Math.max(0, item.quantity + delta);
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    }).filter(item => item.quantity > 0));
+    toast({ title: "Adicionado!", description: `${product.name} no carrinho.` });
   };
 
   const handleFinishOrder = async () => {
@@ -122,7 +109,7 @@ export default function StoreFront() {
         }))
       });
 
-      toast({ title: "Pedido enviado!", description: "Seu pedido está sendo preparado." });
+      toast({ title: "Pedido enviado!", description: "Seu pedido está sendo processado." });
       setIsCheckoutOpen(false);
       router.push(`/store/${slug}/track/${orderId}`);
     } catch (e) {
@@ -136,9 +123,16 @@ export default function StoreFront() {
 
   if (!merchant) return null;
 
+  const segmentIcon = {
+    'RESTAURANT': ShoppingBag,
+    'RETAIL': Briefcase,
+    'SERVICE': Zap,
+    'GROCERY': ShoppingCart,
+    'PHARMACY': Pill
+  }[merchant.segment] || Store;
+
   return (
     <div className="max-w-xl mx-auto min-h-screen bg-slate-50 pb-40 relative font-body overflow-x-hidden">
-      {/* Header / Banner */}
       <div className="relative h-72 w-full overflow-hidden">
         <img src={merchant.bannerUrl} alt={merchant.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
@@ -151,7 +145,7 @@ export default function StoreFront() {
            </div>
            <div className="flex-1 pb-2 space-y-1">
              <div className="flex items-center gap-2">
-                <Badge className="bg-primary text-white text-[8px] font-black rounded-full uppercase px-3 shadow-lg">{userTier} Tier Member</Badge>
+                <Badge className="bg-primary text-white text-[8px] font-black rounded-full uppercase px-3 shadow-lg">{userTier} Member</Badge>
                 <div className="flex items-center text-white text-xs font-black gap-1">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> 4.9
                 </div>
@@ -161,7 +155,6 @@ export default function StoreFront() {
         </div>
       </div>
 
-      {/* Loyalty Card */}
       <div className="p-6">
          <div className="bg-primary p-6 rounded-[35px] flex items-center gap-5 relative overflow-hidden text-white shadow-xl shadow-primary/20">
             <Gift className="h-10 w-10 opacity-20 absolute -right-2 -bottom-2" />
@@ -170,33 +163,31 @@ export default function StoreFront() {
             </div>
             <div className="flex-1 space-y-2">
                <div className="flex justify-between items-center">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/80">Programa de Fidelidade</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/80">Fidelidade {merchant.name}</p>
                   <span className="text-xs font-black">750 pts</span>
                </div>
                <div className="h-2.5 w-full bg-white/20 rounded-full overflow-hidden">
                   <div className="h-full bg-white w-[75%] rounded-full"></div>
                </div>
-               <p className="text-[9px] font-bold text-white/70">Suba para o nível Gold para desbloquear itens exclusivos!</p>
+               <p className="text-[9px] font-bold text-white/70">Suba para o nível Gold e ganhe frete grátis!</p>
             </div>
          </div>
       </div>
 
-      {/* Search */}
       <div className="px-6 py-4 space-y-4">
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input 
             className="w-full h-14 bg-white border border-slate-100 shadow-sm rounded-[24px] pl-12 pr-4 text-sm font-bold outline-none" 
-            placeholder="Buscar pedida..."
+            placeholder={`Buscar em ${merchant.name}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      {/* Products list */}
       <div className="p-6 space-y-12">
-        {categories.map(category => {
+        {categories.length > 0 ? categories.map(category => {
           const catProducts = filteredProducts.filter(p => p.categoryId === category.id);
           if (catProducts.length === 0) return null;
 
@@ -207,7 +198,7 @@ export default function StoreFront() {
                 {catProducts.map(product => (
                   <div 
                     key={product.id}
-                    onClick={() => setSelectedProduct(product)}
+                    onClick={() => addToCart(product)}
                     className={`flex gap-4 p-4 bg-white border border-slate-100 rounded-[35px] shadow-sm relative overflow-hidden group cursor-pointer active:scale-95 transition-all ${
                       product.isLoyaltyExclusive && userTier !== 'Gold' ? 'opacity-80 grayscale-[0.5]' : ''
                     }`}
@@ -227,35 +218,33 @@ export default function StoreFront() {
                     </div>
                     <div className="h-24 w-24 rounded-[28px] bg-slate-100 overflow-hidden shrink-0 relative">
                       <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                      {product.isLoyaltyExclusive && userTier !== 'Gold' && (
-                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <ShieldCheck className="h-8 w-8 text-white opacity-40" />
-                         </div>
-                      )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           );
-        })}
+        }) : (
+          <div className="text-center p-20">
+             <ShoppingBag className="h-12 w-12 text-slate-200 mx-auto mb-4" />
+             <p className="font-black text-slate-400 italic">Nenhum item disponível nesta vitrine.</p>
+          </div>
+        )}
       </div>
 
-      {/* Checkout Dialog */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
         <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-[40px] border-none shadow-2xl font-body">
            <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-black italic tracking-tighter">Finalizar Pedido</h2>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Resumo e Entrega</p>
+                <h2 className="text-2xl font-black italic tracking-tighter">Finalizar {merchant.segment === 'SERVICE' ? 'Agendamento' : 'Compra'}</h2>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Resumo do Pedido</p>
               </div>
               <ShoppingBag className="h-8 w-8 text-primary" />
            </div>
            
            <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto">
-              {/* Payment Methods Innovation */}
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Método de Pagamento</h3>
+                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Forma de Recebimento</h3>
                 <RadioGroup 
                   className="grid gap-3" 
                   value={customerInfo.paymentMethodId}
@@ -280,42 +269,33 @@ export default function StoreFront() {
                   ))}
                   {(!lojistaPayments || lojistaPayments.length === 0) && (
                     <div className="p-4 bg-slate-50 rounded-2xl border border-dashed text-center">
-                      <p className="text-xs font-bold text-slate-400 italic">Pagamento na Entrega (Padrão)</p>
+                      <p className="text-xs font-bold text-slate-400 italic">Pagar na Entrega / Local</p>
                     </div>
                   )}
                 </RadioGroup>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Informações de Entrega</h3>
+                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Local de Entrega</h3>
                 <div className="space-y-3">
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input 
-                      placeholder="Nome Completo" 
-                      className="pl-12 h-12 rounded-xl bg-slate-50 border-none font-bold" 
-                      value={customerInfo.name}
-                      onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})}
-                    />
-                  </div>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input 
-                      placeholder="Telefone / WhatsApp" 
-                      className="pl-12 h-12 rounded-xl bg-slate-50 border-none font-bold" 
-                      value={customerInfo.phone}
-                      onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
-                    />
-                  </div>
-                  <div className="relative">
-                    <MapPin className="absolute left-4 top-4 h-4 w-4 text-slate-400" />
-                    <Textarea 
-                      placeholder="Endereço de Entrega (Rua, Número, Bairro, Ref)" 
-                      className="pl-12 min-h-[100px] rounded-xl bg-slate-50 border-none font-bold" 
-                      value={customerInfo.address}
-                      onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})}
-                    />
-                  </div>
+                  <Input 
+                    placeholder="Seu Nome" 
+                    className="h-12 rounded-xl bg-slate-50 border-none font-bold px-4" 
+                    value={customerInfo.name}
+                    onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})}
+                  />
+                  <Input 
+                    placeholder="Telefone / WhatsApp" 
+                    className="h-12 rounded-xl bg-slate-50 border-none font-bold px-4" 
+                    value={customerInfo.phone}
+                    onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                  />
+                  <Textarea 
+                    placeholder="Endereço ou Local de Retirada" 
+                    className="min-h-[100px] rounded-xl bg-slate-50 border-none font-bold px-4 pt-4" 
+                    value={customerInfo.address}
+                    onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})}
+                  />
                 </div>
               </div>
 
@@ -347,7 +327,6 @@ export default function StoreFront() {
         </DialogContent>
       </Dialog>
 
-      {/* Floating Cart Button */}
       {cart.length > 0 && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-8 z-50">
           <Button 
