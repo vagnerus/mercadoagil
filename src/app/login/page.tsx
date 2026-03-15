@@ -22,61 +22,61 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
 
-  // 1. Processa o resultado do redirecionamento do Google ao montar a página
+  const handleRoute = (userEmail: string) => {
+    const emailLower = userEmail.toLowerCase();
+    if (
+      emailLower === 'vagneroliveira.us@gmail.com' || 
+      emailLower === 'admin@mercadoagil.com' || 
+      emailLower.includes('admin')
+    ) {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/merchant/burger-ze/dashboard');
+    }
+  };
+
+  // 1. Processa o resultado do redirecionamento do Google
   useEffect(() => {
     const checkRedirect = async () => {
       try {
         const result = await handleRedirectResult(auth);
         if (result?.user) {
           toast({ title: "Bem-vindo!", description: `Logado como ${result.user.email}` });
+          handleRoute(result.user.email || '');
         }
       } catch (err: any) {
         console.error("Erro no Redirect Google:", err);
-        // Não mostrar erro se for apenas o estado inicial sem redirect
-        if (err.code !== 'auth/no-auth-event') {
-          toast({
-            title: "Status da Autenticação",
-            description: "Aguardando resposta do servidor...",
-          });
-        }
       } finally {
         setCheckingRedirect(false);
       }
     };
     checkRedirect();
-  }, [auth, toast]);
+  }, [auth]);
 
-  // 2. Redirecionamento automático baseado no perfil do usuário logado
+  // 2. Redirecionamento automático se já estiver logado
   useEffect(() => {
     if (user && !isUserLoading && !checkingRedirect) {
-      const emailLower = user.email?.toLowerCase() || '';
-      
-      // Lógica de roteamento: admins vão para o Master Panel, lojistas para o Dashboard da Loja
-      // Adicionado o e-mail do usuário como ADMIN GLOBAL
-      if (
-        emailLower.includes('admin') || 
-        emailLower === 'admin@mercadoagil.com' || 
-        emailLower === 'vagneroliveira.us@gmail.com'
-      ) {
-        router.push('/admin/dashboard');
-      } else {
-        // Redireciona para o slug fixo no demo, ou para um seletor de lojas em produção
-        router.push('/merchant/burger-ze/dashboard');
-      }
+      handleRoute(user.email || '');
     }
-  }, [user, isUserLoading, checkingRedirect, router]);
+  }, [user, isUserLoading, checkingRedirect]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    initiateEmailSignIn(auth, email, password).catch((err: any) => {
+    try {
+      const result = await initiateEmailSignIn(auth, email, password);
+      if (result.user) {
+        toast({ title: "Sucesso!", description: "Entrando no sistema..." });
+        handleRoute(result.user.email || '');
+      }
+    } catch (err: any) {
       setLoading(false);
       toast({
         title: "Erro no Login",
-        description: "Credenciais inválidas ou erro de conexão.",
+        description: "Credenciais inválidas. Use a senha informada.",
         variant: "destructive"
       });
-    });
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -85,43 +85,46 @@ export default function LoginPage() {
       setLoading(false);
       toast({
         title: "Erro ao iniciar Google",
-        description: "Certifique-se que o domínio está autorizado no Console do Firebase.",
+        description: "Certifique-se que o domínio está autorizado.",
         variant: "destructive"
       });
     });
   };
 
-  const handleQuickDemoLogin = (type: 'super' | 'admin' | 'merchant') => {
+  const handleQuickDemoLogin = async (type: 'super' | 'admin' | 'merchant') => {
     setLoading(true);
     let targetEmail = '';
-    let targetPass = 'password123';
+    let targetPass = 'Vag@15215845';
 
     if (type === 'super') {
       targetEmail = 'vagneroliveira.us@gmail.com';
-      targetPass = 'Vag@15215845';
     } else if (type === 'admin') {
       targetEmail = 'admin@mercadoagil.com';
+      targetPass = 'password123';
     } else {
       targetEmail = 'lojista@mercadoagil.com';
+      targetPass = 'password123';
     }
 
-    initiateEmailSignIn(auth, targetEmail, targetPass).catch(() => {
+    try {
+      const result = await initiateEmailSignIn(auth, targetEmail, targetPass);
+      if (result.user) {
+        handleRoute(result.user.email || '');
+      }
+    } catch (err) {
       setLoading(false);
       toast({ 
         title: "Acesso Rápido", 
         description: `Entrando como ${targetEmail}...`,
       });
-    });
+    }
   };
 
-  if (isUserLoading || checkingRedirect) {
+  if (isUserLoading || (checkingRedirect && !user)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse text-center px-4">
-          Sincronizando com a Nuvem...<br/>
-          <span className="text-[10px]">Verificando credenciais Google</span>
-        </p>
+        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando Acesso...</p>
       </div>
     );
   }

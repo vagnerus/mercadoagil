@@ -126,9 +126,9 @@ export default function LandingPage() {
 
               <div className="space-y-4">
                 <div className="relative max-w-md">
-                   <Input 
+                   <input 
                     placeholder="Nome da sua futura loja..." 
-                    className="h-16 rounded-2xl border-2 border-slate-100 bg-white px-6 font-black text-lg focus:border-primary transition-all pr-40"
+                    className="w-full h-16 rounded-2xl border-2 border-slate-100 bg-white px-6 font-black text-lg focus:border-primary transition-all pr-40 outline-none"
                     value={storeName}
                     onChange={(e) => setStoreName(e.target.value)}
                    />
