@@ -7,9 +7,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { MOCK_MERCHANTS, MOCK_CATEGORIES, MOCK_PRODUCTS, Product, Merchant } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, ShieldCheck } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ShoppingCart, Search, ChevronRight, Plus, Minus, ArrowLeft, Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, ShieldCheck, ShoppingBag, MapPin, Phone, User, Check } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
@@ -22,11 +23,16 @@ export default function StoreFront() {
   const [merchant, setMerchant] = useState<Merchant | null>(null);
   const [cart, setCart] = useState<{product: Product, quantity: number}[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [isQrOpen, setIsQrOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [userTier] = useState<'Bronze' | 'Silver' | 'Gold'>('Silver'); // Simulado
+  const [userTier] = useState<'Bronze' | 'Silver' | 'Gold'>('Silver');
   
+  const [customerInfo, setCustomerInfo] = useState({
+    name: "",
+    phone: "",
+    address: ""
+  });
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -70,6 +76,19 @@ export default function StoreFront() {
     }).filter(item => item.quantity > 0));
   };
 
+  const handleFinishOrder = () => {
+    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
+      toast({ title: "Dados incompletos", description: "Por favor, preencha todas as informações de entrega.", variant: "destructive" });
+      return;
+    }
+    
+    toast({ title: "Pedido enviado!", description: "Seu pedido está sendo preparado." });
+    setIsCheckoutOpen(false);
+    // Simula geração de ID de pedido
+    const orderId = Math.random().toString(36).substring(7);
+    router.push(`/store/${slug}/track/${orderId}`);
+  };
+
   const cartTotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
   const deliveryFee = 5.00;
   const finalTotal = cartTotal + deliveryFee;
@@ -78,6 +97,7 @@ export default function StoreFront() {
 
   return (
     <div className="max-w-xl mx-auto min-h-screen bg-slate-50 pb-40 relative font-body overflow-x-hidden">
+      {/* Header / Banner */}
       <div className="relative h-72 w-full overflow-hidden">
         <img src={merchant.bannerUrl} alt={merchant.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
@@ -100,6 +120,7 @@ export default function StoreFront() {
         </div>
       </div>
 
+      {/* Loyalty Card */}
       <div className="p-6">
          <div className="bg-primary p-6 rounded-[35px] flex items-center gap-5 relative overflow-hidden text-white shadow-xl shadow-primary/20">
             <Gift className="h-10 w-10 opacity-20 absolute -right-2 -bottom-2" />
@@ -119,6 +140,7 @@ export default function StoreFront() {
          </div>
       </div>
 
+      {/* Search */}
       <div className="px-6 py-4 space-y-4">
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -131,6 +153,7 @@ export default function StoreFront() {
         </div>
       </div>
 
+      {/* Products list */}
       <div className="p-6 space-y-12">
         {categories.map(category => {
           const catProducts = filteredProducts.filter(p => p.categoryId === category.id);
@@ -144,7 +167,7 @@ export default function StoreFront() {
                   <div 
                     key={product.id}
                     onClick={() => setSelectedProduct(product)}
-                    className={`flex gap-4 p-4 bg-white border border-slate-100 rounded-[35px] shadow-sm relative overflow-hidden group cursor-pointer ${
+                    className={`flex gap-4 p-4 bg-white border border-slate-100 rounded-[35px] shadow-sm relative overflow-hidden group cursor-pointer active:scale-95 transition-all ${
                       product.isLoyaltyExclusive && userTier !== 'Gold' ? 'opacity-80 grayscale-[0.5]' : ''
                     }`}
                   >
@@ -177,6 +200,7 @@ export default function StoreFront() {
         })}
       </div>
 
+      {/* Product Details Dialog */}
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
         <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-[40px] border-none shadow-2xl">
            {selectedProduct && (
@@ -215,14 +239,115 @@ export default function StoreFront() {
         </DialogContent>
       </Dialog>
 
+      {/* Checkout Dialog */}
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="sm:max-w-lg p-0 overflow-hidden rounded-[40px] border-none shadow-2xl font-body">
+           <div className="bg-slate-900 p-8 text-white flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-black italic tracking-tighter">Finalizar Pedido</h2>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Resumo e Entrega</p>
+              </div>
+              <ShoppingBag className="h-8 w-8 text-primary" />
+           </div>
+           
+           <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto">
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Itens na Sacola</h3>
+                {cart.map(item => (
+                  <div key={item.product.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-slate-200 overflow-hidden">
+                         <img src={item.product.imageUrl} className="h-full w-full object-cover" alt="" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-black text-slate-900 text-sm">{item.product.name}</span>
+                        <span className="text-[10px] font-bold text-slate-400">R$ {item.product.price.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => updateQuantity(item.product.id, -1)}><Minus className="h-3 w-3" /></Button>
+                       <span className="font-black text-sm">{item.quantity}</span>
+                       <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => updateQuantity(item.product.id, 1)}><Plus className="h-3 w-3" /></Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Informações de Entrega</h3>
+                <div className="space-y-3">
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input 
+                      placeholder="Nome Completo" 
+                      className="pl-12 h-12 rounded-xl bg-slate-50 border-none font-bold" 
+                      value={customerInfo.name}
+                      onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})}
+                    />
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input 
+                      placeholder="Telefone / WhatsApp" 
+                      className="pl-12 h-12 rounded-xl bg-slate-50 border-none font-bold" 
+                      value={customerInfo.phone}
+                      onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                    />
+                  </div>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-4 h-4 w-4 text-slate-400" />
+                    <Textarea 
+                      placeholder="Endereço de Entrega (Rua, Número, Bairro, Ref)" 
+                      className="pl-12 min-h-[100px] rounded-xl bg-slate-50 border-none font-bold" 
+                      value={customerInfo.address}
+                      onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 bg-slate-50 rounded-3xl space-y-2">
+                 <div className="flex justify-between text-sm font-bold text-slate-500">
+                    <span>Subtotal</span>
+                    <span>R$ {cartTotal.toFixed(2)}</span>
+                 </div>
+                 <div className="flex justify-between text-sm font-bold text-slate-500">
+                    <span>Taxa de Entrega</span>
+                    <span>R$ {deliveryFee.toFixed(2)}</span>
+                 </div>
+                 <div className="flex justify-between text-xl font-black text-slate-900 pt-2 border-t border-dashed">
+                    <span className="italic">Total</span>
+                    <span className="italic text-primary">R$ {finalTotal.toFixed(2)}</span>
+                 </div>
+              </div>
+           </div>
+
+           <div className="p-8 bg-white border-t">
+              <Button 
+                className="w-full h-16 bg-primary hover:bg-primary/90 rounded-[30px] font-black text-lg italic shadow-xl shadow-primary/20 flex justify-between px-10"
+                onClick={handleFinishOrder}
+              >
+                <span>Finalizar Pedido</span>
+                <Check className="h-6 w-6" />
+              </Button>
+           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating Cart Button */}
       {cart.length > 0 && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-8 z-50">
           <Button 
             onClick={() => setIsCheckoutOpen(true)}
-            className="w-full bg-slate-900 h-20 rounded-[40px] flex justify-between px-10 shadow-2xl border-4 border-white/10"
+            className="w-full bg-slate-900 h-20 rounded-[40px] flex justify-between px-10 shadow-2xl border-4 border-white/10 active:scale-95 transition-all"
           >
             <div className="flex items-center gap-4">
-               <ShoppingCart className="h-6 w-6 text-primary" />
+               <div className="relative">
+                 <ShoppingCart className="h-6 w-6 text-primary" />
+                 <span className="absolute -top-3 -right-3 h-5 w-5 bg-white text-slate-900 rounded-full text-[10px] font-black flex items-center justify-center">
+                   {cart.reduce((a, b) => a + b.quantity, 0)}
+                 </span>
+               </div>
                <span className="font-black text-lg text-white italic">Ver Carrinho</span>
             </div>
             <span className="font-black text-2xl text-primary italic">R$ {finalTotal.toFixed(2)}</span>

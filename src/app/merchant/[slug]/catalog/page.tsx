@@ -13,12 +13,13 @@ import { ProductAiGenerator } from "@/components/merchant/product-ai-generator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Search, Trash2, Edit2, LayoutDashboard, List, ShoppingBag, Settings, Package, Image as ImageIcon, Wand2, Download, TrendingUp, Sparkles, AlertCircle, Lock } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/lib/mock-data";
+import { MOCK_PRODUCTS, Product } from "@/lib/mock-data";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 
 export default function MerchantCatalog({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
+  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -38,6 +39,36 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
     if (isNaN(p) || isNaN(c) || p === 0) return null;
     const margin = ((p - c) / p) * 100;
     return margin.toFixed(1);
+  };
+
+  const handleSaveProduct = () => {
+    if (!productName || !price) {
+      toast({ title: "Erro", description: "Nome e preço são obrigatórios.", variant: "destructive" });
+      return;
+    }
+
+    const newProduct: Product = {
+      id: Math.random().toString(36).substring(7),
+      merchantId: "m1",
+      categoryId: "c1",
+      name: productName,
+      description: description,
+      price: parseFloat(price),
+      costPrice: parseFloat(costPrice) || 0,
+      imageUrl: imageUrl || "https://picsum.photos/seed/placeholder/400/300",
+      isAvailable: true,
+      stock: 0
+    };
+
+    setProducts([newProduct, ...products]);
+    toast({ title: "Produto Salvo!", description: `${productName} foi adicionado ao catálogo.` });
+    
+    // Reset form
+    setProductName("");
+    setDescription("");
+    setImageUrl("");
+    setPrice("");
+    setCostPrice("");
   };
 
   return (
@@ -151,7 +182,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
 
                 <ProductAiGenerator productName={productName} onDescriptionGenerated={setDescription} onImageGenerated={setImageUrl} />
 
-                <Button className="w-full bg-accent hover:bg-accent/90 h-16 rounded-[28px] text-lg font-black italic shadow-xl shadow-accent/20">Salvar no Cardápio</Button>
+                <Button onClick={handleSaveProduct} className="w-full bg-accent hover:bg-accent/90 h-16 rounded-[28px] text-lg font-black italic shadow-xl shadow-accent/20">Salvar no Cardápio</Button>
               </CardContent>
             </Card>
           </div>
@@ -178,7 +209,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {MOCK_PRODUCTS.map((product) => (
+                    {products.map((product) => (
                       <TableRow key={product.id} className="hover:bg-slate-50 transition-colors">
                         <TableCell className="px-8">
                           <Checkbox checked={selectedItems.includes(product.id)} onCheckedChange={() => toggleSelect(product.id)} className="rounded-md" />
