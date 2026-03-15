@@ -20,7 +20,7 @@ import Link from 'next/link';
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, addDocumentNonBlocking, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, doc, where } from 'firebase/firestore';
+import { collection, query, orderBy, doc, where, limit } from 'firebase/firestore';
 
 export default function MerchantAppointments({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -30,18 +30,30 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
   const { toast } = useToast();
   const db = useFirestore();
 
-  // Fetch Appointments from Firestore
+  const merchantQuery = useMemoFirebase(() => query(
+    collection(db, 'merchants'), 
+    where('slug', '==', slug), 
+    limit(1)
+  ), [db, slug]);
+  const { data: merchantData } = useCollection(merchantQuery);
+  const merchantId = merchantData?.[0]?.id;
+
   const appointmentsQuery = useMemoFirebase(() => {
-    return query(collection(db, 'merchants', 'm1', 'appointments'), orderBy('time', 'asc'));
-  }, [db]);
+    if (!merchantId) return null;
+    return query(collection(db, 'merchants', merchantId, 'appointments'), orderBy('time', 'asc'));
+  }, [db, merchantId]);
   const { data: appointments, isLoading: loadingAppointments } = useCollection(appointmentsQuery);
 
-  // Fetch Staff for Selection
-  const staffQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'staff')), [db]);
+  const staffQuery = useMemoFirebase(() => {
+    if (!merchantId) return null;
+    return query(collection(db, 'merchants', merchantId, 'staff'));
+  }, [db, merchantId]);
   const { data: staffList } = useCollection(staffQuery);
 
-  // Fetch Services for Selection
-  const servicesQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'services')), [db]);
+  const servicesQuery = useMemoFirebase(() => {
+    if (!merchantId) return null;
+    return query(collection(db, 'merchants', merchantId, 'services'));
+  }, [db, merchantId]);
   const { data: servicesList } = useCollection(servicesQuery);
 
   const [formData, setFormData] = useState({
@@ -54,6 +66,7 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
 
   const handleCreateAppointment = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!merchantId) return;
     setLoading(true);
     
     const service = servicesList?.find(s => s.id === formData.serviceId);
@@ -70,7 +83,7 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
       createdAt: new Date().toISOString()
     };
 
-    addDocumentNonBlocking(collection(db, 'merchants', 'm1', 'appointments'), newAppointment);
+    addDocumentNonBlocking(collection(db, 'merchants', merchantId, 'appointments'), newAppointment);
     
     setLoading(false);
     setIsCreateOpen(false);
@@ -78,7 +91,8 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
   };
 
   const handleConfirm = (id: string) => {
-    const docRef = doc(db, 'merchants', 'm1', 'appointments', id);
+    if (!merchantId) return;
+    const docRef = doc(db, 'merchants', merchantId, 'appointments', id);
     updateDocumentNonBlocking(docRef, { status: 'confirmed' });
     toast({ title: "Confirmado", description: "O agendamento foi marcado como concluído." });
   };
@@ -94,7 +108,6 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
           <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><CalendarIcon className="h-5 w-5" /> Agenda Global</Link>
           <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Users className="h-5 w-5" /> Profissionais</Link>
           <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Scissors className="h-5 w-5" /> Serviços</Link>
-          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
         </nav>
       </aside>
 
@@ -242,23 +255,6 @@ export default function MerchantAppointments({ params }: { params: Promise<{ slu
                     </div>
                     <h3 className="text-2xl font-black italic tracking-tighter">Taxa de Ocupação</h3>
                     <p className="text-slate-400 text-xs font-medium leading-relaxed italic">"Sua agenda está com alta visibilidade. Recomende novos serviços no checkout."</p>
-                 </div>
-              </Card>
-
-              <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
-                 <h3 className="text-xl font-black italic mb-6">Alertas Críticos</h3>
-                 <div className="space-y-4">
-                    <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 flex items-start gap-3">
-                       <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
-                       <div className="flex-1">
-                          <p className="text-xs font-black text-orange-700 uppercase">Conflito de Profissional</p>
-                          <p className="text-[10px] font-bold text-orange-600 mt-1">Verifique duplicidade de horários.</p>
-                       </div>
-                    </div>
-                    <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-center gap-3">
-                       <Bell className="h-5 w-5 text-blue-500 shrink-0" />
-                       <p className="text-[10px] font-bold text-blue-700 uppercase">Lembretes WhatsApp ativados.</p>
-                    </div>
                  </div>
               </Card>
            </div>

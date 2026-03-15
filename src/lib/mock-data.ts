@@ -10,6 +10,7 @@ export interface PlatformUser {
   lastName: string;
   role: UserRole;
   merchantId?: string;
+  merchantSlug?: string;
   isActive: boolean;
 }
 
@@ -52,38 +53,8 @@ export const SYSTEM_PLANS: Plan[] = [
   { id: 'p_pro2', name: 'Pro II', price: 300, features: ['Multi-unidades', 'Custom Domain', 'Consultoria IA'] }
 ];
 
-// Dados mínimos para o sistema não quebrar no primeiro boot
-export const MOCK_MERCHANTS: Merchant[] = [
-  {
-    id: 'm1',
-    name: 'Loja Exemplo',
-    slug: 'demo',
-    segment: 'RETAIL',
-    logoUrl: 'https://picsum.photos/seed/demo/200/200',
-    bannerUrl: 'https://picsum.photos/seed/demobanner/1200/400',
-    planId: 'p_pro',
-    planName: 'Pro',
-    status: 'active',
-    createdAt: '2024-01-01',
-    mrr: 0,
-    royaltiesPaid: 0,
-    platformUserId: 'u1'
-  }
-];
-
-export interface Service {
-  id: string;
-  merchantId: string;
-  name: string;
-  description: string;
-  duration: number;
-  price: number;
-  commission: number;
-  categoryId: string;
-  imageUrl?: string;
-}
-
-export const MOCK_SERVICES: Service[] = [];
+export const MOCK_MERCHANTS: Merchant[] = [];
+export const MOCK_SERVICES: any[] = [];
 export const MOCK_PRODUCTS: any[] = [];
 export const MOCK_STAFF: any[] = [];
 

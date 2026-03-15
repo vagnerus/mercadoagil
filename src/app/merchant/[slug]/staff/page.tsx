@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Users, Plus, LayoutDashboard, List, Settings, Package, Trash2, Edit2, Star, TrendingUp, Trophy, Loader2 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, addDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, where, limit } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 
 export default function MerchantStaff({ params }: { params: Promise<{ slug: string }> }) {
@@ -25,7 +25,18 @@ export default function MerchantStaff({ params }: { params: Promise<{ slug: stri
   const { toast } = useToast();
   const db = useFirestore();
 
-  const staffQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'staff')), [db]);
+  const merchantQuery = useMemoFirebase(() => query(
+    collection(db, 'merchants'), 
+    where('slug', '==', slug), 
+    limit(1)
+  ), [db, slug]);
+  const { data: merchantData } = useCollection(merchantQuery);
+  const merchantId = merchantData?.[0]?.id;
+
+  const staffQuery = useMemoFirebase(() => {
+    if (!merchantId) return null;
+    return query(collection(db, 'merchants', merchantId, 'staff'));
+  }, [db, merchantId]);
   const { data: staffList, isLoading: loadingStaff } = useCollection(staffQuery);
 
   const [formData, setFormData] = useState({
@@ -37,6 +48,7 @@ export default function MerchantStaff({ params }: { params: Promise<{ slug: stri
 
   const handleCreateStaff = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!merchantId) return;
     setLoading(true);
     
     const newStaff = {
@@ -50,7 +62,7 @@ export default function MerchantStaff({ params }: { params: Promise<{ slug: stri
       createdAt: new Date().toISOString()
     };
 
-    addDocumentNonBlocking(collection(db, 'merchants', 'm1', 'staff'), newStaff);
+    addDocumentNonBlocking(collection(db, 'merchants', merchantId, 'staff'), newStaff);
     
     setLoading(false);
     setIsCreateOpen(false);
@@ -61,12 +73,7 @@ export default function MerchantStaff({ params }: { params: Promise<{ slug: stri
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="bg-primary p-1.5 rounded-lg shadow-sm">
-              <Package className="h-5 w-5 text-white" />
-            </div>
-            <span className="font-bold text-lg text-slate-800 tracking-tight italic uppercase">MERCADO ÁGIL</span>
-          </Link>
+          <Link href="/" className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">MERCADO ÁGIL</Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">
           <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
@@ -74,12 +81,6 @@ export default function MerchantStaff({ params }: { params: Promise<{ slug: stri
           </Link>
           <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold">
             <Users className="h-5 w-5" /> Equipe
-          </Link>
-          <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <List className="h-5 w-5" /> Serviços
-          </Link>
-          <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Settings className="h-5 w-5" /> Configurações
           </Link>
         </nav>
       </aside>
@@ -123,26 +124,6 @@ export default function MerchantStaff({ params }: { params: Promise<{ slug: stri
           </Dialog>
         </header>
 
-        <div className="grid gap-6 md:grid-cols-4 mb-8">
-           <Card className="border-none shadow-sm rounded-[32px] p-6 bg-primary/10 border border-primary/20 flex flex-col items-center text-center">
-              <Trophy className="h-8 w-8 text-primary mb-2" />
-              <p className="text-[10px] font-black uppercase text-primary tracking-widest">Equipe Ativa</p>
-              <p className="text-xl font-black italic text-slate-900 mt-1">{staffList?.length || 0} Membros</p>
-           </Card>
-           <Card className="border-none shadow-sm rounded-[32px] p-6 bg-blue-50/50">
-              <p className="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-1">Média Performance</p>
-              <p className="text-3xl font-black italic text-slate-900">92%</p>
-           </Card>
-           <Card className="border-none shadow-sm rounded-[32px] p-6 bg-green-50/50">
-              <p className="text-[10px] font-black uppercase text-green-600 tracking-widest mb-1">Pedidos Atendidos</p>
-              <p className="text-3xl font-black italic text-slate-900">1.960</p>
-           </Card>
-           <Card className="border-none shadow-sm rounded-[32px] p-6 bg-purple-50/50">
-              <p className="text-[10px] font-black uppercase text-purple-600 tracking-widest mb-1">Engajamento</p>
-              <p className="text-3xl font-black italic text-slate-900">Alto</p>
-           </Card>
-        </div>
-
         <Card className="border-none shadow-sm rounded-[40px] overflow-hidden">
           <CardContent className="p-0">
             {loadingStaff ? (
@@ -162,17 +143,10 @@ export default function MerchantStaff({ params }: { params: Promise<{ slug: stri
                     <TableRow key={member.id} className="hover:bg-slate-50 transition-colors">
                       <TableCell className="px-8 py-6">
                         <div className="flex items-center gap-4">
-                          <div className="relative">
-                            <Avatar className="h-12 w-12 rounded-2xl shadow-sm border-2 border-white">
-                              <AvatarImage src={member.avatar} />
-                              <AvatarFallback>{member.name[0]}</AvatarFallback>
-                            </Avatar>
-                            {index === 0 && (
-                              <div className="absolute -top-2 -right-2 bg-yellow-400 p-1 rounded-full border-2 border-white">
-                                <Star className="h-3 w-3 text-white fill-white" />
-                              </div>
-                            )}
-                          </div>
+                          <Avatar className="h-12 w-12 rounded-2xl shadow-sm border-2 border-white">
+                            <AvatarImage src={member.avatar} />
+                            <AvatarFallback>{member.name[0]}</AvatarFallback>
+                          </Avatar>
                           <div className="flex flex-col">
                             <span className="font-black text-slate-900">{member.name}</span>
                             <span className="text-[9px] font-black uppercase text-slate-400">{member.role}</span>

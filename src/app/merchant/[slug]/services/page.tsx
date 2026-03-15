@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { collection, query, doc } from 'firebase/firestore';
+import { collection, query, doc, where, limit } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 
 export default function MerchantServices({ params }: { params: Promise<{ slug: string }> }) {
@@ -26,7 +26,18 @@ export default function MerchantServices({ params }: { params: Promise<{ slug: s
   const { toast } = useToast();
   const db = useFirestore();
 
-  const servicesQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'services')), [db]);
+  const merchantQuery = useMemoFirebase(() => query(
+    collection(db, 'merchants'), 
+    where('slug', '==', slug), 
+    limit(1)
+  ), [db, slug]);
+  const { data: merchantData } = useCollection(merchantQuery);
+  const merchantId = merchantData?.[0]?.id;
+
+  const servicesQuery = useMemoFirebase(() => {
+    if (!merchantId) return null;
+    return query(collection(db, 'merchants', merchantId, 'services'));
+  }, [db, merchantId]);
   const { data: services, isLoading: loadingServices } = useCollection(servicesQuery);
 
   const [formData, setFormData] = useState({
@@ -38,6 +49,7 @@ export default function MerchantServices({ params }: { params: Promise<{ slug: s
 
   const handleCreateService = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!merchantId) return;
     setLoading(true);
     
     const newService = {
@@ -49,7 +61,7 @@ export default function MerchantServices({ params }: { params: Promise<{ slug: s
       createdAt: new Date().toISOString()
     };
 
-    addDocumentNonBlocking(collection(db, 'merchants', 'm1', 'services'), newService);
+    addDocumentNonBlocking(collection(db, 'merchants', merchantId, 'services'), newService);
     
     setLoading(false);
     setIsCreateOpen(false);
@@ -57,7 +69,8 @@ export default function MerchantServices({ params }: { params: Promise<{ slug: s
   };
 
   const handleDelete = (id: string) => {
-    deleteDocumentNonBlocking(doc(db, 'merchants', 'm1', 'services', id));
+    if (!merchantId) return;
+    deleteDocumentNonBlocking(doc(db, 'merchants', merchantId, 'services', id));
     toast({ title: "Serviço Removido", description: "O item foi excluído do catálogo." });
   };
 
@@ -65,11 +78,10 @@ export default function MerchantServices({ params }: { params: Promise<{ slug: s
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
-          <Link href="/" className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary">MERCADO ÁGIL</Link>
+          <Link href="/" className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">MERCADO ÁGIL</Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">
           <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
-          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><CalendarIcon className="h-5 w-5" /> Agenda</Link>
           <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><Scissors className="h-5 w-5" /> Serviços & Preços</Link>
         </nav>
       </aside>
@@ -119,65 +131,39 @@ export default function MerchantServices({ params }: { params: Promise<{ slug: s
           </Dialog>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-           <div className="lg:col-span-2 space-y-6">
-              <div className="relative">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                 <Input className="pl-12 h-14 bg-white border-none rounded-2xl shadow-sm font-bold" placeholder="Buscar serviços por nome..." />
-              </div>
-
-              {loadingServices ? (
-                <div className="p-20 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /></div>
-              ) : (
-                <div className="grid gap-4">
-                  {services?.map((service: any) => (
-                    <Card key={service.id} className="border-none shadow-sm rounded-3xl overflow-hidden group hover:ring-2 ring-primary transition-all">
-                        <CardContent className="p-6 flex items-center justify-between">
-                          <div className="flex items-center gap-6">
-                              <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
-                                <Scissors className="h-8 w-8" />
-                              </div>
-                              <div>
-                                <p className="font-black text-slate-900 italic text-xl uppercase leading-tight">{service.name}</p>
-                                <div className="flex items-center gap-4 mt-2">
-                                    <span className="text-xs font-bold text-slate-400 flex items-center gap-1 uppercase"><Clock className="h-3.5 w-3.5" /> {service.duration} min</span>
-                                    <span className="text-xs font-bold text-slate-400 flex items-center gap-1 uppercase"><DollarSign className="h-3.5 w-3.5" /> Comissão: {service.commission}%</span>
-                                </div>
-                              </div>
+        <div className="grid gap-4">
+          {loadingServices ? (
+            <div className="p-20 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /></div>
+          ) : (
+            services?.map((service: any) => (
+              <Card key={service.id} className="border-none shadow-sm rounded-3xl overflow-hidden group hover:ring-2 ring-primary transition-all">
+                  <CardContent className="p-6 flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                        <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                          <Scissors className="h-8 w-8" />
+                        </div>
+                        <div>
+                          <p className="font-black text-slate-900 italic text-xl uppercase leading-tight">{service.name}</p>
+                          <div className="flex items-center gap-4 mt-2">
+                              <span className="text-xs font-bold text-slate-400 flex items-center gap-1 uppercase"><Clock className="h-3.5 w-3.5" /> {service.duration} min</span>
+                              <span className="text-xs font-bold text-slate-400 flex items-center gap-1 uppercase"><DollarSign className="h-3.5 w-3.5" /> Comissão: {service.commission}%</span>
                           </div>
-                          <div className="flex items-center gap-6">
-                              <div className="text-right">
-                                <p className="text-2xl font-black text-primary italic">R$ {service.price.toFixed(2)}</p>
-                                <Badge className="bg-slate-100 text-slate-500 border-none font-black text-[8px] uppercase mt-1">Ativo</Badge>
-                              </div>
-                              <div className="flex flex-col gap-2">
-                                <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-slate-100"><Edit2 className="h-4 w-4 text-slate-400" /></Button>
-                                <Button variant="ghost" size="icon" onClick={() => handleDelete(service.id)} className="rounded-xl h-10 w-10 hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4 text-slate-400" /></Button>
-                              </div>
-                          </div>
-                        </CardContent>
-                    </Card>
-                  ))}
-                  {services?.length === 0 && (
-                    <div className="p-20 text-center text-slate-400 font-bold italic uppercase tracking-widest text-xs">Nenhum serviço cadastrado.</div>
-                  )}
-                </div>
-              )}
-           </div>
-
-           <div className="space-y-8">
-              <Card className="border-none shadow-sm rounded-[40px] p-8 bg-primary text-white relative overflow-hidden">
-                 <div className="relative z-10 space-y-6">
-                    <Sparkles className="h-10 w-10 text-white/40" />
-                    <h3 className="text-2xl font-black italic tracking-tighter">AI Commission Optimizer</h3>
-                    <p className="text-white/70 text-sm font-medium leading-relaxed">
-                       Analise sua margem de lucro e otimize as comissões da equipe.
-                    </p>
-                    <Button className="w-full h-14 bg-white text-primary font-black italic rounded-2xl shadow-2xl hover:bg-slate-50">Otimizar Agora</Button>
-                 </div>
-                 <DollarSign className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                        <div className="text-right">
+                          <p className="text-2xl font-black text-primary italic">R$ {service.price.toFixed(2)}</p>
+                          <Badge className="bg-green-50 text-green-600 border-none font-black text-[8px] uppercase mt-1">Ativo</Badge>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(service.id)} className="rounded-xl h-10 w-10 hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4 text-slate-400" /></Button>
+                    </div>
+                  </CardContent>
               </Card>
-           </div>
+            ))
+          )}
+          {services?.length === 0 && !loadingServices && (
+            <div className="p-20 text-center text-slate-400 font-bold italic uppercase tracking-widest text-xs">Nenhum serviço cadastrado.</div>
+          )}
         </div>
       </main>
     </div>
