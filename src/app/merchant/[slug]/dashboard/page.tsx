@@ -10,7 +10,7 @@ import {
   ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, 
   TrendingUp, BrainCircuit, Activity, Zap, Users, Monitor, 
   Calendar, Scissors, Wallet, Globe, Plus, LogOut, ShieldCheck,
-  ChevronRight, ArrowRight
+  ChevronRight, ArrowRight, Loader2
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -22,7 +22,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const db = useFirestore();
   const { toast } = useToast();
   
-  // Buscar os dados do Merchant baseado no slug
+  // Buscar os dados do Merchant baseado no slug no Firestore
   const merchantQuery = useMemoFirebase(() => query(
     collection(db, 'merchants'), 
     where('slug', '==', slug),
@@ -44,8 +44,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
   if (loadingMerchant) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Activity className="h-12 w-12 animate-spin text-primary" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 space-y-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="font-black italic text-slate-400 uppercase tracking-widest">Carregando Painel Lojista...</p>
+      </div>
+    );
+  }
+
+  if (!merchant && !loadingMerchant) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-8 text-center">
+        <ShieldCheck className="h-16 w-16 text-slate-200 mb-4" />
+        <h1 className="text-2xl font-black italic text-slate-900">Instância não encontrada</h1>
+        <p className="text-slate-500 mt-2">Certifique-se de que o subdomínio está correto no Painel Master.</p>
+        <Button asChild className="mt-6 rounded-xl"><Link href="/admin/tenants">Voltar ao Master Admin</Link></Button>
       </div>
     );
   }
@@ -86,8 +98,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           )}
 
           <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Monitor className="h-5 w-5 text-primary" /> PDV Cloud</Link>
-          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
-          <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
+          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
+          <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
         </nav>
         <div className="p-4 border-t">
           <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2" asChild><Link href="/login"><LogOut className="h-4 w-4" /> Sair</Link></Button>

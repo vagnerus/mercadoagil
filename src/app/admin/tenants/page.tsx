@@ -14,7 +14,7 @@ import {
   Store, ShieldCheck, LogOut, LayoutDashboard, LayoutGrid, 
   Server, Plus, Loader2, Scissors, Stethoscope, 
   Wrench, Dog, GraduationCap, HeartHandshake, ShoppingBag, 
-  Briefcase, Zap, ArrowUpRight
+  Briefcase, Zap, ArrowUpRight, Copy, ExternalLink, Link as LinkIcon
 } from "lucide-react";
 import Link from 'next/link';
 import { MerchantSegment } from "@/lib/mock-data";
@@ -106,6 +106,12 @@ export default function AdminTenants() {
     });
   };
 
+  const copyStoreLink = (slug: string) => {
+    const url = `${window.location.origin}/merchant/${slug}/dashboard`;
+    navigator.clipboard.writeText(url);
+    toast({ title: "Link Copiado!", description: "Link do dashboard enviado para o clipboard." });
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
@@ -122,6 +128,11 @@ export default function AdminTenants() {
           <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><LayoutGrid className="h-5 w-5" /> Tenants</Link>
           <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Server className="h-5 w-5" /> Infra</Link>
         </nav>
+        <div className="p-4 border-t">
+          <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2 hover:text-red-500" asChild>
+            <Link href="/"><LogOut className="h-4 w-4" /> Sair</Link>
+          </Button>
+        </div>
       </aside>
 
       <main className="flex-1 p-8">
@@ -162,6 +173,10 @@ export default function AdminTenants() {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-400">Nome do Proprietário</Label>
+                  <Input required value={formData.ownerName} onChange={e => setFormData({...formData, ownerName: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                </div>
+                <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-slate-400">E-mail do Proprietário</Label>
                   <Input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
                 </div>
@@ -177,44 +192,65 @@ export default function AdminTenants() {
           </Dialog>
         </header>
 
-        <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow>
-                  <TableHead className="px-8 h-16 font-black uppercase text-[10px]">Loja / Vertical</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px]">Proprietário</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px]">Plano</TableHead>
-                  <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px]">Ação</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {merchants?.map((m: any) => (
-                  <TableRow key={m.id} className="hover:bg-slate-50 transition-colors">
-                    <TableCell className="px-8 py-6">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                          <Store className="h-5 w-5 text-slate-400" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-black text-slate-900 italic uppercase">{m.name}</span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{m.segment} • {m.slug}.agil.com</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-bold text-slate-500">{m.email}</TableCell>
-                    <TableCell><Badge className="bg-primary/10 text-primary border-none font-black italic uppercase text-[9px]">{m.planName || 'Pro'}</Badge></TableCell>
-                    <TableCell className="text-right px-8">
-                      <Button variant="ghost" size="icon" asChild className="rounded-xl">
-                        <Link href={`/merchant/${m.slug}/dashboard`}><ArrowUpRight className="h-5 w-5 text-slate-300" /></Link>
-                      </Button>
-                    </TableCell>
+        {loadingMerchants ? (
+          <div className="flex flex-col items-center justify-center p-20 space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="font-black italic text-slate-400 uppercase tracking-widest">Carregando Instâncias...</p>
+          </div>
+        ) : (
+          <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow>
+                    <TableHead className="px-8 h-16 font-black uppercase text-[10px]">Loja / Vertical</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px]">Proprietário</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px]">Plano</TableHead>
+                    <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px]">Ações de Acesso</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {merchants?.map((m: any) => (
+                    <TableRow key={m.id} className="hover:bg-slate-50 transition-colors">
+                      <TableCell className="px-8 py-6">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                            <Store className="h-5 w-5 text-slate-400" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-black text-slate-900 italic uppercase">{m.name}</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{m.segment} • {m.slug}.agil.com</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-bold text-slate-500">{m.email}</TableCell>
+                      <TableCell><Badge className="bg-primary/10 text-primary border-none font-black italic uppercase text-[9px]">{m.planName || 'Pro'}</Badge></TableCell>
+                      <TableCell className="text-right px-8">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => copyStoreLink(m.slug)} className="rounded-xl font-bold h-9 gap-2">
+                            <Copy className="h-3.5 w-3.5" /> Copiar Link
+                          </Button>
+                          <Button size="sm" asChild className="rounded-xl font-black italic h-9 gap-2 bg-primary hover:bg-primary/90">
+                            <Link href={`/merchant/${m.slug}/dashboard`}>
+                              ACESSAR PAINEL <ArrowUpRight className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {merchants?.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-40 text-center text-slate-400 font-bold italic">
+                        Nenhuma loja provisionada ainda.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   );
