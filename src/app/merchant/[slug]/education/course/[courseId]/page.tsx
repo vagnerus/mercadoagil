@@ -13,7 +13,7 @@ import {
   Play, CheckCircle2, FileText, MessageSquare, 
   ChevronLeft, ArrowRight, Download, Star,
   Monitor, LayoutDashboard, Clock, PlayCircle,
-  HelpCircle, Sparkles, Send
+  HelpCircle, Sparkles, Send, Info, Award
 } from "lucide-react";
 import Link from 'next/link';
 import { COURSE_LIBRARY } from "@/lib/mock-data";
