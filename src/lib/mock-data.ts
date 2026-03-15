@@ -238,14 +238,18 @@ const generateCourses = () => {
     const videoUrl = VIDEO_SAMPLES[i % VIDEO_SAMPLES.length];
     const baseContent = CATEGORY_CONTENT[cat];
     
+    // Deterministic values based on index 'i' to prevent hydration mismatch
+    const durationHours = (i % 15) + 10;
+    const ratingValue = (4.5 + (i % 6) / 10).toFixed(1);
+
     courses.push({
       id: `c${i}`,
       title: `${topic} - Masterclass Profissional`,
       description: `Este treinamento completo em ${topic} foi estruturado por especialistas para capacitar lojistas que buscam a excelência. Você aprenderá os fundamentos teóricos e a aplicação prática imediata, utilizando as ferramentas do ecossistema Mercado Ágil. Com mais de 10 horas de conteúdo estruturado, este é o guia definitivo para o seu setor.`,
       category: cat,
-      duration: `${Math.floor(Math.random() * 15) + 10}h`,
+      duration: `${durationHours}h`,
       lessons: 10,
-      rating: (Math.random() * (5 - 4.8) + 4.8).toFixed(1),
+      rating: ratingValue,
       price: 0,
       thumb: `https://picsum.photos/seed/agil_course_${i}/600/400`,
       modules: [
