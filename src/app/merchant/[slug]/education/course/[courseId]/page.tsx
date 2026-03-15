@@ -116,6 +116,7 @@ export default function CoursePlayer() {
         y += 7;
       });
 
+      // Seção de Anotações ao final
       if (y > 220) {
         doc.addPage();
         addHeader();
@@ -133,6 +134,7 @@ export default function CoursePlayer() {
         doc.line(margin, y, 195, y);
       }
       
+      // Aplicar rodapés
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);

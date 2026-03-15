@@ -100,7 +100,7 @@ const TOPICS_POOL = [
 ];
 
 const CATEGORY_CONTENT: Record<string, string> = {
-  "Beleza": `ESTUDO TÉCNICO APROFUNDADO EM ESTÉTICA E BELEZA - MANUAL COMPLETO
+  "Beleza": `ESTUDO TÉCNICO APROFUNDADO EM ESTÉTICA E BELEZA - MANUAL COMPLETO DE ALTA PERFORMANCE
 
 CAPÍTULO 1: BIOFÍSICA CAPILAR E FISIOLOGIA DO FIO
 O profissional de elite deve compreender que o cabelo é uma estrutura complexa composta por 90% de queratina e 10% de lipídios, pigmentos e água. No salão de alta performance, o diagnóstico capilar não é uma sugestão, é o primeiro passo obrigatório. Você deve analisar a porosidade (capacidade de absorver água), a elasticidade (capacidade de esticar e voltar sem quebrar) e a textura (fino, médio ou grosso) antes de qualquer procedimento químico. A estrutura do fio é dividida em três partes principais:
@@ -110,9 +110,9 @@ O profissional de elite deve compreender que o cabelo é uma estrutura complexa 
 
 CAPÍTULO 2: BIOSSEGURANÇA E HIGIENE OPERACIONAL AVANÇADA
 A biossegurança é a base da confiança do cliente. Todo material perfurocortante deve ser descartado em coletores amarelos (Descarpack). Materiais metálicos, como alicates e espátulas, devem passar por um processo rigoroso de três etapas:
-- Lavagem com detergente enzimático.
-- Secagem total para evitar oxidação.
-- Esterilização em autoclave (121°C por 30 min ou 134°C por 15 min).
+- Lavagem com detergente enzimático para remover resíduos proteicos.
+- Secagem total para evitar oxidação e proliferação bacteriana.
+- Esterilização em autoclave em ciclo completo (121°C por 30 min ou 134°C por 15 min).
 Lembre-se: O uso de EPIs (Equipamentos de Proteção Individual) como luvas de nitrilo, máscaras de alta filtragem e aventais impermeáveis protege tanto o profissional quanto o cliente de contaminações cruzadas e dermatites de contato.
 
 CAPÍTULO 3: VISAGISMO E DESIGN DE IMAGEM PERSONALIZADA
@@ -123,20 +123,32 @@ Visagismo é a arte de criar uma imagem personalizada que revela as qualidades d
 
 CAPÍTULO 4: GESTÃO E FIDELIZAÇÃO DE ALTO IMPACTO (LTV)
 Um salão lucrativo foca no LTV (Life Time Value). Através do sistema de agendamento online do Mercado Ágil, você pode reduzir o no-show em até 40%. A estratégia consiste em:
-- Envio de lembretes automáticos via WhatsApp 24h antes.
+- Envio de lembretes automáticos via WhatsApp 24h antes da consulta.
 - Programas de Cashback: Devolva 5% do valor para que o cliente use no próximo serviço.
 - Histórico do Cliente: Saiba exatamente qual cor ou técnica foi usada na última visita para oferecer uma experiência personalizada e consistente.
 
-CAPÍTULO 5: COLORIMETRIA E QUÍMICA DE TRANSFORMAÇÃO
-Dominar o círculo cromático é essencial para neutralizar tons indesejados (laranja com azul, amarelo com roxo). Aprenda a técnica de pré-pigmentação para cobrir cabelos brancos 100% e como utilizar os diferentes volumes de água oxigenada (10, 20, 30 ou 40 vol) para cada objetivo de clareamento ou depósito de pigmento.
+CAPÍTULO 5: COLORIMETRIA E QUÍMICA DE TRANSFORMAÇÃO PROFISSIONAL
+Dominar o círculo cromático é essencial para neutralizar tons indesejados (laranja com azul, amarelo com roxo). Aprenda a técnica de pré-pigmentação para cobrir cabelos brancos 100% e como utilizar os diferentes volumes de água oxigenada (10, 20, 30 ou 40 vol) para cada objetivo de clareamento ou depósito de pigmento. O fundo de clareamento deve ser respeitado para garantir a saúde da fibra.
 
-CAPÍTULO 6: TRATAMENTOS TERAPÊUTICOS E TRICOLOGIA
-A terapia capilar é a nova fronteira da lucratividade. Identifique patologias comuns como dermatite seborreica, alopecia androgenética e eflúvio telógeno. Ofereça protocolos de argiloterapia, alta frequência e vacuoterapia como diferenciais competitivos para atrair clientes que buscam saúde integral, além da estética momentânea.`,
+CAPÍTULO 6: TRATAMENTOS TERAPÊUTICOS E TRICOLOGIA APLICADA
+A terapia capilar é a nova fronteira da lucratividade. Identifique patologias comuns como dermatite seborreica, alopecia androgenética e eflúvio telógeno. Ofereça protocolos de argiloterapia, alta frequência e vacuoterapia como diferenciais competitivos para atrair clientes que buscam saúde integral, além da estética momentânea. O diagnóstico via microcâmera aumenta a percepção de valor do serviço.
 
-  "Varejo": `MANUAL INTEGRAL DE OPERAÇÕES NO VAREJO MODERNO - ESTRATÉGIA E EXECUÇÃO
+CAPÍTULO 7: ENGENHARIA DE ATENDIMENTO E EXPERIÊNCIA DO CLIENTE
+O atendimento começa antes do cliente entrar na loja. Use o script de saudação padrão, ofereça café gourmet e mantenha a bancada impecável. O 'overdelivery' (entregar mais do que o prometido) é o segredo para transformar clientes em fãs e promotores da sua marca.
 
-CAPÍTULO 1: PSICOLOGIA DO CONSUMIDOR E NEUROMARKETING APLICADO
-O consumidor moderno decide uma compra em frações de segundos no PDV. O Visual Merchandising (VM) deve guiar o olhar do cliente através do 'Caminho do Ouro'. Regras fundamentais:
+CAPÍTULO 8: MARKETING DIGITAL PARA ESPECIALISTAS EM BELEZA
+Seus trabalhos precisam estar na vitrine digital. Tire fotos com iluminação de estúdio (ring light), use ângulos que valorizem o corte e poste diariamente no Instagram Reels. Use as tags de agendamento do Mercado Ágil para facilitar a conversão imediata do seguidor em cliente.
+
+CAPÍTULO 9: FINANÇAS PARA SALÃO: COMISSÕES E CUSTO DE PRODUTO
+Calcule o custo por mililitro de cada shampoo e coloração. Defina comissões que motivem a equipe mas que preservem a margem de lucro da empresa. O lucro real só acontece depois de descontar o custo do produto, impostos e taxas de cartão.
+
+CAPÍTULO 10: ÉTICA, POSTURA E CRESCIMENTO CARREIRA
+O profissional de sucesso nunca para de estudar. Mantenha uma postura ética, evite fofocas e foque na sua evolução técnica. Participe de workshops e feiras do setor para estar sempre à frente das tendências internacionais.`,
+
+  "Varejo": `MANUAL INTEGRAL DE OPERAÇÕES NO VAREJO MODERNO - ESTRATÉGIA, EXECUÇÃO E ESCALA
+
+CAPÍTULO 1: PSICOLOGIA DO CONSUMIDOR E NEUROMARKETING NO PDV
+O consumidor moderno decide uma compra em frações de segundos. O Visual Merchandising (VM) deve guiar o olhar do cliente através do 'Caminho do Ouro'. Regras fundamentais:
 - Exposição na Altura dos Olhos: Coloque aqui os produtos de maior margem de lucro.
 - Zona de Checkout: Itens de conveniência e baixo valor para vendas por impulso.
 - Iluminação e Som: Use luzes quentes para áreas de aconchego e luzes brancas para áreas de decisão técnica. A trilha sonora deve acompanhar o ritmo de movimento da loja.
@@ -154,7 +166,7 @@ A ruptura de estoque (cliente quer comprar e não tem) é a maior causa oculta d
 - Furtos internos ou externos.
 O controle rígido aumenta sua margem líquida média em até 5% ao ano.
 
-CAPÍTULO 4: LOGÍSTICA DE ÚLTIMA MILHA (LAST MILE) E ENTREGAS
+CAPÍTULO 4: LOGÍSTICA DE ÚLTIMA MILHA (LAST MILE) E EFICIÊNCIA DE ENTREGA
 A experiência de entrega é a última impressão da sua marca. No Mercado Ágil, utilize o Fleet Hub para roteirizar entregas por proximidade geográfica. Isso reduz custos de combustível e aumenta a produtividade dos seus entregadores. Ofereça 'Frete Grátis' apenas para pedidos acima do seu Ticket Médio para incentivar o cliente a comprar mais itens.
 
 CAPÍTULO 5: CRM, ATENDIMENTO E EXPERIÊNCIA DO CLIENTE OMNICHANNEL
@@ -165,9 +177,21 @@ Acompanhe os números reais do seu varejo:
 - GMROI: Margem Bruta sobre Investimento em Estoque.
 - Conversão de Loja: Quantas pessoas entraram vs. Quantas compraram.
 - PA (Peças por Atendimento): Quantidade média de itens no carrinho.
-Dados reais permitem ajustes rápidos na estratégia de compras e marketing.`,
+Dados reais permitem ajustes rápidos na estratégia de compras e marketing.
 
-  "Gestão": `CURSO EXECUTIVO EM GESTÃO DE NEGÓCIOS E ALTA PERFORMANCE EMPRESARIAL
+CAPÍTULO 7: NEGOCIAÇÃO COM FORNECEDORES E GESTÃO DE COMPRAS
+Comprar bem é o primeiro passo para vender com lucro. Centralize suas compras, negocie prazos de pagamento e busque parcerias exclusivas. Use o IA Negotiator para comparar preços e identificar o melhor momento de reposição.
+
+CAPÍTULO 8: TREINAMENTO DE EQUIPE DE VENDAS: TÉCNICAS DE FECHAMENTO
+Venda não é empurrar, é resolver problemas. Treine sua equipe em técnicas de SPIN Selling e contorno de objeções. Um vendedor consultor aumenta o ticket médio em até 25% comparado a um tirador de pedidos.
+
+CAPÍTULO 9: E-COMMERCE E MARKETPLACES: EXPANDINDO FRONTEIRAS
+Sua loja física deve ser o estoque do seu digital. Use o Mercado Ágil para sincronizar automaticamente seu estoque com Mercado Livre, Shopee e sua loja própria. A multicanalidade garante faturamento mesmo com a porta fechada.
+
+CAPÍTULO 10: DESIGN DE LOJA E FLUXO DE CIRCULAÇÃO (LAYOUT)
+O layout da loja deve convidar o cliente a percorrer todo o espaço. Use ilhas de produtos, provadores confortáveis e zonas de descompressão. O tempo de permanência na loja está diretamente ligado ao valor final da compra.`,
+
+  "Gestão": `CURSO EXECUTIVO EM GESTÃO DE NEGÓCIOS E ALTA PERFORMANCE EMPRESARIAL - GUIA DO LÍDER
 
 CAPÍTULO 1: ENGENHARIA FINANCEIRA: FLUXO DE CAIXA, DRE E EBITDA
 Gerenciar é tomar decisões baseadas em evidências numéricas, não em intuição.
@@ -190,20 +214,32 @@ CAPÍTULO 4: PLANEJAMENTO ESTRATÉGICO E ESCALA (GROWTH HACKING)
 Defina metas anuais e quebre-as em metas semanais atingíveis. A escala vem através da repetição de processos que dão certo. Se a sua primeira unidade é lucrativa e roda sem você, você está pronto para o modelo de franquias ou para abrir uma nova filial em outra região.
 
 CAPÍTULO 5: NEGOCIAÇÃO E GESTÃO DE FORNECEDORES (VENDORS)
-Use o IA Negotiator do painel para analisar os preços de mercado e garantir que você está comprando bem. Lembre-se: o lucro de um produto começa na hora em que você o compra, e não apenas na hora da venda.
+Use o IA Negotiator do painel para analisar os preços de mercado e garantir que você está comprando bem. Lembre-se: o lucro de um produto começa na hora em que você o compra, e não apenas na hora da venda. A gestão de contratos e prazos é vital para o fluxo de caixa.
 
 CAPÍTULO 6: GESTÃO DE RISCO, RESERVA E CONTINUIDADE DO NEGÓCIO
-Tenha sempre uma reserva de emergência equivalente a 6 meses de custos fixos. A estabilidade financeira te dá poder de negociação e permite que você aproveite as crises do mercado para comprar concorrentes ou novos ativos por preços menores.`,
+Tenha sempre uma reserva de emergência equivalente a 6 meses de custos fixos. A estabilidade financeira te dá poder de negociação e permite que você aproveite as crises do mercado para comprar concorrentes ou novos ativos por preços menores.
 
-  "Marketing": `MÁQUINA DE VENDAS: ESTRATÉGIAS AVANÇADAS DE MARKETING DIGITAL E GROWTH
+CAPÍTULO 7: GOVERNANÇA CORPORATIVA E ESG PARA PEQUENAS EMPRESAS
+Ética e sustentabilidade não são apenas para gigantes. Implemente práticas de transparência, gestão de resíduos e responsabilidade social. Isso atrai talentos e clientes que valorizam marcas conscientes.
+
+CAPÍTULO 8: TECNOLOGIA COMO ALAVANCA OPERACIONAL
+Pare de fazer trabalho manual. Use o Mercado Ágil para automatizar conciliação bancária, emissão de notas e controle de comissões. Sua energia deve estar na estratégia, não na planilha de Excel.
+
+CAPÍTULO 9: GESTÃO DE MUDANÇAS E INOVAÇÃO CONSTANTE
+O mercado muda rápido. Crie uma cultura de teste e aprendizado (Fail Fast). Ouça seus clientes e ajuste seu produto ou serviço constantemente. A estagnação é o início do fim.
+
+CAPÍTULO 10: SAÍDA E SUCESSÃO (EXIT STRATEGY)
+Construa seu negócio para ser vendido, mesmo que você não queira vender. Um negócio que depende do dono vale pouco. Um negócio que tem processos e lucro previsível é um ativo valioso que pode ser herdado ou adquirido por investidores.`,
+
+  "Marketing": `MÁQUINA DE VENDAS: ESTRATÉGIAS AVANÇADAS DE MARKETING DIGITAL, GROWTH E BRANDING
 
 CAPÍTULO 1: TRÁFEGO PAGO LOCAL E GEOLOCALIZAÇÃO ESTRATÉGICA
 Para negócios físicos, o Google Maps é o canal de aquisição n° 1. Mantenha seu Perfil de Empresa atualizado com fotos reais e boas avaliações. No Meta Ads (Instagram/Facebook), anuncie em um raio de 5km ao redor do seu CEP para garantir que quem vê o anúncio pode realmente ir até você. Configure o Facebook Pixel ID no painel Mercado Ágil para rastrear quem clicou e não comprou.
 
 CAPÍTULO 2: CONTEÚDO IA, STORYTELLING E AUTORIDADE DE MARCA
-Use a IA para gerar descrições persuasivas (copywriting) e roteiros para vídeos curtos. O Instagram Reels gera alcance orgânico (novas pessoas), enquanto os Stories geram conexão e venda direta (clientes atuais). Mostre os bastidores, a chegada de mercadoria e resolva as dúvidas frequentes para construir prova social e autoridade no seu nicho.
+Use a IA para gerar descrições persuasivas (copywriting) e roteiros para vídeos curtos. O Instagram Reels gera alcance orgânico (novas pessoas), enquanto os Stories geram conexão e venda direta (clientes atuais). Mostre os bastidores, a chegada de mercadoria e resolva as dúvidas frequentes para construir prova social.
 
-CAPÍTULO 3: WHATSAPP MARKETING, CRM E AUTOMAÇÃO DE FUNIL
+CAPÍTULO 3: WHATSAPP MARKETING, CRM E AUTOMAÇÃO DE FUNIL DE VENDAS
 O WhatsApp é a maior ferramenta de fechamento de vendas do Brasil.
 - Use scripts persuasivos para converter orçamentos em vendas.
 - Ative as automações de recuperação de carrinho abandonado do Mercado Ágil.
@@ -215,10 +251,25 @@ Por que o cliente deve escolher você e não o vizinho mais barato? Defina sua U
 CAPÍTULO 5: OTIMIZAÇÃO DE CONVERSÃO (CRO) E JORNADA DO CLIENTE
 Mapeie os pontos de atrito no seu site ou loja física. Se o checkout demora demais, você perde venda. Teste diferentes cores de botões, fotos de ângulos diversos e descrições técnicas detalhadas para aumentar a confiança do comprador.
 
-CAPÍTULO 6: INFLUENCERS LOCAIS E CO-MARKETING
-A micro-influência da sua cidade ou bairro muitas vezes traz mais ROI do que grandes celebridades. Faça parcerias com perfis que falem diretamente com o seu público-alvo geográfico e crie cupons de desconto exclusivos para a audiência deles.`,
+CAPÍTULO 6: INFLUENCERS LOCAIS E ESTRATÉGIAS DE CO-MARKETING
+A micro-influência da sua cidade ou bairro muitas vezes traz mais ROI do que grandes celebridades. Faça parcerias com perfis que falem diretamente com o seu público-alvo geográfico e crie cupons de desconto exclusivos para a audiência deles.
 
-  "Saúde": `GESTÃO PROFISSIONAL DE SAÚDE, TELEMEDICINA E ÉTICA CLÍNICA
+CAPÍTULO 7: E-MAIL MARKETING E NEWSLETTERS DE VALOR
+O e-mail não morreu. É um canal proprietário onde você não depende de algoritmos. Use o e-mail para enviar conteúdos educativos, guias de uso e ofertas exclusivas para quem já comprou de você.
+
+CAPÍTULO 8: MÉTRICAS DE MARKETING: CAC, LTV E ROAS
+Pare de olhar métricas de vaidade (curtidas). Foque em:
+- CAC: Quanto custa trazer um cliente novo.
+- LTV: Quanto esse cliente gasta com você ao longo da vida.
+- ROAS: Retorno sobre o investimento em anúncios.
+
+CAPÍTULO 9: SOCIAL LISTENING E GESTÃO DE REPUTAÇÃO
+Monitore o que falam da sua marca online. Responda a todas as avaliações do Google e comentários nas redes sociais. Uma crise bem gerida pode se transformar em uma oportunidade de fidelização.
+
+CAPÍTULO 10: O FUTURO DO MARKETING: IA E PERSONALIZAÇÃO EM ESCALA
+A IA permite tratar cada cliente como único. Use as ferramentas de IA do Mercado Ágil para recomendar produtos baseados no comportamento passado do cliente e criar campanhas de marketing ultra-segmentadas.`,
+
+  "Saúde": `GESTÃO PROFISSIONAL DE SAÚDE, TELEMEDICINA E ÉTICA CLÍNICA NA ERA DIGITAL
 
 CAPÍTULO 1: LGPD, SEGURANÇA DA INFORMAÇÃO E PRIVACIDADE DO PACIENTE
 Dados de saúde são classificados como 'dados sensíveis' pela Lei Geral de Proteção de Dados. No Mercado Ágil, utilizamos criptografia AES-256 de nível bancário.
@@ -234,13 +285,25 @@ Evite glosas (não recebimento) conhecendo as regras das operadoras de saúde. A
 CAPÍTULO 4: TELEMEDICINA NA PRÁTICA E HUMANIZAÇÃO DIGITAL
 A tecnologia deve ser uma ponte, não um muro. A telemedicina amplia o acesso à saúde para áreas remotas ou pacientes com mobilidade reduzida. Use o Consultório Virtual integrado para consultas remotas com vídeo em HD, mantendo a mesma ética e acolhimento do consultório físico.
 
-CAPÍTULO 5: GESTÃO DE AGENDA, NO-SHOW E FILA DE ESPERA
+CAPÍTULO 5: GESTÃO DE AGENDA, NO-SHOW E FILA DE ESPERA INTELIGENTE
 Otimize o tempo precioso dos especialistas. Use as confirmações automáticas via WhatsApp do Mercado Ágil para reduzir faltas. Mantenha uma 'Lista de Espera Inteligente' para preencher rapidamente horários que vagaram por cancelamentos inesperados.
 
 CAPÍTULO 6: MARKETING MÉDICO E AUTORIDADE TÉCNICA ÉTICA
-Atraia pacientes pela confiança. Produza conteúdos educativos que ajudem a população a prevenir doenças. Respeite sempre as resoluções dos conselhos profissionais (CFM, COFEN, etc.) sobre publicidade na área da saúde.`,
+Atraia pacientes pela confiança. Produza conteúdos educativos que ajudem a população a prevenir doenças. Respeite sempre as resoluções dos conselhos profissionais (CFM, COFEN, etc.) sobre publicidade na área da saúde.
 
-  "Tecnologia": `TRANSFORMAÇÃO DIGITAL, INFRAESTRUTURA CLOUD E FUTURO DO VAREJO
+CAPÍTULO 7: GESTÃO DE EQUIPE E MULTIDISCIPLINARIDADE
+A saúde de excelência é feita em equipe. Coordene o trabalho de médicos, enfermeiros, recepcionistas e administradores através de processos claros e comunicação fluida no painel Staff.
+
+CAPÍTULO 8: QUALIDADE E SEGURANÇA DO PACIENTE: PROTOCOLO DE ERRO ZERO
+Implemente listas de verificação (checklists) para todos os procedimentos. A segurança do paciente deve ser o valor central da cultura da sua clínica.
+
+CAPÍTULO 9: FINANÇAS PARA CLÍNICAS: GESTÃO DE CUSTOS FIXOS E VARIÁVEIS
+Entenda o custo de cada hora de sala e de cada insumo utilizado. A precificação correta deve cobrir os custos e permitir o reinvestimento em novas tecnologias médicas.
+
+CAPÍTULO 10: O FUTURO DA MEDICINA: IA, WEARABLES E DADOS PREDITIVOS
+A medicina do futuro é preventiva e baseada em dados. Use a IA para identificar padrões em exames e prever riscos de saúde antes mesmo dos sintomas aparecerem.`,
+
+  "Tecnologia": `TRANSFORMAÇÃO DIGITAL, INFRAESTRUTURA CLOUD E O FUTURO DO VAREJO CONECTADO
 
 CAPÍTULO 1: INFRAESTRUTURA CLOUD E ESCALABILIDADE AUTOMÁTICA
 O Mercado Ágil roda em uma estrutura de microsserviços na nuvem. Isso significa que se o seu site recebe 100 ou 1 milhão de visitas simultâneas, os servidores se expandem automaticamente para suportar a carga. Você não precisa se preocupar com queda de sistema no Black Friday ou em datas de pico.
@@ -258,14 +321,26 @@ A IA não vai te substituir, mas quem usa IA vai substituir quem não usa.
 - Visão Computacional: Para contar estoque visualmente via câmera.
 - Análise Preditiva: Para prever quanto você vai vender no próximo mês baseado no histórico dos últimos 2 anos.
 
-CAPÍTULO 4: CIBERSEGURANÇA E CONTINUIDADE DOS NEGÓCIOS
+CAPÍTULO 4: CIBERSEGURANÇA E CONTINUIDADE DOS NEGÓCIOS EM NUVEM
 O backup é o seu seguro de vida digital. No Mercado Ágil, realizamos snapshots de dados a cada 60 minutos. Proteja sua rede interna contra Phishing e ataques de Engenharia Social. Use autenticação em dois fatores (2FA) em todas as suas contas corporativas.
 
-CAPÍTULO 5: DESENVOLVIMENTO NO-CODE, LOW-CODE E CUSTOMIZAÇÃO
-Você não precisa de uma equipe de TI para ter uma vitrine exclusiva. Use as ferramentas de arrastar e soltar do painel para personalizar cores, banners e fluxos de checkout. A tecnologia Low-Code democratiza o acesso a sistemas que antes custariam centenas de milhares de reais.
+CAPÍTULO 5: DESENVOLVIMENTO NO-CODE, LOW-CODE E CUSTOMIZAÇÃO PRO
+Você não precisa de uma equipe de TI para ter uma vitrine exclusiva. Use as ferramentas de arrastar e soltar do painel para personalizar cores, banners e fluxos de checkout. A tecnologia Low-Code democratiza o acesso a sistemas complexos.
 
-CAPÍTULO 6: INTERNET DAS COISAS (IOT) E O NOVO VAREJO FÍSICO
-Sensores de movimento para contar fluxo de loja, etiquetas eletrônicas de preço que mudam sozinhas e monitoramento de temperatura para produtos perecíveis. A tecnologia de hardware integrada ao seu painel Mercado Ágil traz o controle total do mundo físico para a palma da sua mão.`
+CAPÍTULO 6: INTERNET DAS COISAS (IOT) E O NOVO VAREJO FÍSICO (PHYGITAL)
+Sensores de movimento para contar fluxo de loja, etiquetas eletrônicas de preço que mudam sozinhas e monitoramento de temperatura para produtos perecíveis. A tecnologia de hardware integrada ao seu painel Mercado Ágil traz o controle total do mundo físico para a palma da sua mão.
+
+CAPÍTULO 7: BIG DATA E DATA ANALYTICS: TRANSFORMANDO DADOS EM LUCRO
+Não colete dados apenas por coletar. Use as ferramentas de BI para entender quem é seu cliente, quando ele compra e o que ele deseja. Dados são o novo petróleo da economia digital.
+
+CAPÍTULO 8: INTEGRAÇÕES VIA API E ECOSSISTEMA ABERTO
+Seu sistema não deve ser uma ilha. Use APIs para conectar o Mercado Ágil com seu ERP, CRM externo ou ferramentas de logística. A conectividade é a chave para a agilidade empresarial.
+
+CAPÍTULO 9: METODOLOGIAS ÁGEIS PARA GESTÃO DE PROJETOS
+Aplique Scrum ou Kanban na gestão do seu negócio. Ciclos curtos de entrega e melhoria contínua garantem que você esteja sempre se adaptando às mudanças do mercado.
+
+CAPÍTULO 10: O PRÓXIMO NÍVEL: REALIDADE AUMENTADA E METAVERSO
+Como a RA pode ajudar seu cliente a provar uma roupa virtualmente? Como o Metaverso pode criar experiências de compra imersivas? Esteja atento às tecnologias emergentes para ser o primeiro a adotá-las no seu nicho.`
 };
 
 const generateCourses = () => {
@@ -278,6 +353,7 @@ const generateCourses = () => {
     const videoUrl = VIDEO_SAMPLES[i % VIDEO_SAMPLES.length];
     const baseContent = CATEGORY_CONTENT[cat];
     
+    // Tornar determinístico para evitar erros de hidratação
     const durationHours = (i % 15) + 10;
     const ratingValue = (4.5 + (i % 6) / 10).toFixed(1);
 
@@ -296,21 +372,21 @@ const generateCourses = () => {
           title: "Módulo 1: Fundamentos e Visão Estratégica",
           lessons: [
             { id: `c${i}l1`, title: `Introdução Profissional a ${topic}`, videoUrl: videoUrl, duration: "15:20", content: `Nesta lição inaugural, mergulharemos na importância vital de ${topic} para o sucesso do seu negócio no cenário atual.\n\nCONTEÚDO TÉCNICO:\n${baseContent}\n\nO objetivo é estabelecer as bases sólidas para sua expansão.` },
-            { id: `c${i}l2`, title: `Análise de Cenário e Oportunidades`, videoUrl: videoUrl, duration: "18:45", content: `Entender os gaps do mercado local é a chave para a diferenciação. Analisaremos como empresas líderes aplicam ${topic} para dominar seu setor e como você pode replicar esses modelos de sucesso.` }
+            { id: `c${i}l2`, title: `Análise de Cenário e Oportunidades`, videoUrl: videoUrl, duration: "18:45", content: `Entender os gaps do mercado local é a chave para a diferenciação. Analisaremos como empresas líderes aplicam ${topic} para dominar seu setor e como você pode replicar esses modelos de sucesso.\n\nCONTEÚDO TÉCNICO:\n${baseContent}` }
           ]
         },
         {
           title: "Módulo 2: Protocolos de Execução e Processos",
           lessons: [
-            { id: `c${i}l3`, title: `Técnicas de Execução Passo a Passo`, videoUrl: videoUrl, duration: "28:30", content: `Agora vamos para a prática. Configuraremos cada ferramenta necessária para implementar ${topic} no seu dia a dia operacional.\n\nCHECKLIST:\n1. Auditoria da infraestrutura atual.\n2. Parametrização no Painel Mercado Ágil.\n3. Treinamento da equipe de linha de frente.` },
-            { id: `c${i}l4`, title: `Estudos de Caso e ROI Real`, videoUrl: videoUrl, duration: "22:00", content: `Veremos exemplos reais de lojistas que, ao dominar ${topic}, aumentaram sua margem líquida significativamente. Veremos os erros comuns a evitar.` }
+            { id: `c${i}l3`, title: `Técnicas de Execução Passo a Passo`, videoUrl: videoUrl, duration: "28:30", content: `Agora vamos para a prática. Configuraremos cada ferramenta necessária para implementar ${topic} no seu dia a dia operacional.\n\nCHECKLIST:\n1. Auditoria da infraestrutura atual.\n2. Parametrização no Painel Mercado Ágil.\n3. Treinamento da equipe de linha de frente.\n\nCONTEÚDO TÉCNICO:\n${baseContent}` },
+            { id: `c${i}l4`, title: `Estudos de Caso e ROI Real`, videoUrl: videoUrl, duration: "22:00", content: `Veremos exemplos reais de lojistas que, ao dominar ${topic}, aumentaram sua margem líquida significativamente. Veremos os erros comuns a evitar.\n\nCONTEÚDO TÉCNICO:\n${baseContent}` }
           ]
         },
         {
           title: "Módulo 3: Métricas, Gestão e Certificação",
           lessons: [
-            { id: `c${i}l5`, title: `Gestão por Indicadores (Dashboards)`, videoUrl: videoUrl, duration: "25:15", content: `Aprenda a ler os dados que o Mercado Ágil gera sobre ${topic}. O que não é medido não pode ser gerenciado.\n\nINDICADORES CHAVE:\n- Conversão Direta.\n- NPS Segmentado.\n- Eficiência de Custo.` },
-            { id: `c${i}l6`, title: `Plano de Ação e Prova Final`, videoUrl: videoUrl, duration: "12:50", content: `Conclusão da jornada. Definiremos seu roadmap para os próximos 30 dias. Ao final desta lição, o Quiz de certificação será liberado.` }
+            { id: `c${i}l5`, title: `Gestão por Indicadores (Dashboards)`, videoUrl: videoUrl, duration: "25:15", content: `Aprenda a ler os dados que o Mercado Ágil gera sobre ${topic}. O que não é medido não pode ser gerenciado.\n\nINDICADORES CHAVE:\n- Conversão Direta.\n- NPS Segmentado.\n- Eficiência de Custo.\n\nCONTEÚDO TÉCNICO:\n${baseContent}` },
+            { id: `c${i}l6`, title: `Plano de Ação e Prova Final`, videoUrl: videoUrl, duration: "12:50", content: `Conclusão da jornada. Definiremos seu roadmap para os próximos 30 dias. Ao final desta lição, o Quiz de certificação será liberado.\n\nCONTEÚDO TÉCNICO:\n${baseContent}` }
           ]
         }
       ],
@@ -325,7 +401,7 @@ const generateCourses = () => {
           title: `Checklist de Implantação Rápida`, 
           type: "PDF", 
           size: "5.2MB", 
-          content: `ROTEIRO DE IMPLEMENTAÇÃO - ${topic}\n\nSiga estes passos cronológicos para ver resultados em até 7 dias:\n\nPasso 1: Diagnóstico Situacional (Dia 1).\nPasso 2: Configuração de Software (Dia 2).\nPasso 3: Briefing com a Equipe (Dia 3).\nPasso 4: Teste em Lote Reduzido (Dia 4).\nPasso 5: Lançamento Público (Dia 5).\n\nA metodologia Ágil Academy foi testada e aprovada por mais de 10.000 empreendedores.`
+          content: `ROTEIRO DE IMPLEMENTAÇÃO - ${topic}\n\nSiga estes passos cronológicos para ver resultados em até 7 dias:\n\nPasso 1: Diagnóstico Situacional (Dia 1).\nPasso 2: Configuração de Software (Dia 2).\nPasso 3: Briefing com a Equipe (Dia 3).\nPasso 4: Teste em Lote Reduzido (Dia 4).\nPasso 5: Lançamento Público (Dia 5).\n\nA metodologia Ágil Academy foi testada e aprovada por mais de 10.000 empreendedores.\n\n${baseContent}`
         }
       ],
       syllabus: [
