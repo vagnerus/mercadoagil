@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { COURSE_LIBRARY } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 
 const CATEGORIES = ["Todos", "Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
 
@@ -126,7 +126,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredCourses.slice(0, 100).map((course) => ( // Show first 100 for perf, search handles the rest
+              {filteredCourses.slice(0, 100).map((course) => ( 
                 <div key={course.id} className="group flex flex-col cursor-pointer" onClick={() => setSelectedCourse(course)}>
                    <div className="aspect-video rounded-[30px] overflow-hidden relative border-2 border-white/5 bg-slate-800 mb-4">
                       <img src={course.thumb} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
@@ -171,6 +171,10 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
         {/* Course Details Modal */}
         <Dialog open={!!selectedCourse} onOpenChange={() => setSelectedCourse(null)}>
            <DialogContent className="sm:max-w-3xl bg-slate-950 border-white/10 p-0 overflow-hidden text-white rounded-[40px]">
+              <DialogHeader className="sr-only">
+                <DialogTitle>{selectedCourse?.title || "Detalhes do Curso"}</DialogTitle>
+                <DialogDescription>Visualize a ementa e inicie seu treinamento profissional.</DialogDescription>
+              </DialogHeader>
               {selectedCourse && (
                 <div className="flex flex-col">
                    <div className="aspect-video w-full relative">

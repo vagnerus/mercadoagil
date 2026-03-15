@@ -63,9 +63,8 @@ export default function CoursePlayer() {
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       
-      // Função Auxiliar para Cabeçalho
       const addHeader = () => {
-        doc.setFillColor(37, 99, 235); // Azul Primário Ágil
+        doc.setFillColor(37, 99, 235); 
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFont("helvetica", "bold");
@@ -77,7 +76,6 @@ export default function CoursePlayer() {
         doc.text(`MATERIAL OFICIAL: ${material.title.toUpperCase()}`, margin, 33);
       };
 
-      // Função Auxiliar para Rodapé
       const addFooter = (pageNum: number, totalPages: number) => {
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
@@ -87,7 +85,6 @@ export default function CoursePlayer() {
 
       addHeader();
       
-      // Capa e Título
       doc.setTextColor(33, 33, 33);
       doc.setFontSize(20);
       doc.setFont("helvetica", "bold");
@@ -101,7 +98,6 @@ export default function CoursePlayer() {
       doc.setDrawColor(230, 230, 230);
       doc.line(margin, 85, 195, 85);
       
-      // Conteúdo Teórico com Paginação Automática
       doc.setTextColor(51, 65, 85);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
@@ -120,7 +116,6 @@ export default function CoursePlayer() {
         y += 7;
       });
 
-      // Seção de Anotações (Garantir que comece em nova página se estiver no fim)
       if (y > 220) {
         doc.addPage();
         addHeader();
@@ -138,7 +133,6 @@ export default function CoursePlayer() {
         doc.line(margin, y, 195, y);
       }
       
-      // Adicionar rodapé em todas as páginas
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -157,7 +151,6 @@ export default function CoursePlayer() {
 
   return (
     <div className="flex h-screen bg-slate-950 text-white font-body overflow-hidden">
-      {/* Sidebar de Conteúdo */}
       <aside className="w-85 border-r border-white/10 bg-slate-900 flex flex-col h-full shrink-0 shadow-2xl">
         <div className="p-6 border-b border-white/10 space-y-4">
            <Link href={`/merchant/${slug}/education/ava`} className="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-colors">
@@ -215,7 +208,6 @@ export default function CoursePlayer() {
         )}
       </aside>
 
-      {/* Player Principal */}
       <main className="flex-1 flex flex-col h-full bg-black overflow-y-auto no-scrollbar pb-20">
          <div className="aspect-video w-full bg-slate-900 relative group overflow-hidden shadow-2xl">
             <video 
