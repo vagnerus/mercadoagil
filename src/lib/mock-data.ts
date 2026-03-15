@@ -126,6 +126,8 @@ export interface Service {
 export const MOCK_SERVICES: Service[] = [
   { id: 's1', merchantId: 'm1', name: 'Corte Degradê', description: 'Corte moderno com acabamento na navalha.', duration: 45, price: 45.00, commission: 40, categoryId: 'cat1' },
   { id: 's2', merchantId: 'm1', name: 'Barba Terapia', description: 'Toalha quente e massagem facial.', duration: 30, price: 35.00, commission: 40, categoryId: 'cat1' },
+  { id: 's3', merchantId: 'm1', name: 'Combo: Cabelo + Barba', description: 'O serviço completo para o seu visual.', duration: 75, price: 70.00, commission: 40, categoryId: 'cat1' },
+  { id: 's4', merchantId: 'm1', name: 'Platinado Profissional', description: 'Coloração global com proteção capilar.', duration: 120, price: 150.00, commission: 50, categoryId: 'cat1' },
 ];
 
 export interface Product {
@@ -159,6 +161,19 @@ export const MOCK_PRODUCTS: Product[] = [
     isAvailable: true,
     stock: 15,
     minStock: 5
+  },
+  {
+    id: 'p2',
+    merchantId: 'm1',
+    categoryId: 'c1',
+    name: 'Óleo para Barba',
+    description: 'Hidratação intensa e aroma amadeirado.',
+    price: 29.90,
+    costPrice: 12.00,
+    imageUrl: 'https://picsum.photos/seed/beardoil/400/300',
+    isAvailable: true,
+    stock: 10,
+    minStock: 3
   }
 ];
 
@@ -175,6 +190,7 @@ export interface Order {
   createdAt: string;
   orderType: 'delivery' | 'pickup' | 'appointment';
   scheduledTime?: string;
+  scheduledProfessional?: string;
   items: { id: string; productId?: string; serviceId?: string; productName: string; quantity: number; price: number; }[];
 }
 
