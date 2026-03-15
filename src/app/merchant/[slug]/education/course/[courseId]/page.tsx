@@ -59,58 +59,89 @@ export default function CoursePlayer() {
   const handleDownload = (material: any) => {
     try {
       const doc = new jsPDF();
-      
-      // Cabeçalho Profissional
-      doc.setFillColor(37, 99, 235); // Azul Primário
+      const margin = 15;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      let y = 70;
+
+      // Cabeçalho Profissional (Página 1)
+      doc.setFillColor(37, 99, 235); // Azul Primário Ágil
       doc.rect(0, 0, 210, 50, 'F');
       
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(26);
-      doc.text("ÁGIL ACADEMY", 15, 25);
+      doc.setFontSize(28);
+      doc.text("ÁGIL ACADEMY", margin, 25);
       
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.text("CENTRO DE EXCELÊNCIA EM EDUCAÇÃO CORPORATIVA", 15, 35);
-      doc.text(`MATERIAL DE APOIO OFICIAL - DOCUMENTO DE ESTUDO`, 15, 42);
+      doc.text("CENTRO DE EXCELÊNCIA EM EDUCAÇÃO CORPORATIVA E GESTÃO", margin, 35);
+      doc.text(`MATERIAL DE APOIO OFICIAL - DOCUMENTO DE ESTUDO INTEGRAL`, margin, 42);
       
-      // Corpo do Documento
+      // Detalhes do Curso
       doc.setTextColor(33, 33, 33);
-      doc.setFontSize(20);
+      doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
-      doc.text(material.title.toUpperCase(), 15, 70);
+      doc.text(material.title.toUpperCase(), margin, 70);
       
       doc.setFontSize(12);
       doc.setTextColor(100, 116, 139);
-      doc.text(`Curso: ${course?.title}`, 15, 80);
-      doc.text(`Categoria: ${course?.category}`, 15, 87);
+      doc.text(`Curso: ${course?.title}`, margin, 82);
+      doc.text(`Categoria: ${course?.category}`, margin, 89);
+      doc.text(`Carga Horária: ${course?.duration}`, margin, 96);
       
       doc.setDrawColor(226, 232, 240);
-      doc.line(15, 95, 195, 95);
+      doc.line(margin, 105, 195, 105);
       
-      // Conteúdo Teórico Real
+      // Conteúdo Teórico Estruturado
       doc.setTextColor(51, 65, 85);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
       
       const contentText = material.content || "Nenhum conteúdo adicional disponível.";
       const splitText = doc.splitTextToSize(contentText, 180);
-      doc.text(splitText, 15, 110);
       
-      // Rodapé
+      y = 115;
+      splitText.forEach((line: string) => {
+        if (y > pageHeight - 20) {
+          doc.addPage();
+          y = margin + 10;
+        }
+        doc.text(line, margin, y);
+        y += 7;
+      });
+
+      // Seção de Anotações (Página Final)
+      if (y > pageHeight - 60) {
+        doc.addPage();
+        y = margin + 10;
+      } else {
+        y += 20;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.text("ANOTAÇÕES DO ALUNO:", margin, y);
+      doc.setDrawColor(200, 200, 200);
+      for(let i=1; i<=5; i++) {
+        y += 10;
+        doc.line(margin, y, 195, y);
+      }
+      
+      // Rodapé em todas as páginas
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(148, 163, 184);
-        doc.text("Este documento é propriedade exclusiva do Mercado Ágil. Distribuição proibida.", 15, 285);
+        doc.text("Este documento é propriedade exclusiva do Mercado Ágil. Distribuição ou venda proibida por lei.", margin, 285);
         doc.text(`Página ${i} de ${pageCount}`, 180, 285);
       }
       
-      doc.save(`${material.title.replace(/\s+/g, '_')}.pdf`);
-      toast({ title: "PDF Gerado!", description: "O conteúdo real do curso foi baixado." });
+      doc.save(`${material.title.replace(/\s+/g, '_')}_Completo.pdf`);
+      toast({ title: "PDF Profissional Gerado!", description: "O guia de estudos completo foi baixado." });
     } catch (e) {
-      toast({ title: "Erro no Download", description: "Falha ao processar PDF.", variant: "destructive" });
+      console.error(e);
+      toast({ title: "Erro no Download", description: "Falha ao processar PDF estruturado.", variant: "destructive" });
     }
   };
 
@@ -119,7 +150,7 @@ export default function CoursePlayer() {
   return (
     <div className="flex h-screen bg-slate-950 text-white font-body overflow-hidden">
       {/* Sidebar de Conteúdo */}
-      <aside className="w-80 border-r border-white/10 bg-slate-900 flex flex-col h-full shrink-0 shadow-2xl">
+      <aside className="w-85 border-r border-white/10 bg-slate-900 flex flex-col h-full shrink-0 shadow-2xl">
         <div className="p-6 border-b border-white/10 space-y-4">
            <Link href={`/merchant/${slug}/education/ava`} className="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-colors">
               <ChevronLeft className="h-4 w-4" /> Voltar ao Academy
@@ -223,7 +254,7 @@ export default function CoursePlayer() {
 
                <TabsContent value="overview" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
                   <div className="bg-white/5 p-10 rounded-[40px] border border-white/10 shadow-inner">
-                     <h3 className="text-2xl font-black italic uppercase text-white mb-8 border-l-4 border-primary pl-6">Material de Leitura</h3>
+                     <h3 className="text-2xl font-black italic uppercase text-white mb-8 border-l-4 border-primary pl-6">Material de Leitura Técnica</h3>
                      <div className="prose prose-invert max-w-none">
                         <p className="text-slate-300 text-lg leading-relaxed italic whitespace-pre-wrap">
                            {currentLesson.content || course.description}
@@ -243,14 +274,14 @@ export default function CoursePlayer() {
                         <h4 className="text-xs font-black text-slate-500 uppercase mb-4 tracking-widest">Tempo de Estudo</h4>
                         <div className="flex items-center gap-3">
                            <Clock className="h-6 w-6 text-slate-600" />
-                           <p className="text-xl font-black italic text-white uppercase">{currentLesson.duration} de Vídeo + Leitura</p>
+                           <p className="text-xl font-black italic text-white uppercase">{currentLesson.duration} de Vídeo + Material Teórico</p>
                         </div>
                      </Card>
                   </div>
                </TabsContent>
 
                <TabsContent value="materials" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
-                  <h3 className="text-2xl font-black italic uppercase text-white mb-6">Materiais de Apoio para Download</h3>
+                  <h3 className="text-2xl font-black italic uppercase text-white mb-6">Biblioteca de Apoio Integrada</h3>
                   <div className="grid gap-4">
                     {course.materials.map((mat: any, i: number) => (
                       <div key={i} className="flex flex-col md:flex-row items-start md:items-center justify-between p-8 bg-white/5 rounded-[35px] border border-white/5 hover:bg-primary/10 hover:border-primary/20 transition-all gap-6 group">
@@ -260,14 +291,14 @@ export default function CoursePlayer() {
                             </div>
                             <div>
                                <p className="font-black italic uppercase text-lg">{mat.title}</p>
-                               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{mat.type} • {mat.size} • CONTEÚDO REAL INTEGRADO</p>
+                               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{mat.type} • {mat.size} • GUIA DE ESTUDO COMPLETO</p>
                             </div>
                          </div>
                          <Button 
                           onClick={() => handleDownload(mat)}
                           className="w-full md:w-auto rounded-2xl h-14 px-8 bg-white text-slate-900 hover:bg-primary hover:text-white gap-3 font-black italic uppercase text-xs shadow-xl transition-all"
                          >
-                            <Download className="h-5 w-5" /> BAIXAR GUIA COMPLETO
+                            <Download className="h-5 w-5" /> BAIXAR MANUAL INTEGRAL
                          </Button>
                       </div>
                     ))}
@@ -302,7 +333,7 @@ export default function CoursePlayer() {
                      </div>
                      <div className="space-y-4 relative z-10">
                         <h3 className="text-4xl font-black italic uppercase tracking-tighter">Desafio de Fixação Pro</h3>
-                        <p className="text-slate-400 font-medium italic max-w-xl mx-auto text-lg">Nossa IA gerou 5 questões exclusivas baseadas no conteúdo técnico de "{course.title}" para testar seu domínio.</p>
+                        <p className="text-slate-400 font-medium italic max-w-xl mx-auto text-lg">Nossa IA gerou questões exclusivas baseadas no conteúdo técnico de "{course.title}" para testar seu domínio e liberar sua badge.</p>
                      </div>
                      <Button className="h-16 px-14 rounded-[30px] bg-white text-primary hover:bg-primary hover:text-white font-black italic text-xl shadow-2xl transition-all">
                         INICIAR TESTE AGORA

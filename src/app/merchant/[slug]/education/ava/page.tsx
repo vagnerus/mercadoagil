@@ -39,7 +39,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
   const handleStartCourse = (courseId: string) => {
     toast({
       title: "Matrícula Ativada!",
-      description: `Aproveite seu conteúdo gratuito exclusivo.`,
+      description: `Aproveite seu treinamento gratuito exclusivo.`,
     });
     router.push(`/merchant/${slug}/education/course/${courseId}`);
   };
@@ -61,17 +61,17 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-2">
-               <Badge className="bg-green-500 text-white border-none font-black italic px-3 py-1 rounded-full text-[10px]">ACESSO LIBERADO PARA VOCÊ</Badge>
-               <Badge className="bg-primary/20 text-primary border-none font-black text-[10px]">500 CURSOS DISPONÍVEIS</Badge>
+               <Badge className="bg-green-500 text-white border-none font-black italic px-3 py-1 rounded-full text-[10px]">ACESSO PREMIUM LIBERADO</Badge>
+               <Badge className="bg-primary/20 text-primary border-none font-black text-[10px]">1.000 CURSOS DISPONÍVEIS</Badge>
             </div>
-            <h1 className="text-4xl font-black tracking-tighter italic uppercase text-white">Ágil Academy <span className="text-primary not-italic">PRO</span></h1>
-            <p className="text-slate-500 font-medium italic mt-1">Biblioteca exclusiva de treinamentos para lojistas parceiros.</p>
+            <h1 className="text-4xl font-black tracking-tighter italic uppercase text-white">Ágil Academy <span className="text-primary not-italic">ELITE</span></h1>
+            <p className="text-slate-500 font-medium italic mt-1">A maior biblioteca de educação corporativa para lojistas.</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
              <div className="relative flex-1 md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                 <Input 
-                  placeholder="O que você quer aprender hoje?" 
+                  placeholder="O que sua equipe precisa aprender?" 
                   className="bg-white/5 border-white/10 rounded-2xl h-12 pl-12 text-white font-bold"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -101,18 +101,18 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
 
         {/* Featured Banner */}
         <div className="mb-16 aspect-[21/9] w-full rounded-[40px] relative overflow-hidden group border-4 border-white/5 shadow-2xl">
-           <img src="https://picsum.photos/seed/education_hero/1600/600" className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-1000" />
+           <img src="https://picsum.photos/seed/education_hero_elite/1600/600" className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-1000" />
            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
            <div className="absolute bottom-10 left-10 max-w-2xl space-y-6">
               <div className="flex gap-2">
-                <Badge className="bg-primary text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">NOVO MÓDULO</Badge>
-                <Badge className="bg-white/10 text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">MAIS VENDIDO</Badge>
+                <Badge className="bg-primary text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">BIBLIOTECA COMPLETA</Badge>
+                <Badge className="bg-white/10 text-white border-none font-black italic px-4 py-1.5 rounded-full text-xs">CONTEÚDO ESTRUTURADO</Badge>
               </div>
-              <h2 className="text-5xl font-black italic uppercase tracking-tighter">Máquina de Vendas no Automático</h2>
-              <p className="text-slate-300 font-medium leading-relaxed italic text-lg">Descubra como lojistas do Mercado Ágil estão triplicando o faturamento usando nossa IA de vendas 24h por dia.</p>
+              <h2 className="text-5xl font-black italic uppercase tracking-tighter">Do Zero ao Próximo Nível</h2>
+              <p className="text-slate-300 font-medium leading-relaxed italic text-lg">Capacite sua equipe com os 1.000 treinamentos integrados ao seu painel. Gratuito para todos os parceiros Mercado Ágil.</p>
               <div className="flex gap-4">
                  <Button className="h-14 px-10 rounded-2xl bg-white text-slate-900 font-black italic text-lg gap-3" onClick={() => handleStartCourse("c1")}>
-                    <PlayCircle className="h-6 w-6" /> COMEÇAR AGORA (GRÁTIS)
+                    <PlayCircle className="h-6 w-6" /> EXPLORAR CURSOS
                  </Button>
               </div>
            </div>
@@ -126,7 +126,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredCourses.map((course) => (
+              {filteredCourses.slice(0, 100).map((course) => ( // Show first 100 for perf, search handles the rest
                 <div key={course.id} className="group flex flex-col cursor-pointer" onClick={() => setSelectedCourse(course)}>
                    <div className="aspect-video rounded-[30px] overflow-hidden relative border-2 border-white/5 bg-slate-800 mb-4">
                       <img src={course.thumb} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
@@ -134,7 +134,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                          <PlayCircle className="h-16 w-16 text-white" />
                       </div>
                       <div className="absolute top-4 left-4">
-                         <Badge className="bg-green-500 text-white border-none font-black italic text-[10px]">GRATUITO</Badge>
+                         <Badge className="bg-green-500 text-white border-none font-black italic text-[10px]">100% LIBERADO</Badge>
                       </div>
                       <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                          <Badge className="bg-black/60 backdrop-blur-md text-white border-none font-black italic text-[8px] uppercase">{course.category}</Badge>
@@ -152,7 +152,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                       <Button 
                         className="w-full bg-white/5 hover:bg-primary hover:text-white border border-white/10 rounded-xl h-10 font-black italic text-[10px] uppercase transition-all mt-auto group-hover:border-primary"
                       >
-                        ASSISTIR AGORA
+                        ESTUDAR AGORA
                       </Button>
                    </div>
                 </div>
@@ -162,8 +162,8 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
            {filteredCourses.length === 0 && (
              <div className="p-20 text-center bg-white/5 rounded-[40px] border-2 border-dashed border-white/10">
                 <Monitor className="h-16 w-16 text-slate-700 mx-auto mb-6" />
-                <p className="text-xl font-black italic text-slate-500 uppercase">Nenhum curso encontrado nesta categoria.</p>
-                <p className="text-sm text-slate-600 mt-2">Tente mudar o filtro ou termo de pesquisa.</p>
+                <p className="text-xl font-black italic text-slate-500 uppercase">Busca sem resultados.</p>
+                <p className="text-sm text-slate-600 mt-2">Explore nossas 1.000 opções de treinamento.</p>
              </div>
            )}
         </div>
@@ -184,28 +184,28 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                    <div className="p-8 space-y-8">
                       <div className="grid grid-cols-3 gap-4">
                          <div className="bg-white/5 p-4 rounded-3xl border border-white/5 text-center">
-                            <p className="text-[10px] font-black text-slate-500 uppercase">Duração</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Carga Horária</p>
                             <p className="text-lg font-black italic text-primary">{selectedCourse.duration}</p>
                          </div>
                          <div className="bg-white/5 p-4 rounded-3xl border border-white/5 text-center">
-                            <p className="text-[10px] font-black text-slate-500 uppercase">Aulas</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Aulas Gravadas</p>
                             <p className="text-lg font-black italic text-primary">{selectedCourse.lessons}</p>
                          </div>
                          <div className="bg-white/5 p-4 rounded-3xl border border-white/5 text-center">
-                            <p className="text-[10px] font-black text-slate-500 uppercase">Rating</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Ranking</p>
                             <p className="text-lg font-black italic text-primary">{selectedCourse.rating}/5.0</p>
                          </div>
                       </div>
 
                       <div className="space-y-4">
                          <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-2">
-                            <Info className="h-5 w-5 text-primary" /> Sobre o Treinamento
+                            <Info className="h-5 w-5 text-primary" /> Ementa Completa
                          </h3>
                          <p className="text-slate-400 font-medium leading-relaxed italic">{selectedCourse.description}</p>
                       </div>
 
                       <div className="space-y-4">
-                         <h3 className="text-xl font-black italic uppercase tracking-tighter">O que você vai dominar:</h3>
+                         <h3 className="text-xl font-black italic uppercase tracking-tighter">Competências que você irá adquirir:</h3>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {selectedCourse.syllabus.map((item: string, i: number) => (
                               <div key={i} className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/5">
@@ -219,10 +219,10 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                       <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                          <div className="space-y-1">
                             <p className="text-[10px] font-black text-slate-500 uppercase">Disponibilidade</p>
-                            <p className="text-3xl font-black italic text-green-500 uppercase">100% Gratuito</p>
+                            <p className="text-3xl font-black italic text-green-500 uppercase">ACESSO IMEDIATO</p>
                          </div>
                          <Button onClick={() => handleStartCourse(selectedCourse.id)} className="h-16 px-12 rounded-3xl bg-primary hover:bg-primary/90 text-white font-black italic text-xl shadow-2xl shadow-primary/20 gap-3">
-                            <PlayCircle className="h-6 w-6" /> INICIAR AGORA
+                            <PlayCircle className="h-6 w-6" /> INICIAR TREINAMENTO
                          </Button>
                       </div>
                    </div>
@@ -231,7 +231,7 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
            </DialogContent>
         </Dialog>
 
-        {/* Professional Certifications */}
+        {/* Certification Section */}
         <section className="mt-24 pt-16 border-t border-white/5">
            <Card className="bg-primary rounded-[50px] p-12 text-white relative overflow-hidden border-none shadow-3xl shadow-primary/20">
               <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
@@ -239,14 +239,14 @@ export default function EducationAVA({ params }: { params: Promise<{ slug: strin
                     <div className="h-20 w-20 rounded-3xl bg-white/20 flex items-center justify-center">
                        <Award className="h-12 w-12 text-white" />
                     </div>
-                    <h3 className="text-5xl font-black italic uppercase tracking-tighter leading-[0.9]">Certificações Corporativas Gratuitas</h3>
-                    <p className="text-xl font-medium opacity-80 italic leading-relaxed">No Mercado Ágil, acreditamos que o sucesso do seu negócio depende do seu conhecimento. Todos os cursos são gratuitos para parceiros e emitem certificados com validade nacional.</p>
+                    <h3 className="text-5xl font-black italic uppercase tracking-tighter leading-[0.9]">Treinamento de Elite Gratuito</h3>
+                    <p className="text-xl font-medium opacity-80 italic leading-relaxed">No Mercado Ágil, investimos no seu crescimento. Todos os 1.000 cursos emitem certificados digitais profissionais para você e sua equipe.</p>
                     <div className="flex gap-4">
                        <Button className="h-16 px-10 rounded-2xl bg-white text-primary font-black italic text-xl shadow-2xl hover:scale-105 transition-transform">
-                          EXPLORAR TODOS
+                          VER MEU PAINEL
                        </Button>
                        <Button variant="ghost" className="h-16 px-8 rounded-2xl bg-white/10 border border-white/20 font-black italic text-white hover:bg-white/20">
-                          VER MEUS CERTIFICADOS
+                          MEUS CERTIFICADOS
                        </Button>
                     </div>
                  </div>

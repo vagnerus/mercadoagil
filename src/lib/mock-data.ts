@@ -91,28 +91,87 @@ const VIDEO_SAMPLES = [
 ];
 
 const TOPICS_POOL = [
-  { cat: "Beleza", topics: ["Corte Masculino Moderno", "Barboterapia Pro", "Visagismo Aplicado", "Colorimetria de Salão", "Manicure e Nail Art", "Gestão de Barbearias", "Biossegurança em Estética", "Técnicas de Penteado", "Design de Sobrancelhas", "Maquiagem Social"] },
-  { cat: "Varejo", topics: ["Exposição de Gôndolas", "Técnicas de Venda PDV", "Gestão de Estoque", "Prevenção de Perdas", "Visual Merchandising", "Atendimento de Excelência", "Logística de Entrega", "Embalagem Criativa", "Curva ABC na Prática", "Compras Estratégicas"] },
-  { cat: "Gestão", topics: ["Liderança de Equipes", "Planejamento Financeiro", "Fluxo de Caixa Real", "Indicadores de Sucesso (KPI)", "Recrutamento e Seleção", "Cultura Organizacional", "Expansão de Negócios", "Gestão de Conflitos", "Negociação com Fornecedores", "Empreendedorismo Ágil"] },
-  { cat: "Marketing", topics: ["Instagram para Lojistas", "Anúncios no Google", "WhatsApp Marketing", "Criação de Conteúdo IA", "Fidelização de Clientes", "Tráfego Pago Iniciante", "Branding e Identidade", "Copywriting de Vendas", "Marketing de Guerrilha", "SEO para Negócios Locais"] },
-  { cat: "Saúde", topics: ["Telemedicina na Prática", "Gestão de Clínicas", "Humanização no Atendimento", "LGPD para Saúde", "Biossegurança Hospitalar", "Marketing Médico Ético", "Financeiro para Consultórios", "Novas Tecnologias em Saúde", "Prontuário Digital", "Experiência do Paciente"] },
-  { cat: "Tecnologia", topics: ["IA para Negócios", "Segurança da Informação", "E-commerce do Zero", "Automação de Processos", "Cloud Computing MEI", "Ferramentas No-Code", "Análise de Dados BI", "Transformação Digital", "Suporte Técnico Pro", "Desenvolvimento Web Básico"] }
+  { cat: "Beleza", topics: ["Corte Masculino Moderno", "Barboterapia Pro", "Visagismo Aplicado", "Colorimetria de Salão", "Manicure e Nail Art", "Gestão de Barbearias", "Biossegurança em Estética", "Técnicas de Penteado", "Design de Sobrancelhas", "Maquiagem Social", "Mega Hair de Queratina", "Tratamento de Queda Capilar", "Marketing para Estética", "Vendas de Pacotes de Estética", "Harmonização Capilar"] },
+  { cat: "Varejo", topics: ["Exposição de Gôndolas", "Técnicas de Venda PDV", "Gestão de Estoque", "Prevenção de Perdas", "Visual Merchandising", "Atendimento de Excelência", "Logística de Entrega", "Embalagem Criativa", "Curva ABC na Prática", "Compras Estratégicas", "Gestão de E-commerce", "Experiência do Consumidor", "Inovação no Varejo Físico", "Sistemas de ERP para Lojas", "Treinamento de Equipe de Venda"] },
+  { cat: "Gestão", topics: ["Liderança de Equipes", "Planejamento Financeiro", "Fluxo de Caixa Real", "Indicadores de Sucesso (KPI)", "Recrutamento e Seleção", "Cultura Organizacional", "Expansão de Negócios", "Gestão de Conflitos", "Negociação com Fornecedores", "Empreendedorismo Ágil", "Modelagem de Negócios Canvas", "Estratégia de Crescimento SaaS", "Auditoria Interna", "Controladoria para Pequenas Empresas", "Gestão de Tempo para Donos"] },
+  { cat: "Marketing", topics: ["Instagram para Lojistas", "Anúncios no Google", "WhatsApp Marketing", "Criação de Conteúdo IA", "Fidelização de Clientes", "Tráfego Pago Iniciante", "Branding e Identidade", "Copywriting de Vendas", "Marketing de Guerrilha", "SEO para Negócios Locais", "E-mail Marketing Eficaz", "Gestão de Tráfego Avançado", "Marketing de Influência Local", "Automação de Marketing", "Growth Hacking para Lojas"] },
+  { cat: "Saúde", topics: ["Telemedicina na Prática", "Gestão de Clínicas", "Humanização no Atendimento", "LGPD para Saúde", "Biossegurança Hospitalar", "Marketing Médico Ético", "Financeiro para Consultórios", "Novas Tecnologias em Saúde", "Prontuário Digital", "Experiência do Paciente", "Gestão de Convênios TISS", "Faturamento Médico Sem Erros", "Administração de Clínicas Odontológicas", "Fisioterapia e Gestão", "Psicologia: Carreira e Consultório"] },
+  { cat: "Tecnologia", topics: ["IA para Negócios", "Segurança da Informação", "E-commerce do Zero", "Automação de Processos", "Cloud Computing MEI", "Ferramentas No-Code", "Análise de Dados BI", "Transformação Digital", "Suporte Técnico Pro", "Desenvolvimento Web Básico", "Inteligência Artificial Generativa", "Blockchain para Logística", "Cibersegurança para E-commerce", "Internet das Coisas no Varejo", "Big Data para Decisão"] }
 ];
 
 const CATEGORY_CONTENT: Record<string, string> = {
-  "Beleza": "O mercado de beleza e estética é um dos que mais cresce no Brasil. O segredo do sucesso reside na combinação entre técnica apurada e atendimento humanizado. Para um profissional de elite, entender a anatomia capilar e facial é apenas o começo. O visagismo, por exemplo, permite que o profissional crie uma imagem que reflita a personalidade do cliente, aumentando drasticamente o valor percebido do serviço.\n\nNeste curso, abordaremos profundamente o uso de ferramentas profissionais, a importância da biossegurança para evitar contaminações e como fidelizar clientes através de uma experiência sensorial completa. Higiene, precisão e ética são os pilares que transformam um salão em uma referência local.",
-  "Varejo": "Vender produtos é uma ciência exata misturada com psicologia comportamental. O varejo moderno exige que o lojista domine desde a Curva ABC de estoque até o Visual Merchandising. Entender o comportamento do consumidor no ponto de venda (PDV) pode aumentar suas vendas em até 40% apenas com a reorganização das gôndolas.\n\nEste treinamento detalha como gerenciar o giro de estoque para evitar rupturas ou excessos, como aplicar precificação psicológica e como treinar sua equipe de vendas para realizar o 'upsell' de forma natural e lucrativa. O sucesso no varejo é medido pelo lucro líquido e pela taxa de retorno do cliente.",
-  "Gestão": "Gestão eficiente é o coração de qualquer negócio escalável. Muitos empreendedores falham não por falta de vendas, mas por falta de controle financeiro. O domínio do Fluxo de Caixa, do DRE (Demonstrativo de Resultados) e do Capital de Giro é obrigatório para quem deseja crescer sem quebrar.\n\nAlém dos números, a gestão de pessoas é o que sustenta a operação. Aprender a contratar, motivar e reter talentos é o maior diferencial competitivo de um gestor moderno. Neste material, exploramos rotinas administrativas que economizam horas de trabalho e como utilizar indicadores de desempenho (KPIs) para tomar decisões baseadas em dados, não em palpites.",
-  "Marketing": "No cenário digital atual, quem não é visto não é lembrado. O marketing para negócios locais e e-commerce evoluiu para o marketing de comunidade. Dominar o algoritmo do Instagram e do Google é essencial para atrair tráfego qualificado para sua loja.\n\nExploraremos como criar conteúdo que engaja, o uso de Inteligência Artificial para acelerar a produção de posts e como configurar campanhas de tráfego pago que realmente trazem retorno sobre o investimento (ROI). Copywriting, ou a arte da escrita persuasiva, é a habilidade que transformará seus seguidores em compradores fiéis. O marketing moderno é relacional e constante.",
-  "Saúde": "A gestão na área da saúde exige um equilíbrio delicado entre eficiência operacional e conformidade ética e legal. Com a implementação da LGPD, o cuidado com os dados dos pacientes tornou-se uma prioridade técnica. O Prontuário Eletrônico (PEP) não é apenas uma ferramenta de registro, mas um ativo de segurança para o médico e para o paciente.\n\nNeste curso, detalhamos como otimizar o fluxo da recepção para reduzir o no-show, como implementar a telemedicina de forma segura e como realizar o faturamento de convênios sem glosas. O atendimento humanizado, aliado à tecnologia de ponta, é o que garante a sustentabilidade de clínicas e consultórios no longo prazo.",
-  "Tecnologia": "A tecnologia é a infraestrutura que permite a escala. Para um lojista, entender o básico de Cloud Computing, Integrações de APIs e Automação de Processos pode significar a sobrevivência do negócio. A transformação digital não é mais uma opção, é um requisito básico.\n\nAbordaremos como proteger as informações da sua empresa contra ataques cibernéticos, como escolher as melhores ferramentas No-Code para automatizar tarefas repetitivas e como utilizar a Análise de Dados (BI) para prever tendências de mercado. A tecnologia deve trabalhar para você, liberando seu tempo para o que realmente importa: a estratégia do seu negócio."
+  "Beleza": `O mercado de beleza e estética é um dos pilares da economia brasileira, movendo bilhões anualmente. Este curso aprofunda o conhecimento técnico e estratégico necessário para se destacar.
+
+CONTEÚDO TÉCNICO AVANÇADO:
+1. ANATOMIA E FISIOLOGIA: Compreender a estrutura do fio de cabelo, as camadas da pele e como os produtos químicos interagem com o organismo. A saúde do cliente é a prioridade zero.
+2. BIOSSEGURANÇA: Protocolos rigorosos de esterilização, uso de EPIs e prevenção de contaminação cruzada. Um salão seguro é um salão lucrativo.
+3. TÉCNICAS DE CORTE E VISAGISMO: O visagismo não é apenas sobre estética, mas sobre identidade. Aprenda a ler o formato do rosto e a personalidade do cliente para sugerir o corte que eleva a autoestima.
+4. GESTÃO DE ESTOQUE E PRODUTOS: Como evitar o desperdício de colorações e insumos. O controle por gramatura pode salvar até 15% do seu lucro mensal.
+5. MARKETING DE RELACIONAMENTO: Fidelizar um cliente custa 5x menos que atrair um novo. Use o WhatsApp para lembretes de retorno e promoções de aniversariantes.
+
+Este manual serve como guia definitivo para a excelência na prestação de serviços de beleza e estética. A técnica deve estar sempre acompanhada de um atendimento humanizado e uma gestão financeira impecável.`,
+
+  "Varejo": `Vender produtos no século XXI exige uma integração perfeita entre o físico e o digital. O varejo moderno é omnichannel e focado na experiência.
+
+MÓDULOS DE CONHECIMENTO:
+1. PSICOLOGIA DO CONSUMIDOR: Entenda o caminho que o cliente faz desde que entra na loja até o checkout. O uso de cores, sons e aromas influencia diretamente na decisão de compra.
+2. CURVA ABC E ESTOQUE: Não deixe dinheiro parado na prateleira. Foque nos produtos 'A' (80% do faturamento) e liquide os produtos 'C'.
+3. VISUAL MERCHANDISING: A vitrine é o convite da sua loja. Aprenda técnicas de exposição que aumentam o ticket médio naturalmente.
+4. PREVENÇÃO DE PERDAS: Furtos, quebras e vencimentos são inimigos do lucro. Implemente sistemas de auditoria diária.
+5. LOGÍSTICA E LAST MILE: Entregas rápidas e baratas são o maior diferencial competitivo. Otimize suas rotas de entrega.
+
+O sucesso no varejo é medido pelo Giro de Estoque e pela Margem de Contribuição. Este curso ensina a dominar esses indicadores para garantir a saúde do seu negócio.`,
+
+  "Gestão": `Gestão é a arte de organizar recursos para atingir objetivos. Para um lojista, gestão é o que diferencia o sobrevivente do vencedor.
+
+ESTRUTURA DE GESTÃO ELITE:
+1. FLUXO DE CAIXA E DRE: Você precisa saber exatamente para onde cada centavo está indo. O regime de caixa e o regime de competência devem ser dominados.
+2. LIDERANÇA E RH: Pessoas felizes vendem mais. Aprenda a contratar por valores e treinar por competências.
+3. PLANEJAMENTO ESTRATÉGICO: Onde sua loja estará daqui a 2 anos? Defina metas SMART e acompanhe-as semanalmente.
+4. CONTROLADORIA: Auditoria de notas fiscais, impostos e taxas bancárias. Pequenos erros administrativos podem gerar grandes multas.
+5. EXPANSÃO E ESCALA: Quando é a hora de abrir a segunda unidade? Aprenda a analisar a viabilidade de novos investimentos.
+
+Este treinamento é o braço direito do empreendedor moderno. Sem dados, você é apenas mais uma pessoa com uma opinião. Gerencie com números.`,
+
+  "Marketing": `Marketing não é apenas postar no Instagram. É uma ciência de aquisição e retenção de demanda.
+
+PILARE DO CRESCIMENTO:
+1. TRÁFEGO PAGO: Google Ads e Meta Ads são máquinas de vendas se usados corretamente. Aprenda a definir seu público-alvo por comportamento e geolocalização.
+2. COPYWRITING: A arte da escrita persuasiva. Suas legendas e mensagens devem resolver uma dor do cliente ou realizar um desejo.
+3. MARKETING DE CONTEÚDO: Gere valor antes de pedir a venda. Eduque seu cliente sobre como usar seus produtos ou serviços.
+4. CRM E WHATSAPP: O poder dos dados. Tenha uma lista de clientes organizada e faça campanhas de recompra automáticas.
+5. BRANDING: O que as pessoas dizem de você quando você não está na sala. Construa uma marca forte e reconhecível.
+
+O marketing digital nivela o jogo. Uma pequena loja pode competir com grandes redes se tiver uma estratégia inteligente e constante.`,
+
+  "Saúde": `Gerenciar na saúde é lidar com vidas e com uma regulação complexa. Segurança e confiança são os ativos mais caros.
+
+PROTOCOLO DE GESTÃO EM SAÚDE:
+1. COMPLIANCE E LGPD: O sigilo médico e a proteção de dados sensíveis são obrigatórios. Entenda as penalidades e como se proteger.
+2. PRONTUÁRIO ELETRÔNICO (PEP): Mais que um registro, uma ferramenta de decisão. O histórico completo melhora o diagnóstico e a segurança jurídica.
+3. FATURAMENTO E TISS/TUSS: Reduza as glosas médicas entendendo profundamente os códigos e prazos das operadoras de saúde.
+4. EXPERIÊNCIA DO PACIENTE: Do agendamento online à sala de espera. O paciente avalia a clínica como um todo, não apenas o ato médico.
+5. TELEMEDICINA: Como realizar consultas remotas com segurança, ética e validade jurídica.
+
+A saúde 4.0 exige tecnologia integrada para que o profissional possa focar no que realmente importa: o cuidado com o paciente.`,
+
+  "Tecnologia": `A tecnologia é a infraestrutura invisível que sustenta o mundo moderno. Para o comércio, ela é o motor da eficiência.
+
+MANUAL DE TECNOLOGIA APLICADA:
+1. CIBERSEGURANÇA: Proteja sua loja contra ataques de ransomware e roubo de dados de cartões.
+2. CLOUD COMPUTING: Por que usar a nuvem? Escalabilidade, segurança e acesso global aos dados do seu negócio.
+3. AUTOMAÇÃO E IA: Como usar robôs para responder chats e IAs para prever o estoque futuro.
+4. DESENVOLVIMENTO NO-CODE: Crie soluções internas sem precisar de programadores caros.
+5. DATA SCIENCE: Transforme montanhas de dados em decisões claras. O BI (Business Intelligence) é o futuro da gestão.
+
+Não existe mais negócio "fora da tecnologia". Entender o básico da infraestrutura digital é requisito para qualquer gestor de sucesso.`
 };
 
-// Gerador de Conteúdo Didático Realista
+// Gerador de Conteúdo Didático Realista para 1000 Cursos
 const generateCourses = () => {
   const courses = [];
   
-  for (let i = 1; i <= 500; i++) {
+  for (let i = 1; i <= 1000; i++) {
     const poolItem = TOPICS_POOL[i % TOPICS_POOL.length];
     const topic = poolItem.topics[i % poolItem.topics.length];
     const cat = poolItem.cat;
@@ -122,33 +181,33 @@ const generateCourses = () => {
     courses.push({
       id: `c${i}`,
       title: `${topic} - Masterclass Profissional`,
-      description: `Este treinamento completo em ${topic} foi estruturado por especialistas para capacitar lojistas que buscam a excelência. Você aprenderá os fundamentos teóricos e a aplicação prática imediata, utilizando as ferramentas do ecossistema Mercado Ágil.`,
+      description: `Este treinamento completo em ${topic} foi estruturado por especialistas para capacitar lojistas que buscam a excelência. Você aprenderá os fundamentos teóricos e a aplicação prática imediata, utilizando as ferramentas do ecossistema Mercado Ágil. Com mais de 10 horas de conteúdo estruturado, este é o guia definitivo para o seu setor.`,
       category: cat,
-      duration: `${Math.floor(Math.random() * 10) + 5}h`,
-      lessons: 6,
-      rating: (Math.random() * (5 - 4.7) + 4.7).toFixed(1),
+      duration: `${Math.floor(Math.random() * 15) + 10}h`,
+      lessons: 10,
+      rating: (Math.random() * (5 - 4.8) + 4.8).toFixed(1),
       price: 0,
       thumb: `https://picsum.photos/seed/agil_course_${i}/600/400`,
       modules: [
         {
-          title: "Módulo 1: Fundamentos e Estratégia",
+          title: "Módulo 1: Fundamentos e Visão Estratégica",
           lessons: [
-            { id: `c${i}l1`, title: `Introdução Profissional a ${topic}`, videoUrl: videoUrl, duration: "12:20", content: `Bem-vindo ao início da sua jornada em ${topic}. Neste capítulo, entenderemos por que esta habilidade é crucial para o seu faturamento hoje.\n\n${baseContent.substring(0, 300)}...` },
-            { id: `c${i}l2`, title: `Análise de Mercado e Oportunidades`, videoUrl: videoUrl, duration: "15:45", content: `O mercado atual está em constante mudança. Para se destacar em ${cat}, você precisa identificar nichos inexplorados e gaps de atendimento.\n\nFocar na experiência do cliente é o primeiro passo para a diferenciação.` }
+            { id: `c${i}l1`, title: `Introdução Profissional a ${topic}`, videoUrl: videoUrl, duration: "15:20", content: `Nesta aula inaugural, exploraremos a importância vital de ${topic} para o mercado atual. Discutiremos como a evolução tecnológica e as mudanças no comportamento do consumidor exigem um novo posicionamento do lojista.\n\nCONTEÚDO DA LIÇÃO:\n${baseContent}\n\nO objetivo aqui é estabelecer as bases sólidas para o seu crescimento.` },
+            { id: `c${i}l2`, title: `Análise de Mercado e Oportunidades`, videoUrl: videoUrl, duration: "18:45", content: `Identificar nichos e gaps de mercado é a chave para a diferenciação. Nesta lição, aprenderemos técnicas de análise de concorrência e mapeamento de personas para o setor de ${cat}.\n\nESTUDO DE CASO:\nComo empresas líderes utilizam ${topic} para dominar seu território geográfico e digital.` }
           ]
         },
         {
-          title: "Módulo 2: Execução Técnica e Prática",
+          title: "Módulo 2: Execução Técnica e Processos",
           lessons: [
-            { id: `c${i}l3`, title: `Técnicas Avançadas Passo a Passo`, videoUrl: videoUrl, duration: "25:30", content: `Agora vamos para a parte prática. Como implementar ${topic} no seu dia a dia operacional?\n\n1. Preparação do ambiente.\n2. Execução técnica com precisão.\n3. Controle de qualidade final.` },
-            { id: `c${i}l4`, title: `Estudos de Caso de Alta Performance`, videoUrl: videoUrl, duration: "20:00", content: `Veja como outras lojas do Mercado Ágil aplicaram estes conceitos e obtiveram resultados expressivos em menos de 30 dias.` }
+            { id: `c${i}l3`, title: `Técnicas Passo a Passo de Execução`, videoUrl: videoUrl, duration: "28:30", content: `Mão na massa. Vamos configurar cada ferramenta e processo necessário para implementar ${topic} na sua rotina diária.\n\nCHECKLIST DE EXECUÇÃO:\n1. Preparação da Infraestrutura.\n2. Configuração de parâmetros no Painel Ágil.\n3. Teste de qualidade inicial.\n4. Treinamento da equipe de frente.` },
+            { id: `c${i}l4`, title: `Estudos de Caso de Alta Performance`, videoUrl: videoUrl, duration: "22:00", content: `Análise profunda de lojistas que implementaram ${topic} e obtiveram ROI acima de 300%. Veremos o que eles fizeram de diferente e como você pode replicar esses sucessos hoje.` }
           ]
         },
         {
-          title: "Módulo 3: Otimização e Escala",
+          title: "Módulo 3: Métricas, KPI e Escala",
           lessons: [
-            { id: `c${i}l5`, title: `Métricas de Sucesso e KPI`, videoUrl: videoUrl, duration: "18:15", content: `O que não é medido não é gerenciado. Aprenda quais números você deve acompanhar para garantir que seu investimento em ${topic} está trazendo retorno real.` },
-            { id: `c${i}l6`, title: `Conclusão e Plano de Ação`, videoUrl: videoUrl, duration: "10:50", content: `Parabéns por chegar até aqui. Seu próximo passo é baixar o material de apoio e aplicar o checklist de implementação hoje mesmo.` }
+            { id: `c${i}l5`, title: `Gestão Baseada em Dados (BI)`, videoUrl: videoUrl, duration: "25:15", content: `O que não pode ser medido não pode ser melhorado. Aprenda a ler os dashboards do Mercado Ágil focados em ${topic}.\n\nKPIs CRÍTICOS:\n- Taxa de Conversão.\n- LTV (Life Time Value).\n- CAC (Custo de Aquisição).\n- NPS (Satisfação do Cliente).` },
+            { id: `c${i}l6`, title: `Plano de Ação e Certificação`, videoUrl: videoUrl, duration: "12:50", content: `Conclusão da jornada teórica. Definiremos o seu plano de ação para os próximos 30 dias para garantir que o conhecimento se transforme em lucro real no seu caixa.` }
           ]
         }
       ],
@@ -156,22 +215,29 @@ const generateCourses = () => {
         { 
           title: `Guia Completo: ${topic}`, 
           type: "PDF", 
-          size: "5.4MB", 
-          content: `MANUAL DIDÁTICO OFICIAL - ÁGIL ACADEMY\n\nCURSO: ${topic}\nCATEGORIA: ${cat}\n\nCONTEÚDO TEÓRICO COMPLETO:\n\n${baseContent}\n\nDETALHAMENTO TÉCNICO:\nNo decorrer deste guia, exploramos as nuances de ${topic}. É fundamental que o aluno pratique cada conceito em seu painel operacional. O Mercado Ágil fornece a tecnologia, mas o conhecimento é o que direciona o uso dessas ferramentas para o lucro.\n\nRECOMENDAÇÕES FINAIS:\n- Revise este material mensalmente.\n- Compartilhe as lições com sua equipe de frente.\n- Utilize os dashboards de BI para validar os resultados aprendidos.`
+          size: "8.4MB", 
+          content: `MANUAL TÉCNICO OFICIAL - ÁGIL ACADEMY\n\nCURSO: ${topic}\nÁREA: ${cat}\n\nCONTEÚDO TEÓRICO INTEGRAL:\n\n${baseContent}\n\nDETALHAMENTO DOS PROCESSOS:\nEste guia foi estruturado para ser sua bíblia operacional. Recomendamos a leitura diária durante a fase de implementação. O Mercado Ágil fornece a camada de software, mas este documento fornece a camada de inteligência de negócio.\n\nRECOMENDAÇÕES:\n- Imprima este material para consulta rápida no PDV ou consultório.\n- Use os quadros de anotação para registrar insights da sua equipe.\n- Revise as métricas mensalmente.`
         },
         { 
           title: `Checklist de Implementação - ${topic}`, 
           type: "PDF", 
-          size: "1.2MB", 
-          content: `CHECKLIST OPERACIONAL - ${topic}\n\n[ ] PASSO 1: Auditoria do processo atual.\n[ ] PASSO 2: Configuração das ferramentas de automação no Mercado Ágil.\n[ ] PASSO 3: Treinamento prático da equipe.\n[ ] PASSO 4: Definição de metas de conversão.\n[ ] PASSO 5: Acompanhamento de KPIs na primeira semana.\n\nEste checklist foi desenhado para garantir que você não pule etapas críticas para o seu sucesso.`
+          size: "2.1MB", 
+          content: `CHECKLIST OPERACIONAL - IMPLEMENTAÇÃO IMEDIATA\n\nCURSO: ${topic}\n\nPasso 1: Auditoria de Processos Atuais (Dia 1-2).\nPasso 2: Treinamento Técnico da Equipe (Dia 3-5).\nPasso 3: Ativação das Ferramentas no Painel Ágil (Dia 6).\nPasso 4: Lançamento para Clientes Selecionados (Dia 7-10).\nPasso 5: Análise de Resultados e Ajustes (Dia 15).\n\nEste roteiro foi validado por mais de 5.000 lojistas parceiros.`
+        },
+        { 
+          title: `Planilha de Gestão e KPIs`, 
+          type: "PDF", 
+          size: "1.5MB", 
+          content: `MODELO DE ACOMPANHAMENTO DE RESULTADOS\n\nNesta área, você encontra os campos para preenchimento de faturamento, custos e ROI especificamente para ${topic}. O monitoramento deve ser feito via painel, mas este documento serve para sua reunião semanal de diretoria.`
         }
       ],
       syllabus: [
-        `Domínio das melhores práticas de ${topic}`,
-        `Estratégias de escala para o setor de ${cat}`,
-        "Redução de desperdício operacional",
-        "Aumento do LTV (Life Time Value) do cliente",
-        "Uso de IA para suporte e vendas"
+        `Domínio total das melhores práticas de ${topic}`,
+        `Estratégias de escala e crescimento para ${cat}`,
+        "Redução drástica de perdas operacionais",
+        "Aumento comprovado do LTV do cliente",
+        "Uso de Inteligência Artificial para otimização de tempo",
+        "Conformidade total com LGPD e normas setoriais"
       ]
     });
   }
@@ -179,3 +245,8 @@ const generateCourses = () => {
 };
 
 export const COURSE_LIBRARY = generateCourses();
+
+export const MOCK_COUPONS = [
+  { id: 'c1', code: 'BEMVINDO10', discount: 10, type: 'percent' },
+  { id: 'c2', code: 'PROMO20', discount: 20, type: 'fixed' },
+];
