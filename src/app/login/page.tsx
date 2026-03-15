@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -16,46 +17,47 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [redirecting, setRedirecting] = useState(true);
+  const [checkingRedirect, setCheckingRedirect] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
 
-  // Verifica se há um resultado de redirecionamento pendente ao montar a página
+  // 1. Processa o resultado do redirecionamento do Google ao montar a página
   useEffect(() => {
-    handleRedirectResult(auth)
-      .then((result) => {
-        if (result) {
-          toast({ title: "Sucesso!", description: "Autenticação Google concluída." });
+    const checkRedirect = async () => {
+      try {
+        const result = await handleRedirectResult(auth);
+        if (result?.user) {
+          toast({ title: "Bem-vindo!", description: `Logado como ${result.user.email}` });
         }
-        setRedirecting(false);
-      })
-      .catch((err) => {
-        console.error("Erro no Redirect:", err);
-        setRedirecting(false);
-        if (err.code !== 'auth/popup-closed-by-user') {
-          toast({
-            title: "Erro na Autenticação",
-            description: "Não foi possível completar o login com Google.",
-            variant: "destructive"
-          });
-        }
-      });
+      } catch (err: any) {
+        console.error("Erro no Redirect Google:", err);
+        toast({
+          title: "Erro na Autenticação",
+          description: "Não foi possível completar o login com Google.",
+          variant: "destructive"
+        });
+      } finally {
+        setCheckingRedirect(false);
+      }
+    };
+    checkRedirect();
   }, [auth, toast]);
 
-  // Redirecionamento automático baseado no perfil do usuário logado
+  // 2. Redirecionamento automático baseado no perfil do usuário logado
   useEffect(() => {
-    if (user && !isUserLoading && !redirecting) {
+    if (user && !isUserLoading && !checkingRedirect) {
       const emailLower = user.email?.toLowerCase() || '';
-      // Lógica de roteamento: se for admin do domínio ou tiver "admin" no email
+      // Lógica de roteamento: admins vão para o Master Panel, lojistas para o Dashboard da Loja
       if (emailLower.includes('admin') || emailLower === 'admin@mercadoagil.com') {
         router.push('/admin/dashboard');
       } else {
+        // Redireciona para o slug fixo no demo, ou para um seletor de lojas em produção
         router.push('/merchant/burger-ze/dashboard');
       }
     }
-  }, [user, isUserLoading, redirecting, router]);
+  }, [user, isUserLoading, checkingRedirect, router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +74,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     setLoading(true);
+    // Usamos Redirect por ser mais estável em ambientes de nuvem/dev
     initiateGoogleSignIn(auth).catch((err: any) => {
       setLoading(false);
       toast({
@@ -88,19 +91,19 @@ export default function LoginPage() {
     initiateEmailSignIn(auth, targetEmail, 'password123').catch(() => {
       setLoading(false);
       toast({ 
-        title: "Demo offline", 
-        description: "Use o login com Google para testar o sistema real.",
+        title: "Demo Offline", 
+        description: "Use o login com Google ou e-mail real para o sistema completo.",
         variant: "destructive"
       });
     });
   };
 
-  if (isUserLoading || redirecting) {
+  if (isUserLoading || checkingRedirect) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse">
-          {redirecting ? "Processando Login..." : "Sincronizando Plataforma..."}
+          Sincronizando Plataforma...
         </p>
       </div>
     );
@@ -145,13 +148,6 @@ export default function LoginPage() {
                 </>
               )}
             </Button>
-
-            <Alert className="bg-slate-50 border-slate-200 rounded-2xl">
-              <AlertCircle className="h-4 w-4 text-slate-400" />
-              <AlertDescription className="text-[10px] font-bold text-slate-500 uppercase">
-                O login abrirá em uma nova aba se o redirecionamento falhar.
-              </AlertDescription>
-            </Alert>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
@@ -208,7 +204,7 @@ export default function LoginPage() {
         </Card>
 
         <p className="text-center text-sm font-bold text-slate-400 italic">
-          Mercado Ágil Tecnologias - Versão SaaS Enterprise
+          © 2024 Mercado Ágil Tecnologias - Versão SaaS Enterprise
         </p>
       </div>
     </div>

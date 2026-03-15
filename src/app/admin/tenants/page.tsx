@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -13,8 +14,8 @@ import { Store, Search, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutG
 import Link from 'next/link';
 import { SYSTEM_PLANS } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore, useCollection, addDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { collection, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { useFirestore, useCollection, addDocumentNonBlocking, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp, query, orderBy, doc } from 'firebase/firestore';
 
 export default function AdminTenants() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -38,9 +39,11 @@ export default function AdminTenants() {
     setLoading(true);
     
     const plan = SYSTEM_PLANS.find(p => p.id === formData.planId);
+    const merchantId = Math.random().toString(36).substring(7);
     
-    // Operação não-bloqueante seguindo as diretrizes de performance do Firestore
+    // 1. Cria a Loja no Firestore
     addDocumentNonBlocking(collection(db, 'merchants'), {
+      id: merchantId,
       ...formData,
       status: 'active',
       createdAt: new Date().toISOString(),
@@ -49,13 +52,26 @@ export default function AdminTenants() {
       mrr: formData.planId === 'p_free' ? 0 : (formData.planId === 'p_pro' ? 150 : 300)
     });
 
+    // 2. Cria o Perfil de Usuário Master Lojista (Pré-autorização)
+    const userRef = doc(db, 'platformUsers', formData.email.replace(/[.@]/g, '_')); // ID baseado no e-mail para demo
+    setDocumentNonBlocking(userRef, {
+      email: formData.email,
+      firstName: formData.ownerName.split(' ')[0],
+      lastName: formData.ownerName.split(' ').slice(1).join(' '),
+      role: 'MERCHANT_ADMIN',
+      merchantId: merchantId,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
     // Feedback imediato ao usuário (Optimistic UI)
     setIsCreateOpen(false);
     setFormData({ name: "", slug: "", planId: "p_free", email: "", ownerName: "" });
     setLoading(false);
     toast({ 
-      title: "Solicitação Enviada!", 
-      description: "A loja está sendo provisionada nos clusters regionais." 
+      title: "Provisionamento Concluído!", 
+      description: `A loja ${formData.name} e o usuário ${formData.email} foram criados.` 
     });
   };
 
