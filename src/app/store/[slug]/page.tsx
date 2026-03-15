@@ -4,7 +4,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { MOCK_MERCHANTS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_STAFF, Product, Service, Merchant } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -12,14 +11,14 @@ import {
   Star, Heart, Zap, ShoppingBag, MapPin, 
   Phone, CreditCard, Landmark, Clock, 
   Scissors, Calendar as CalendarIcon, User, Timer, 
-  CheckCircle2, Info, MessageCircle, Map as MapIcon
+  CheckCircle2, Info, MessageCircle, Map as MapIcon, Loader2
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore, addDocumentNonBlocking } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { collection, query, where, limit, serverTimestamp, orderBy } from 'firebase/firestore';
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 
@@ -27,50 +26,54 @@ export default function StoreFront() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
-  
-  const [merchant, setMerchant] = useState<Merchant | null>(null);
-  const [cart, setCart] = useState<{product?: Product, service?: Service, quantity: number}[]>([]);
+  const db = useFirestore();
+  const { toast } = useToast();
+
+  // 1. Buscar dados do Lojista via Slug
+  const merchantQuery = useMemoFirebase(() => query(
+    collection(db, 'merchants'), 
+    where('slug', '==', slug), 
+    limit(1)
+  ), [db, slug]);
+  const { data: merchantData, isLoading: loadingMerchant } = useCollection(merchantQuery);
+  const merchant = merchantData?.[0];
+
+  // 2. Buscar Produtos do Lojista
+  const productsQuery = useMemoFirebase(() => {
+    if (!merchant?.id) return null;
+    return query(collection(db, 'merchants', merchant.id, 'products'), orderBy('createdAt', 'desc'));
+  }, [db, merchant?.id]);
+  const { data: products, isLoading: loadingProducts } = useCollection(productsQuery);
+
+  // 3. Buscar Serviços do Lojista
+  const servicesQuery = useMemoFirebase(() => {
+    if (!merchant?.id) return null;
+    return query(collection(db, 'merchants', merchant.id, 'services'), orderBy('createdAt', 'desc'));
+  }, [db, merchant?.id]);
+  const { data: services, isLoading: loadingServices } = useCollection(servicesQuery);
+
+  const [cart, setCart] = useState<{item: any, type: 'product' | 'service', quantity: number}[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [bookingStep, setBookingStep] = useState<'service' | 'professional' | 'time'>('service');
   
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     phone: "",
     address: "",
-    professionalId: "",
-    date: new Date().toISOString().split('T')[0],
     time: ""
   });
 
-  const { toast } = useToast();
-  const db = useFirestore();
-
-  useEffect(() => {
-    if (slug) {
-      const found = MOCK_MERCHANTS.find(m => m.slug === slug);
-      if (found) {
-        setMerchant(found);
-      }
-    }
-  }, [slug]);
-
   const isServiceBusiness = merchant?.segment === 'BEAUTY' || merchant?.segment === 'HEALTH' || merchant?.segment === 'SERVICE';
 
-  const addToCart = (item: Product | Service, type: 'product' | 'service') => {
+  const addToCart = (item: any, type: 'product' | 'service') => {
     setCart(prev => {
-      const existing = prev.find(i => (type === 'product' ? i.product?.id === item.id : i.service?.id === item.id));
+      const existing = prev.find(i => i.item.id === item.id);
       if (existing) {
-        return prev.map(i => {
-          if (type === 'product' && i.product?.id === item.id) return { ...i, quantity: i.quantity + 1 };
-          if (type === 'service' && i.service?.id === item.id) return { ...i, quantity: i.quantity + 1 };
-          return i;
-        });
+        return prev.map(i => i.item.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
       }
-      return [...prev, { [type]: item, quantity: 1 }];
+      return [...prev, { item, type, quantity: 1 }];
     });
     
     if (type === 'service') {
-      setBookingStep('professional');
       setIsCheckoutOpen(true);
     } else {
       toast({ title: "Adicionado!", description: `${item.name} está na sua sacola.` });
@@ -85,9 +88,9 @@ export default function StoreFront() {
 
     try {
       const orderId = Math.random().toString(36).substring(7);
-      const total = cart.reduce((acc, i) => acc + ((i.product?.price || i.service?.price || 0) * i.quantity), 0);
+      const total = cart.reduce((acc, i) => acc + (i.item.price * i.quantity), 0);
 
-      addDocumentNonBlocking(collection(db, 'merchants', merchant?.id || 'm1', 'orders'), {
+      addDocumentNonBlocking(collection(db, 'merchants', merchant?.id!, 'orders'), {
         id: orderId,
         customerName: customerInfo.name,
         customerPhone: customerInfo.phone,
@@ -98,21 +101,39 @@ export default function StoreFront() {
         timestamp: serverTimestamp(),
         total,
         items: cart.map(i => ({
-          name: i.product?.name || i.service?.name,
+          name: i.item.name,
           quantity: i.quantity,
-          price: i.product?.price || i.service?.price
+          price: i.item.price
         }))
       });
 
-      toast({ title: "Sucesso!", description: "Pedido processado." });
+      toast({ title: "Sucesso!", description: "Pedido processado com sucesso." });
       setIsCheckoutOpen(false);
       router.push(`/store/${slug}/track/${orderId}`);
     } catch (e) {
-      toast({ title: "Erro", description: "Falha ao processar.", variant: "destructive" });
+      toast({ title: "Erro", description: "Falha ao processar pedido.", variant: "destructive" });
     }
   };
 
-  if (!merchant) return null;
+  if (loadingMerchant) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="font-black italic text-slate-400 uppercase tracking-widest">Entrando na Vitrine...</p>
+      </div>
+    );
+  }
+
+  if (!merchant) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-8 text-center">
+        <h1 className="text-2xl font-black italic text-slate-900">Loja não encontrada</h1>
+        <p className="text-slate-500 mt-2">O link pode estar incorreto ou a loja foi desativada.</p>
+      </div>
+    );
+  }
+
+  const totalCart = cart.reduce((a, b) => a + (b.item.price * b.quantity), 0);
 
   return (
     <div className="max-w-xl mx-auto min-h-screen bg-white pb-44 relative font-body">
@@ -132,7 +153,7 @@ export default function StoreFront() {
       </div>
 
       <div className="relative h-48 w-full">
-        <img src={merchant.bannerUrl} className="w-full h-full object-cover" />
+        <img src={merchant.bannerUrl || `https://picsum.photos/seed/${slug}/1200/400`} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent"></div>
       </div>
 
@@ -141,7 +162,7 @@ export default function StoreFront() {
             <div className="flex justify-between items-start">
                <div className="space-y-1">
                   <h2 className="text-2xl font-black italic tracking-tighter uppercase">{merchant.name}</h2>
-                  <Badge className="bg-green-500 text-white border-none font-black italic text-[8px] uppercase">ABERTO AGORA</Badge>
+                  <Badge className="bg-green-500 text-white border-none font-black italic text-[8px] uppercase">ONLINE & ABERTO</Badge>
                </div>
                <div className="flex gap-2">
                   <Button variant="ghost" size="icon" className="rounded-full bg-slate-50"><Heart className="h-4 w-4" /></Button>
@@ -155,14 +176,14 @@ export default function StoreFront() {
 
          {isServiceBusiness ? (
            <div className="space-y-6">
-              <h3 className="text-lg font-black italic uppercase tracking-tighter">Escolha um Serviço</h3>
+              <h3 className="text-lg font-black italic uppercase tracking-tighter">Agenda Online</h3>
               <div className="grid gap-4">
-                 {MOCK_SERVICES.filter(s => s.merchantId === merchant.id).length === 0 ? (
+                 {services?.length === 0 ? (
                    <div className="p-10 text-center bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200">
-                      <p className="text-xs font-bold text-slate-400 uppercase italic">Nenhum serviço cadastrado ainda.</p>
+                      <p className="text-xs font-bold text-slate-400 uppercase italic">Nenhum serviço disponível.</p>
                    </div>
                  ) : (
-                   MOCK_SERVICES.filter(s => s.merchantId === merchant.id).map(s => (
+                   services?.map(s => (
                      <div key={s.id} onClick={() => addToCart(s, 'service')} className="p-5 bg-slate-50 rounded-[35px] flex items-center gap-4 cursor-pointer active:scale-95 transition-all">
                         <div className="h-16 w-16 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-slate-400">
                            <Scissors className="h-8 w-8" />
@@ -180,17 +201,22 @@ export default function StoreFront() {
            </div>
          ) : (
            <div className="space-y-6">
-              <h3 className="text-lg font-black italic uppercase tracking-tighter">Produtos em Destaque</h3>
+              <h3 className="text-lg font-black italic uppercase tracking-tighter">Cardápio & Vitrine</h3>
               <div className="grid grid-cols-2 gap-4">
-                 {MOCK_PRODUCTS.filter(p => p.merchantId === merchant.id).length === 0 ? (
+                 {products?.length === 0 ? (
                    <div className="col-span-2 p-10 text-center bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200">
                       <p className="text-xs font-bold text-slate-400 uppercase italic">Catálogo vazio no momento.</p>
                    </div>
                  ) : (
-                   MOCK_PRODUCTS.filter(p => p.merchantId === merchant.id).map(p => (
+                   products?.map(p => (
                      <div key={p.id} onClick={() => addToCart(p, 'product')} className="bg-slate-50 p-4 rounded-[35px] space-y-3 cursor-pointer active:scale-95 transition-all">
-                        <div className="h-32 w-full bg-white rounded-2xl overflow-hidden"><img src={p.imageUrl} className="h-full w-full object-cover" /></div>
-                        <div><p className="font-black text-[10px] uppercase italic truncate">{p.name}</p><p className="font-black text-primary italic text-sm">R$ {p.price.toFixed(2)}</p></div>
+                        <div className="h-32 w-full bg-white rounded-2xl overflow-hidden shadow-inner border border-white">
+                          <img src={p.imageUrl || `https://picsum.photos/seed/${p.id}/200/200`} className="h-full w-full object-cover" />
+                        </div>
+                        <div>
+                          <p className="font-black text-[10px] uppercase italic truncate">{p.name}</p>
+                          <p className="font-black text-primary italic text-sm">R$ {p.price.toFixed(2)}</p>
+                        </div>
                      </div>
                    ))
                  )}
@@ -209,22 +235,34 @@ export default function StoreFront() {
                <div className="bg-primary p-1.5 rounded-lg text-white">
                   {isServiceBusiness ? <CalendarIcon className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
                </div>
-               <span>{isServiceBusiness ? 'RESERVAR AGORA' : 'VER CARRINHO'}</span>
+               <span>{isServiceBusiness ? 'AGENDAR AGORA' : 'VER CARRINHO'}</span>
             </div>
-            <span>R$ {cart.reduce((a, b) => a + ((b.product?.price || b.service?.price || 0) * b.quantity), 0).toFixed(2)}</span>
+            <span>R$ {totalCart.toFixed(2)}</span>
          </Button>
       </div>
 
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
          <DialogContent className="sm:max-w-lg p-0 rounded-[45px] border-none shadow-2xl overflow-hidden font-body">
             <div className="bg-slate-900 p-8 text-white">
-               <DialogTitle className="text-3xl font-black italic uppercase">Finalizar</DialogTitle>
-               <p className="text-primary font-bold text-[10px] uppercase tracking-widest mt-1">Conclua sua reserva com segurança.</p>
+               <DialogTitle className="text-3xl font-black italic uppercase">Finalizar Pedido</DialogTitle>
+               <p className="text-primary font-bold text-[10px] uppercase tracking-widest mt-1">Conclua sua solicitação com segurança.</p>
             </div>
             <div className="p-8 space-y-6">
                <div className="space-y-4">
-                  <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400 px-1">Seu Nome</Label><Input value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" /></div>
-                  <div className="space-y-2"><Label className="text-[10px] font-black uppercase text-slate-400 px-1">WhatsApp</Label><Input value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" /></div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Seu Nome</Label>
+                    <Input value={customerInfo.name} onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" placeholder="Nome Completo" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase text-slate-400 px-1">WhatsApp</Label>
+                    <Input value={customerInfo.phone} onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" placeholder="(00) 00000-0000" />
+                  </div>
+                  {!isServiceBusiness && (
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Endereço de Entrega</Label>
+                      <Input value={customerInfo.address} onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} className="h-14 rounded-2xl bg-slate-50 border-none font-bold" placeholder="Rua, Número, Bairro" />
+                    </div>
+                  )}
                </div>
                <Button onClick={handleFinishOrder} className="w-full h-20 bg-primary hover:bg-primary/90 text-white rounded-[35px] font-black italic text-xl shadow-2xl uppercase">
                   CONFIRMAR AGORA <CheckCircle2 className="h-6 w-6 ml-3" />

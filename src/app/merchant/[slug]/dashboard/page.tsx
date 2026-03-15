@@ -22,7 +22,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const db = useFirestore();
   const { toast } = useToast();
   
-  // Buscar os dados do Merchant baseado no slug no Firestore
   const merchantQuery = useMemoFirebase(() => query(
     collection(db, 'merchants'), 
     where('slug', '==', slug),
@@ -46,7 +45,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="font-black italic text-slate-400 uppercase tracking-widest">Carregando Painel Lojista...</p>
+        <p className="font-black italic text-slate-400 uppercase tracking-widest">Sincronizando Instância...</p>
       </div>
     );
   }
@@ -56,8 +55,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-8 text-center">
         <ShieldCheck className="h-16 w-16 text-slate-200 mb-4" />
         <h1 className="text-2xl font-black italic text-slate-900">Instância não encontrada</h1>
-        <p className="text-slate-500 mt-2">Certifique-se de que o subdomínio está correto no Painel Master.</p>
-        <Button asChild className="mt-6 rounded-xl"><Link href="/admin/tenants">Voltar ao Master Admin</Link></Button>
+        <p className="text-slate-500 mt-2">O subdomínio "{slug}" não existe ou foi removido.</p>
+        <Button asChild className="mt-6 rounded-xl"><Link href="/admin/tenants">Voltar ao Gerenciador</Link></Button>
       </div>
     );
   }
@@ -88,13 +87,14 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
           {isFood && (
             <>
+              <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><List className="h-5 w-5" /> Cardápio Digital</Link>
               <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><ShoppingBag className="h-5 w-5" /> Pedidos/KDS</Link>
-              <Link href={`/merchant/${slug}/waiter`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Monitor className="h-5 w-5" /> App Garçom</Link>
+              <Link href={`/merchant/${slug}/waiter`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Monitor className="h-5 w-5 text-primary" /> App Garçom</Link>
             </>
           )}
 
           {!isBeauty && !isFood && (
-            <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><List className="h-5 w-5" /> Catálogo</Link>
+            <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><List className="h-5 w-5" /> Catálogo Pro</Link>
           )}
 
           <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Monitor className="h-5 w-5 text-primary" /> PDV Cloud</Link>
@@ -110,7 +110,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         <header className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">Painel {merchant?.segment || 'Enterprise'}</h1>
-            <p className="text-slate-500 font-medium">Bem-vindo, {merchant?.name || 'Lojista'}.</p>
+            <p className="text-slate-500 font-medium">Lojista: {merchant?.name || 'Carregando...'}</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" className="rounded-xl h-12 gap-2" asChild>

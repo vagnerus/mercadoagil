@@ -18,7 +18,7 @@ import {
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { collection, query, doc, orderBy } from 'firebase/firestore';
+import { collection, query, doc, orderBy, where, limit } from 'firebase/firestore';
 
 export default function MerchantCatalog({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -29,7 +29,20 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
   const { toast } = useToast();
   const db = useFirestore();
 
-  const productsQuery = useMemoFirebase(() => query(collection(db, 'merchants', 'm1', 'products'), orderBy('createdAt', 'desc')), [db]);
+  // Buscar o ID real do Merchant via Slug
+  const merchantQuery = useMemoFirebase(() => query(
+    collection(db, 'merchants'), 
+    where('slug', '==', slug),
+    limit(1)
+  ), [db, slug]);
+  const { data: merchantData } = useCollection(merchantQuery);
+  const merchantId = merchantData?.[0]?.id;
+
+  const productsQuery = useMemoFirebase(() => {
+    if (!merchantId) return null;
+    return query(collection(db, 'merchants', merchantId, 'products'), orderBy('createdAt', 'desc'));
+  }, [db, merchantId]);
+  
   const { data: products, isLoading: loadingProducts } = useCollection(productsQuery);
 
   const [formData, setFormData] = useState({
@@ -40,6 +53,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
 
   const handleCreateProduct = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!merchantId) return;
     setLoading(true);
     
     const newProduct = {
@@ -51,11 +65,12 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
       createdAt: new Date().toISOString()
     };
 
-    addDocumentNonBlocking(collection(db, 'merchants', 'm1', 'products'), newProduct);
+    addDocumentNonBlocking(collection(db, 'merchants', merchantId, 'products'), newProduct);
     
     setLoading(false);
     setIsCreateOpen(false);
-    toast({ title: "Produto Adicionado", description: `${formData.name} agora faz parte do seu catálogo.` });
+    setFormData({ name: "", price: 0, category: "Geral" });
+    toast({ title: "Produto Adicionado", description: `${formData.name} já faz parte do cardápio.` });
   };
 
   const toggleSelect = (id: string) => {
@@ -63,8 +78,9 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
   };
 
   const handleDelete = (id: string) => {
-    deleteDocumentNonBlocking(doc(db, 'merchants', 'm1', 'products', id));
-    toast({ title: "Excluído", description: "O item foi removido do catálogo." });
+    if (!merchantId) return;
+    deleteDocumentNonBlocking(doc(db, 'merchants', merchantId, 'products', id));
+    toast({ title: "Excluído", description: "O item foi removido do sistema." });
   };
 
   return (
@@ -75,15 +91,15 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
         </div>
         <nav className="flex-1 px-4 space-y-2">
           <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
-          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold"><List className="h-5 w-5" /> Catálogo Pro</Link>
+          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><List className="h-5 w-5" /> Cardápio/Produtos</Link>
         </nav>
       </aside>
 
       <main className="flex-1 p-8">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão de Catálogo</h1>
-            <p className="text-slate-500 font-medium">Controle de preços, estoque e edição em massa.</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão de Itens</h1>
+            <p className="text-slate-500 font-medium">Controle de preços, estoque e cardápio digital.</p>
           </div>
           <div className="flex gap-2">
             {selectedItems.length > 0 ? (
@@ -103,18 +119,18 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md rounded-[40px] p-0 overflow-hidden border-none shadow-2xl">
-                <div className="bg-accent p-8 text-white">
-                  <DialogTitle className="text-2xl font-black italic uppercase text-white">Novo Produto</DialogTitle>
-                  <p className="text-white/70 text-xs font-bold mt-1">Adicione itens físicos ao seu inventário.</p>
+                <div className="bg-primary p-8 text-white">
+                  <DialogTitle className="text-2xl font-black italic uppercase text-white">Novo Cadastro</DialogTitle>
+                  <p className="text-white/70 text-xs font-bold mt-1">Adicione itens ao seu inventário ou cardápio.</p>
                 </div>
                 <form onSubmit={handleCreateProduct} className="p-8 space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase text-slate-400">Nome do Produto</Label>
-                    <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" placeholder="Ex: Pomada Modeladora" />
+                    <Label className="text-[10px] font-black uppercase text-slate-400">Nome do Item</Label>
+                    <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" placeholder="Ex: X-Salada ou Camisa Polo" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase text-slate-400">Preço Venda (R$)</Label>
+                      <Label className="text-[10px] font-black uppercase text-slate-400">Preço (R$)</Label>
                       <Input type="number" required value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
                     </div>
                     <div className="space-y-2">
@@ -123,7 +139,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                     </div>
                   </div>
                   <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg text-white">
-                    {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'CADASTRAR PRODUTO'}
+                    {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'CADASTRAR AGORA'}
                   </Button>
                 </form>
               </DialogContent>
@@ -134,10 +150,10 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
         <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
           <CardHeader className="p-8 border-b flex flex-row items-center justify-between bg-slate-50/30">
             <div className="flex items-center gap-4">
-              <CardTitle className="text-xl font-black italic">Produtos Ativos</CardTitle>
+              <CardTitle className="text-xl font-black italic">Listagem Ativa</CardTitle>
               <div className="relative w-64">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input className="pl-12 bg-white border-none rounded-2xl h-12 font-medium shadow-sm" placeholder="Buscar no catálogo..." />
+                <Input className="pl-12 bg-white border-none rounded-2xl h-12 font-medium shadow-sm" placeholder="Buscar..." />
               </div>
             </div>
           </CardHeader>
@@ -149,7 +165,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                 <TableHeader className="bg-slate-50/50">
                   <TableRow>
                     {isBulkMode && <TableHead className="w-12 px-8"></TableHead>}
-                    <TableHead className="px-8 font-black uppercase text-[10px] tracking-widest">Produto</TableHead>
+                    <TableHead className="px-8 font-black uppercase text-[10px] tracking-widest">Item</TableHead>
                     <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Preço</TableHead>
                     <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Status</TableHead>
                     <TableHead className="text-right px-8 font-black uppercase text-[10px] tracking-widest">Ações</TableHead>
@@ -166,9 +182,9 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                       <TableCell className="py-6 px-8">
                         <div className="flex items-center gap-4">
                           <div className="h-14 w-14 rounded-2xl overflow-hidden shadow-sm border bg-slate-100 flex items-center justify-center">
-                            {product.imageUrl ? <img src={product.imageUrl} className="h-full w-full object-cover" /> : <Package className="h-6 w-6 text-slate-300" />}
+                            <img src={product.imageUrl || `https://picsum.photos/seed/${product.id}/200/200`} className="h-full w-full object-cover" />
                           </div>
-                          <div><p className="font-black text-slate-900 italic">{product.name}</p><p className="text-[10px] font-bold text-slate-400 uppercase">{product.category}</p></div>
+                          <div><p className="font-black text-slate-900 italic uppercase">{product.name}</p><p className="text-[10px] font-bold text-slate-400 uppercase">{product.category}</p></div>
                         </div>
                       </TableCell>
                       <TableCell className="text-center font-black text-primary italic text-lg">R$ {product.price.toFixed(2)}</TableCell>
@@ -183,7 +199,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                   ))}
                   {products?.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-40 text-center text-slate-400 font-bold italic uppercase tracking-widest text-xs">Catálogo vazio.</TableCell>
+                      <TableCell colSpan={5} className="h-40 text-center text-slate-400 font-bold italic uppercase tracking-widest text-xs">Catálogo limpo.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
