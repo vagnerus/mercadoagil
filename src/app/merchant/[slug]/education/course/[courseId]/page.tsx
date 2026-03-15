@@ -62,86 +62,94 @@ export default function CoursePlayer() {
       const margin = 15;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      let y = 70;
+      
+      // Função Auxiliar para Cabeçalho
+      const addHeader = () => {
+        doc.setFillColor(37, 99, 235); // Azul Primário Ágil
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(24);
+        doc.text("ÁGIL ACADEMY", margin, 20);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.text("CENTRO DE EXCELÊNCIA EM EDUCAÇÃO CORPORATIVA", margin, 28);
+        doc.text(`MATERIAL OFICIAL: ${material.title.toUpperCase()}`, margin, 33);
+      };
 
-      // Cabeçalho Profissional (Página 1)
-      doc.setFillColor(37, 99, 235); // Azul Primário Ágil
-      doc.rect(0, 0, 210, 50, 'F');
+      // Função Auxiliar para Rodapé
+      const addFooter = (pageNum: number, totalPages: number) => {
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text("Este documento é propriedade do Mercado Ágil. Uso exclusivo para alunos matriculados.", margin, 285);
+        doc.text(`Página ${pageNum} de ${totalPages}`, 180, 285);
+      };
+
+      addHeader();
       
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(28);
-      doc.text("ÁGIL ACADEMY", margin, 25);
-      
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text("CENTRO DE EXCELÊNCIA EM EDUCAÇÃO CORPORATIVA E GESTÃO", margin, 35);
-      doc.text(`MATERIAL DE APOIO OFICIAL - DOCUMENTO DE ESTUDO INTEGRAL`, margin, 42);
-      
-      // Detalhes do Curso
+      // Capa e Título
       doc.setTextColor(33, 33, 33);
-      doc.setFontSize(22);
+      doc.setFontSize(20);
       doc.setFont("helvetica", "bold");
-      doc.text(material.title.toUpperCase(), margin, 70);
+      doc.text(course?.title || "Curso Masterclass", margin, 60);
       
       doc.setFontSize(12);
       doc.setTextColor(100, 116, 139);
-      doc.text(`Curso: ${course?.title}`, margin, 82);
-      doc.text(`Categoria: ${course?.category}`, margin, 89);
-      doc.text(`Carga Horária: ${course?.duration}`, margin, 96);
+      doc.text(`Categoria: ${course?.category}`, margin, 70);
+      doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, margin, 77);
       
-      doc.setDrawColor(226, 232, 240);
-      doc.line(margin, 105, 195, 105);
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, 85, 195, 85);
       
-      // Conteúdo Teórico Estruturado
+      // Conteúdo Teórico com Paginação Automática
       doc.setTextColor(51, 65, 85);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
       
-      const contentText = material.content || "Nenhum conteúdo adicional disponível.";
-      const splitText = doc.splitTextToSize(contentText, 180);
+      const contentText = material.content || "Conteúdo não disponível.";
+      const lines = doc.splitTextToSize(contentText, 180);
       
-      y = 115;
-      splitText.forEach((line: string) => {
-        if (y > pageHeight - 20) {
+      let y = 95;
+      lines.forEach((line: string) => {
+        if (y > 270) {
           doc.addPage();
-          y = margin + 10;
+          addHeader();
+          y = 55;
         }
         doc.text(line, margin, y);
         y += 7;
       });
 
-      // Seção de Anotações (Página Final)
-      if (y > pageHeight - 60) {
+      // Seção de Anotações (Garantir que comece em nova página se estiver no fim)
+      if (y > 220) {
         doc.addPage();
-        y = margin + 10;
+        addHeader();
+        y = 55;
       } else {
         y += 20;
       }
 
       doc.setFont("helvetica", "bold");
-      doc.text("ANOTAÇÕES DO ALUNO:", margin, y);
+      doc.setTextColor(37, 99, 235);
+      doc.text("CADERNO DE ANOTAÇÕES DO ALUNO", margin, y);
       doc.setDrawColor(200, 200, 200);
-      for(let i=1; i<=5; i++) {
-        y += 10;
+      for(let i=1; i<=10; i++) {
+        y += 12;
         doc.line(margin, y, 195, y);
       }
       
-      // Rodapé em todas as páginas
+      // Adicionar rodapé em todas as páginas
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(148, 163, 184);
-        doc.text("Este documento é propriedade exclusiva do Mercado Ágil. Distribuição ou venda proibida por lei.", margin, 285);
-        doc.text(`Página ${i} de ${pageCount}`, 180, 285);
+        addFooter(i, pageCount);
       }
       
-      doc.save(`${material.title.replace(/\s+/g, '_')}_Completo.pdf`);
-      toast({ title: "PDF Profissional Gerado!", description: "O guia de estudos completo foi baixado." });
+      doc.save(`${material.title.replace(/\s+/g, '_')}_Agil_Academy.pdf`);
+      toast({ title: "Manual de Estudo Gerado!", description: "O PDF multipáginas foi baixado com sucesso." });
     } catch (e) {
       console.error(e);
-      toast({ title: "Erro no Download", description: "Falha ao processar PDF estruturado.", variant: "destructive" });
+      toast({ title: "Erro na Geração", description: "Falha ao processar PDF institucional.", variant: "destructive" });
     }
   };
 
@@ -267,7 +275,7 @@ export default function CoursePlayer() {
                         <Sparkles className="absolute -bottom-4 -right-4 h-24 w-24 opacity-10 text-primary" />
                         <h4 className="text-xs font-black text-primary uppercase mb-4 tracking-widest">Destaque do Especialista</h4>
                         <p className="text-sm font-bold text-slate-300 italic leading-relaxed">
-                           "A aplicação prática de {course.category} no seu PDV ou Agenda é o que garantirá o retorno do seu tempo investido aqui. Não esqueça de baixar o material PDF abaixo."
+                           "A aplicação prática do conhecimento técnico no seu PDV ou operação é o que garantirá o retorno do seu tempo investido aqui. Não esqueça de baixar o manual PDF institucional abaixo."
                         </p>
                      </Card>
                      <Card className="bg-white/5 border-white/10 p-8 rounded-[35px]">
@@ -291,7 +299,7 @@ export default function CoursePlayer() {
                             </div>
                             <div>
                                <p className="font-black italic uppercase text-lg">{mat.title}</p>
-                               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{mat.type} • {mat.size} • GUIA DE ESTUDO COMPLETO</p>
+                               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{mat.type} • {mat.size} • GUIA DE ESTUDO MULTIPÁGINAS</p>
                             </div>
                          </div>
                          <Button 
@@ -333,7 +341,7 @@ export default function CoursePlayer() {
                      </div>
                      <div className="space-y-4 relative z-10">
                         <h3 className="text-4xl font-black italic uppercase tracking-tighter">Desafio de Fixação Pro</h3>
-                        <p className="text-slate-400 font-medium italic max-w-xl mx-auto text-lg">Nossa IA gerou questões exclusivas baseadas no conteúdo técnico de "{course.title}" para testar seu domínio e liberar sua badge.</p>
+                        <p className="text-slate-400 font-medium italic max-w-xl mx-auto text-lg">Nossa IA gerou questões exclusivas baseadas no conteúdo técnico de "{course.title}" para testar seu domínio e liberar sua badge profissional.</p>
                      </div>
                      <Button className="h-16 px-14 rounded-[30px] bg-white text-primary hover:bg-primary hover:text-white font-black italic text-xl shadow-2xl transition-all">
                         INICIAR TESTE AGORA
