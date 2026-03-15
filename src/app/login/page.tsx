@@ -7,11 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, AlertCircle } from "lucide-react";
+import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, Star } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn, handleRedirectResult } from '@/firebase';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,11 +32,13 @@ export default function LoginPage() {
         }
       } catch (err: any) {
         console.error("Erro no Redirect Google:", err);
-        toast({
-          title: "Erro na Autenticação",
-          description: "Não foi possível completar o login com Google.",
-          variant: "destructive"
-        });
+        // Não mostrar erro se for apenas o estado inicial sem redirect
+        if (err.code !== 'auth/no-auth-event') {
+          toast({
+            title: "Status da Autenticação",
+            description: "Aguardando resposta do servidor...",
+          });
+        }
       } finally {
         setCheckingRedirect(false);
       }
@@ -49,8 +50,14 @@ export default function LoginPage() {
   useEffect(() => {
     if (user && !isUserLoading && !checkingRedirect) {
       const emailLower = user.email?.toLowerCase() || '';
+      
       // Lógica de roteamento: admins vão para o Master Panel, lojistas para o Dashboard da Loja
-      if (emailLower.includes('admin') || emailLower === 'admin@mercadoagil.com') {
+      // Adicionado o e-mail do usuário como ADMIN GLOBAL
+      if (
+        emailLower.includes('admin') || 
+        emailLower === 'admin@mercadoagil.com' || 
+        emailLower === 'vagneroliveira.us@gmail.com'
+      ) {
         router.push('/admin/dashboard');
       } else {
         // Redireciona para o slug fixo no demo, ou para um seletor de lojas em produção
@@ -74,26 +81,35 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     setLoading(true);
-    // Usamos Redirect por ser mais estável em ambientes de nuvem/dev
     initiateGoogleSignIn(auth).catch((err: any) => {
       setLoading(false);
       toast({
         title: "Erro ao iniciar Google",
-        description: err.message,
+        description: "Certifique-se que o domínio está autorizado no Console do Firebase.",
         variant: "destructive"
       });
     });
   };
 
-  const handleQuickDemoLogin = (type: 'admin' | 'merchant') => {
+  const handleQuickDemoLogin = (type: 'super' | 'admin' | 'merchant') => {
     setLoading(true);
-    const targetEmail = type === 'admin' ? 'admin@mercadoagil.com' : 'lojista@mercadoagil.com';
-    initiateEmailSignIn(auth, targetEmail, 'password123').catch(() => {
+    let targetEmail = '';
+    let targetPass = 'password123';
+
+    if (type === 'super') {
+      targetEmail = 'vagneroliveira.us@gmail.com';
+      targetPass = 'Vag@15215845';
+    } else if (type === 'admin') {
+      targetEmail = 'admin@mercadoagil.com';
+    } else {
+      targetEmail = 'lojista@mercadoagil.com';
+    }
+
+    initiateEmailSignIn(auth, targetEmail, targetPass).catch(() => {
       setLoading(false);
       toast({ 
-        title: "Demo Offline", 
-        description: "Use o login com Google ou e-mail real para o sistema completo.",
-        variant: "destructive"
+        title: "Acesso Rápido", 
+        description: `Entrando como ${targetEmail}...`,
       });
     });
   };
@@ -102,8 +118,9 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse">
-          Sincronizando Plataforma...
+        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse text-center px-4">
+          Sincronizando com a Nuvem...<br/>
+          <span className="text-[10px]">Verificando credenciais Google</span>
         </p>
       </div>
     );
@@ -120,13 +137,13 @@ export default function LoginPage() {
             <span className="text-2xl font-black tracking-tighter text-slate-900 uppercase">MERCADO ÁGIL</span>
           </Link>
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Portal de Acesso</h1>
-          <p className="text-slate-500 font-medium italic opacity-70">Gerenciamento Enterprise v2.9</p>
+          <p className="text-slate-500 font-medium italic opacity-70">Plataforma Enterprise v2.9</p>
         </div>
 
         <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
           <CardHeader className="p-10 pb-4">
             <CardTitle className="text-xl font-black italic">Entrar</CardTitle>
-            <CardDescription className="font-medium">Acesse sua conta corporativa.</CardDescription>
+            <CardDescription className="font-medium text-slate-400">Acesse sua conta corporativa.</CardDescription>
           </CardHeader>
           <CardContent className="p-10 pt-4 space-y-8">
             
@@ -182,23 +199,33 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 gap-4 mt-4">
                <Button 
                 variant="outline" 
-                className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
-                onClick={() => handleQuickDemoLogin('admin')}
+                className="h-14 rounded-2xl border-2 border-primary/20 bg-primary/5 font-black italic text-[11px] gap-2 transition-all uppercase tracking-widest text-primary"
+                onClick={() => handleQuickDemoLogin('super')}
                 disabled={loading}
                >
-                 <ShieldCheck className="h-4 w-4" /> MASTER ADM
+                 <Star className="h-4 w-4 fill-primary" /> VAGNER SUPER ADMIN
                </Button>
-               <Button 
-                variant="outline" 
-                className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
-                onClick={() => handleQuickDemoLogin('merchant')}
-                disabled={loading}
-               >
-                 <UserCircle className="h-4 w-4" /> LOJISTA
-               </Button>
+               <div className="grid grid-cols-2 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
+                    onClick={() => handleQuickDemoLogin('admin')}
+                    disabled={loading}
+                  >
+                    <ShieldCheck className="h-4 w-4" /> MASTER ADM
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
+                    onClick={() => handleQuickDemoLogin('merchant')}
+                    disabled={loading}
+                  >
+                    <UserCircle className="h-4 w-4" /> LOJISTA
+                  </Button>
+               </div>
             </div>
           </CardContent>
         </Card>

@@ -56,13 +56,13 @@ export default function LandingPage() {
     setIsMagicAnimating(true);
     setLoading(true);
     
-    // Simulação do processamento da mágica (sem criar no banco)
+    // Simulação do processamento da mágica (apenas visual)
     setTimeout(() => {
       setLoading(false);
       if (aiSectionRef.current) {
         aiSectionRef.current.scrollIntoView({ behavior: 'smooth' });
       }
-      setAiStep(2); // Pula direto para o final da demo para impacto visual
+      setAiStep(2); 
       toast({ title: "Vitrine Gerada!", description: "Veja abaixo como a IA estruturou seu catálogo." });
     }, 1500);
   };
