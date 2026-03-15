@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef } from 'react';
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, ShoppingBag, List, Settings, Package, ChevronRight, Clock, User, MapPin, ArrowRight, Volume2, Loader2, Printer, Ban, LayoutGrid, CheckCheck, Map, Smartphone, ExternalLink } from "lucide-react";
 import Link from 'next/link';
-import { MOCK_ORDERS, OrderStatus, Order } from "@/lib/data";
+import { MOCK_ORDERS, OrderStatus, Order } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { textToSpeech } from "@/ai/flows/text-to-speech-flow";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
