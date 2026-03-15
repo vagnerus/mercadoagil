@@ -10,7 +10,7 @@ import {
   ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, 
   TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, 
   PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart, 
-  Monitor, ChevronRight, MessageCircle, BarChart, Smile, AlertCircle, Heart, Globe 
+  Monitor, ChevronRight, MessageCircle, BarChart, Smile, AlertCircle, Heart, Globe, Calendar, Scissors, Wallet
 } from "lucide-react";
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart as ReBarChart, Bar, Cell } from 'recharts';
 import Link from 'next/link';
@@ -38,12 +38,13 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   
   const merchant = MOCK_MERCHANTS.find(m => m.slug === slug) || MOCK_MERCHANTS[0];
   const isRestaurant = merchant.segment === 'RESTAURANT';
+  const isBeauty = merchant.segment === 'BEAUTY' || merchant.segment === 'HEALTH';
 
   const stats = [
     { title: "Vendas Hoje", value: "R$ 1.240", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12.5%" },
     { title: "Ticket Médio", value: "R$ 42,50", icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-100", trend: "+4.2%" },
-    { title: isRestaurant ? "Uptime KDS" : "Logística", icon: Activity, value: "99.9%", color: "text-purple-600", bg: "bg-purple-100", trend: "Normal" },
-    { title: isRestaurant ? "Throughput" : "Expedição", value: "32 min", icon: Clock, color: "text-orange-600", bg: "bg-orange-100", trend: "-5 min" },
+    { title: isBeauty ? "Ocupação" : (isRestaurant ? "Uptime KDS" : "Logística"), icon: Activity, value: isBeauty ? "92%" : "99.9%", color: "text-purple-600", bg: "bg-purple-100", trend: "Normal" },
+    { title: isBeauty ? "Agendamentos" : (isRestaurant ? "Throughput" : "Expedição"), value: isBeauty ? "12" : "32 min", icon: isBeauty ? Calendar : Clock, color: "text-orange-600", bg: "bg-orange-100", trend: isBeauty ? "+4" : "-5 min" },
   ];
 
   const handleGetAdvice = async () => {
@@ -68,28 +69,54 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-accent p-1.5 rounded-lg shadow-sm">
+            <div className="bg-primary p-1.5 rounded-lg shadow-sm">
               <Package className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-slate-800 tracking-tight">Painel Lojista</span>
+            <span className="font-bold text-lg text-slate-800 tracking-tight italic uppercase">MERCADO ÁGIL</span>
           </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar pb-10">
-          <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
+          <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold">
             <LayoutDashboard className="h-5 w-5" /> Dashboard
           </Link>
+          
+          {isBeauty && (
+            <>
+              <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+                <Calendar className="h-5 w-5" /> Agenda Global
+              </Link>
+              <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+                <Scissors className="h-5 w-5" /> Serviços
+              </Link>
+              <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+                <Users className="h-5 w-5" /> Profissionais
+              </Link>
+            </>
+          )}
+
           <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Monitor className="h-5 w-5 text-primary" /> PDV Cloud
           </Link>
-          <Link href={`/merchant/${slug}/logistics`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Truck className="h-5 w-5" /> Logística & Frota
-          </Link>
-          <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <ShoppingBag className="h-5 w-5" /> Pedidos
-          </Link>
+
+          {isRestaurant && (
+            <>
+              <Link href={`/merchant/${slug}/waiter`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+                <Monitor className="h-5 w-5 text-orange-500" /> App Garçom
+              </Link>
+              <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+                <ShoppingBag className="h-5 w-5" /> Pedidos/KDS
+              </Link>
+            </>
+          )}
+
           <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <List className="h-5 w-5" /> Catálogo
           </Link>
+          
+          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+            <Wallet className="h-5 w-5" /> Financeiro
+          </Link>
+
           <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
@@ -100,7 +127,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         <header className="flex justify-between items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">{merchant.name}</h1>
-            <p className="text-slate-500 font-medium">Inteligência {merchant.segment === 'RESTAURANT' ? 'Operacional' : 'Comercial'} Ativada.</p>
+            <p className="text-slate-500 font-medium">Operação {merchant.segment === 'RESTAURANT' ? 'Gastronômica' : (isBeauty ? 'Estética' : 'Comercial')} Ativada.</p>
           </div>
           <div className="flex gap-3">
              <Button onClick={handleGetAdvice} className="bg-primary hover:bg-primary/90 rounded-2xl h-12 gap-2 shadow-xl shadow-primary/20 font-black italic px-8">
@@ -130,7 +157,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
           <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-8 bg-white">
-             <CardTitle className="text-2xl font-black italic mb-8">AI Customer Segmentation</CardTitle>
+             <CardTitle className="text-2xl font-black italic mb-8">Monitor de Performance IA</CardTitle>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="p-6 bg-slate-50 rounded-[35px] border border-dashed flex flex-col gap-4">
                    <div className="flex justify-between items-center">
@@ -141,7 +168,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                       <p className="text-3xl font-black italic">142</p>
                       <p className="text-[10px] font-bold text-slate-400 uppercase">Clientes High-Ticket</p>
                    </div>
-                   <p className="text-[9px] text-slate-500 font-medium">Aumentou 12% desde a última campanha IA.</p>
+                   <p className="text-[9px] text-slate-500 font-medium">Aumentou 12% desde a última campanha.</p>
                 </div>
                 <div className="p-6 bg-slate-50 rounded-[35px] border border-dashed flex flex-col gap-4">
                    <div className="flex justify-between items-center">
@@ -152,7 +179,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                       <p className="text-3xl font-black italic">842</p>
                       <p className="text-[10px] font-bold text-slate-400 uppercase">Recorrência Mensal</p>
                    </div>
-                   <p className="text-[9px] text-slate-500 font-medium">Taxa de retenção em níveis recordes (68%).</p>
+                   <p className="text-[9px] text-slate-500 font-medium">Taxa de retenção recorde (68%).</p>
                 </div>
                 <div className="p-6 bg-red-50 rounded-[35px] border border-dashed border-red-100 flex flex-col gap-4">
                    <div className="flex justify-between items-center">
@@ -163,21 +190,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                       <p className="text-3xl font-black italic">24</p>
                       <p className="text-[10px] font-bold text-slate-400 uppercase">Inativos 15+ dias</p>
                    </div>
-                   <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase">Reativar agora</Button>
+                   <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase">Reativar</Button>
                 </div>
-             </div>
-             
-             <div className="mt-8 p-6 bg-slate-900 rounded-[35px] text-white flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                   <div className="bg-primary/20 p-3 rounded-2xl text-primary">
-                      <Smile className="h-6 w-6" />
-                   </div>
-                   <div>
-                      <p className="font-black italic">AI Sentiment Score</p>
-                      <p className="text-xs text-slate-400 italic">"O feedback geral é altamente positivo, foco em 'Entrega Rápida'."</p>
-                   </div>
-                </div>
-                <Badge className="bg-green-500 text-white font-black italic px-4 py-1">POSITIVO (94%)</Badge>
              </div>
           </Card>
 
@@ -195,7 +209,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                   <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border">
                      <div className="flex items-center gap-3">
                         <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><Globe className="h-4 w-4" /></div>
-                        <span className="font-bold text-xs">Web Store</span>
+                        <span className="font-bold text-xs">Web App</span>
                      </div>
                      <span className="font-black text-xs text-primary">85 Pedidos</span>
                   </div>
@@ -208,26 +222,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                   </div>
                </div>
             </Card>
-
-            <Card className="border-none shadow-sm rounded-[40px] p-8 h-fit bg-slate-900 text-white relative overflow-hidden">
-               <CardTitle className="text-xl font-black italic mb-4">Saúde do Lojista</CardTitle>
-               <div className="space-y-4">
-                  <div className="flex justify-between items-center text-xs">
-                     <span className="font-bold text-slate-400">Conversão Loja</span>
-                     <span className="font-black text-primary">12.4%</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                     <span className="font-bold text-slate-400">NPS Clientes</span>
-                     <span className="font-black text-green-500">4.9/5</span>
-                  </div>
-               </div>
-               <BrainCircuit className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
-            </Card>
           </div>
         </div>
 
         <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
-           <CardTitle className="text-2xl font-black italic mb-8">Performance Semanal (Todos os Canais)</CardTitle>
+           <CardTitle className="text-2xl font-black italic mb-8">Performance Semanal</CardTitle>
            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={salesData}>
