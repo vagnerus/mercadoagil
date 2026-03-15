@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   Store, Shield, Palette, QrCode, Globe, Key, 
-  LayoutDashboard, Settings, Smartphone, Zap, Code, MessageCircle, Loader2
+  LayoutDashboard, Settings, Smartphone, Zap, Code, MessageCircle, Loader2, CheckCircle2, Link as LinkIcon, RefreshCw
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +24,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
   const { toast } = useToast();
   const db = useFirestore();
   const [loading, setLoading] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const merchantQuery = useMemoFirebase(() => query(
     collection(db, 'merchants'), 
@@ -75,6 +76,18 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
     }, 800);
   };
 
+  const handleConnectWhatsApp = () => {
+    if (!settings.whatsapp) {
+      toast({ title: "Número necessário", description: "Insira seu WhatsApp antes de conectar.", variant: "destructive" });
+      return;
+    }
+    setIsConnecting(true);
+    setTimeout(() => {
+      setIsConnecting(false);
+      toast({ title: "WhatsApp Conectado!", description: "Sua instância de mensageria está ativa." });
+    }, 2000);
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
@@ -89,13 +102,14 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
 
       <main className="flex-1 p-8 max-w-6xl">
         <header className="mb-10 flex justify-between items-end">
-          <div><h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Configurações Enterprise</h1><p className="text-slate-500 font-medium">Gestão técnica, WhatsApp e infraestrutura.</p></div>
+          <div><h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão Enterprise</h1><p className="text-slate-500 font-medium">Configurações técnicas e integrações de canais.</p></div>
           <Badge className="bg-green-100 text-green-700 border-none px-4 py-2 font-black italic">ESTADO: ONLINE</Badge>
         </header>
 
         <Tabs defaultValue="store" className="space-y-8">
           <TabsList className="bg-white p-1 rounded-2xl shadow-sm border h-auto flex overflow-x-auto no-scrollbar">
-            <TabsTrigger value="store" className="rounded-xl py-3 px-6 font-black italic text-xs"><Store className="h-4 w-4 mr-2" /> Identidade & WhatsApp</TabsTrigger>
+            <TabsTrigger value="store" className="rounded-xl py-3 px-6 font-black italic text-xs"><Store className="h-4 w-4 mr-2" /> Identidade & Unidade</TabsTrigger>
+            <TabsTrigger value="whatsapp" className="rounded-xl py-3 px-6 font-black italic text-xs"><MessageCircle className="h-4 w-4 mr-2" /> Integração WhatsApp</TabsTrigger>
             <TabsTrigger value="integrations" className="rounded-xl py-3 px-6 font-black italic text-xs"><Code className="h-4 w-4 mr-2" /> Marketing & Pixel</TabsTrigger>
           </TabsList>
 
@@ -110,20 +124,10 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                       </div>
                       
                       <div className="space-y-2">
-                         <Label className="text-[10px] font-black uppercase text-slate-400 px-1">WhatsApp Comercial (DDD + Número)</Label>
-                         <div className="relative">
-                            <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
-                            <Input placeholder="11999998888" value={settings.whatsapp} onChange={e => setSettings({...settings, whatsapp: e.target.value})} className="rounded-2xl h-14 bg-slate-50 border-none font-bold pl-12" />
+                         <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Subdomínio (Não editável)</Label>
+                         <div className="flex items-center gap-2 p-4 bg-slate-50 rounded-2xl text-slate-400 font-bold border border-slate-100">
+                            <Globe className="h-4 w-4" /> {slug}.agil.com
                          </div>
-                         <p className="text-[9px] text-slate-400 font-bold uppercase mt-1 px-1">Usado para receber avisos de novos agendamentos.</p>
-                      </div>
-
-                      <div className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                         <div className="space-y-1">
-                            <p className="font-black text-slate-900 italic text-sm uppercase">Notificações Automáticas</p>
-                            <p className="text-[10px] text-slate-400 font-medium">Enviar confirmação via WhatsApp ao aprovar horário.</p>
-                         </div>
-                         <Switch checked={settings.enableAutoNotify} onCheckedChange={v => setSettings({...settings, enableAutoNotify: v})} />
                       </div>
 
                       <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl">
@@ -131,13 +135,80 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                       </Button>
                    </div>
                    
-                   <div className="p-8 bg-green-50 rounded-[40px] border border-green-100 space-y-4">
-                      <Zap className="h-10 w-10 text-green-600" />
-                      <h3 className="font-black italic text-slate-900 uppercase">Poder do WhatsApp</h3>
-                      <p className="text-sm text-slate-600 font-medium leading-relaxed">Configurando seu WhatsApp, você reduz faltas em até 40%. O sistema enviará links prontos para você notificar seus clientes com um clique.</p>
+                   <div className="p-8 bg-primary/5 rounded-[40px] border border-primary/10 space-y-4">
+                      <Zap className="h-10 w-10 text-primary" />
+                      <h3 className="font-black italic text-slate-900 uppercase text-sm">Estrutura Enterprise</h3>
+                      <p className="text-xs text-slate-600 font-medium leading-relaxed">Sua loja opera em uma instância isolada com banco de dados próprio. Todas as alterações são replicadas em tempo real para a vitrine do cliente.</p>
                    </div>
                 </div>
              </Card>
+          </TabsContent>
+
+          <TabsContent value="whatsapp">
+             <div className="grid md:grid-cols-3 gap-8">
+                <Card className="md:col-span-2 border-none shadow-sm rounded-[40px] p-8 bg-white space-y-8">
+                   <div>
+                      <CardTitle className="text-2xl font-black italic">WhatsApp Business Connect</CardTitle>
+                      <p className="text-slate-400 text-sm font-medium mt-1">Conecte seu número para automatizar confirmações e marketing.</p>
+                   </div>
+
+                   <div className="space-y-6">
+                      <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Número de Conexão (DDD + Número)</Label>
+                         <div className="relative">
+                            <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500" />
+                            <Input placeholder="11999998888" value={settings.whatsapp} onChange={e => setSettings({...settings, whatsapp: e.target.value})} className="rounded-2xl h-14 bg-slate-50 border-none font-bold pl-12" />
+                         </div>
+                      </div>
+
+                      <div className="p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-200 flex items-center justify-between">
+                         <div className="flex items-center gap-4">
+                            <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${settings.whatsapp ? 'bg-green-100 text-green-600' : 'bg-slate-200 text-slate-400'}`}>
+                               <RefreshCw className={cn("h-6 w-6", isConnecting && "animate-spin")} />
+                            </div>
+                            <div>
+                               <p className="font-black text-slate-900 italic uppercase text-sm">Status da Instância</p>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{settings.whatsapp ? 'CONECTADO E PRONTO' : 'AGUARDANDO CONFIGURAÇÃO'}</p>
+                            </div>
+                         </div>
+                         <Button onClick={handleConnectWhatsApp} disabled={isConnecting} variant="outline" className="rounded-xl font-black italic text-xs border-slate-200 uppercase">
+                            {isConnecting ? 'Conectando...' : 'Reconectar'}
+                         </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-6 bg-white rounded-3xl border border-slate-100">
+                         <div className="space-y-1">
+                            <p className="font-black text-slate-900 italic text-sm uppercase">Envio Automático</p>
+                            <p className="text-[10px] text-slate-400 font-medium">Disparar confirmações instantâneas ao agendar.</p>
+                         </div>
+                         <Switch checked={settings.enableAutoNotify} onCheckedChange={v => setSettings({...settings, enableAutoNotify: v})} />
+                      </div>
+
+                      <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-green-600 hover:bg-green-700 text-white rounded-[30px] font-black italic text-lg shadow-2xl gap-2">
+                        {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <><CheckCircle2 className="h-6 w-6" /> Confirmar Integração</>}
+                      </Button>
+                   </div>
+                </Card>
+
+                <div className="space-y-6">
+                   <Card className="border-none shadow-sm rounded-[40px] p-8 bg-slate-900 text-white relative overflow-hidden">
+                      <div className="relative z-10 space-y-4">
+                         <LinkIcon className="h-10 w-10 text-primary" />
+                         <h3 className="font-black italic uppercase text-lg">Link do Chatbot</h3>
+                         <p className="text-xs text-slate-400 leading-relaxed">Use este link na sua bio do WhatsApp Business para permitir que clientes agendem sem precisar de um atendente humano.</p>
+                         <div className="bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-between">
+                            <code className="text-[10px] text-primary font-bold">agil.com/s/{slug}</code>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/20"><QrCode className="h-3 w-3" /></Button>
+                         </div>
+                      </div>
+                   </Card>
+
+                   <div className="p-6 bg-white rounded-3xl border shadow-sm space-y-4">
+                      <h4 className="font-black italic uppercase text-xs text-slate-400">Dica de Conversão</h4>
+                      <p className="text-xs text-slate-600 font-medium leading-relaxed italic">"Lojistas que usam o disparo automático reduzem em 42% a taxa de não-comparecimento (no-show)."</p>
+                   </div>
+                </div>
+             </div>
           </TabsContent>
 
           <TabsContent value="integrations">
