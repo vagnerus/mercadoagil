@@ -9,20 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, ShoppingBag, List, Settings, Package, CreditCard, Landmark, Wallet, Plus, Trash2, Smartphone, Save, Loader2 } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, List, Settings, Package, CreditCard, Landmark, Wallet, Plus, Trash2, Smartphone, Save, Loader2, AlertCircle } from "lucide-react";
 import Link from 'next/link';
-import { useFirestore, useCollection, setDocumentNonBlocking, useMemoFirebase, useUser } from '@/firebase';
+import { useFirestore, useCollection, setDocumentNonBlocking, deleteDocumentNonBlocking, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, doc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 
 export default function MerchantPayments({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-
-  // Consulta real dos métodos de pagamento do lojista
+  
   const paymentsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(collection(db, 'merchants', 'm1', 'paymentMethods'));
@@ -37,12 +35,17 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
   });
 
   const handleAddMethod = () => {
+    if (!user) {
+      toast({ title: "Acesso Negado", description: "Você precisa estar logado para salvar alterações.", variant: "destructive" });
+      return;
+    }
+
     if (!newMethod.details) {
       toast({ title: "Erro", description: "Informe os detalhes (ex: Chave PIX)", variant: "destructive" });
       return;
     }
 
-    const methodId = Math.random().toString(36).substring(7);
+    const methodId = `method_${Math.random().toString(36).substring(7)}`;
     const methodRef = doc(db, 'merchants', 'm1', 'paymentMethods', methodId);
     
     setDocumentNonBlocking(methodRef, {
@@ -59,6 +62,12 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
     const methodRef = doc(db, 'merchants', 'm1', 'paymentMethods', method.id);
     setDocumentNonBlocking(methodRef, { isActive: !method.isActive }, { merge: true });
     toast({ title: "Status Atualizado", description: `Método ${method.type} ${!method.isActive ? 'ativado' : 'desativado'}.` });
+  };
+
+  const handleDeleteMethod = (id: string) => {
+    const methodRef = doc(db, 'merchants', 'm1', 'paymentMethods', id);
+    deleteDocumentNonBlocking(methodRef);
+    toast({ title: "Removido", description: "Método de pagamento excluído com sucesso." });
   };
 
   return (
@@ -89,11 +98,16 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
       </aside>
 
       <main className="flex-1 p-8">
-        <header className="flex justify-between items-center mb-8">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 italic tracking-tighter">Opções de Pagamento</h1>
-            <p className="text-slate-500 font-medium">Gerencie como seus clientes pagam pelos pedidos.</p>
+            <h1 className="text-3xl font-black text-slate-900 italic tracking-tighter">Inovação em Pagamentos</h1>
+            <p className="text-slate-500 font-medium">Adicione formas de recebimento e automatize seu checkout.</p>
           </div>
+          {!user && !isUserLoading && (
+            <Badge variant="destructive" className="animate-pulse gap-2 py-2 px-4 rounded-xl">
+              <AlertCircle className="h-4 w-4" /> Sessão não sincronizada. Por favor, faça login.
+            </Badge>
+          )}
         </header>
 
         <div className="grid gap-8 lg:grid-cols-3">
@@ -104,7 +118,7 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
             <CardContent className="p-8 space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-400">Tipo de Pagamento</Label>
+                  <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Tipo de Pagamento</Label>
                   <select 
                     className="w-full h-12 rounded-2xl bg-slate-50 border-none font-bold px-4 outline-none appearance-none"
                     value={newMethod.type}
@@ -118,7 +132,7 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-400">
+                  <Label className="text-[10px] font-black uppercase text-slate-400 px-1">
                     {newMethod.type === 'PIX' ? 'Chave PIX' : 'Instruções / Detalhes'}
                   </Label>
                   <Input 
@@ -131,7 +145,8 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
 
                 <Button 
                   onClick={handleAddMethod}
-                  className="w-full h-16 bg-slate-900 rounded-[28px] font-black italic text-lg shadow-xl shadow-slate-200 gap-2"
+                  disabled={!user}
+                  className="w-full h-16 bg-slate-900 rounded-[28px] font-black italic text-lg shadow-xl shadow-slate-200 gap-2 disabled:opacity-50"
                 >
                   <Plus className="h-5 w-5" /> Ativar Método
                 </Button>
@@ -140,10 +155,13 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
           </Card>
 
           <div className="lg:col-span-2 space-y-6">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2">Métodos Ativos na Vitrine</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2">Métodos Disponíveis na Loja</h3>
             
             {isLoading ? (
-              <div className="flex justify-center p-20"><Loader2 className="animate-spin text-primary h-8 w-8" /></div>
+              <div className="flex flex-col items-center justify-center p-20 space-y-4">
+                <Loader2 className="animate-spin text-primary h-10 w-10" />
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Sincronizando Banco de Dados...</p>
+              </div>
             ) : (
               <div className="grid gap-4">
                 {paymentMethods?.map((method: any) => (
@@ -166,7 +184,7 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
                             onCheckedChange={() => toggleMethodStatus(method)}
                           />
                         </div>
-                        <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 rounded-xl">
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteMethod(method.id)} className="text-slate-300 hover:text-red-500 rounded-xl">
                           <Trash2 className="h-5 w-5" />
                         </Button>
                       </div>
@@ -175,7 +193,8 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
                 ))}
                 {paymentMethods?.length === 0 && (
                   <div className="p-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-200">
-                    <p className="font-bold text-slate-400 italic">Nenhum método configurado. Sua loja está operando apenas com pagamento offline padrão.</p>
+                    <Smartphone className="h-12 w-12 text-slate-200 mx-auto mb-4" />
+                    <p className="font-bold text-slate-400 italic">Nenhum método configurado. Sua loja está operando apenas com pagamento offline.</p>
                   </div>
                 )}
               </div>
@@ -187,9 +206,9 @@ export default function MerchantPayments({ params }: { params: Promise<{ slug: s
                     <Smartphone className="h-5 w-5" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Inovação Mercado Ágil</span>
                   </div>
-                  <h3 className="text-2xl font-black italic">Checkout Híbrido Ativado</h3>
+                  <h3 className="text-2xl font-black italic">Fluxo de Pagamento Inteligente</h3>
                   <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                    Seus clientes verão apenas os métodos que você ativar. O sistema gerencia automaticamente o fluxo de "Copia e Cola" para PIX, aumentando sua conversão.
+                    Ao adicionar novos métodos, você está personalizando a vitrine do cliente. O sistema cuida da lógica de exibição para garantir que você receba o dinheiro da forma que preferir.
                   </p>
                </div>
                <Landmark className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />

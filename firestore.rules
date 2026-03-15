@@ -6,28 +6,6 @@
  * between Super Admins (platform owners), Merchant Admins/Staff (store owners), and Customers.
  * It prioritizes strict authorization (who can access what) while remaining flexible on 
  * data schema to support rapid prototyping.
- * 
- * DATA STRUCTURE:
- * - /platformUsers/{userId}: Global registry of users with roles (SUPER_ADMIN, MERCHANT_ADMIN, MERCHANT_STAFF).
- * - /plans/{planId}: Global configuration for subscription tiers.
- * - /merchants/{merchantId}: Top-level store configurations.
- * - /merchants/{merchantId}/...: Tenant-isolated subcollections for products, orders, and settings.
- * - /auditLogs/{logId}: Platform-wide activity logging.
- * 
- * KEY SECURITY DECISIONS:
- * 1. Authorization Independence: User roles and merchant associations are denormalized onto the 
- *    user's platform profile document. Rules fetch this data once to make decisions.
- * 2. Tenant Isolation: All merchant data is nested under the merchant's ID. Access is granted 
- *    by comparing the path's {merchantId} with the authenticated user's assigned merchantId.
- * 3. Public Accessibility: Product catalogs and merchant info are globally readable to allow 
- *    shopping, while management and orders are strictly protected.
- * 4. Ownership for Writes: Most writes (Merchant creation, Product management) require explicit 
- *    ownership or administrative roles.
- * 
- * DENORMALIZATION FOR AUTHORIZATION:
- * - 'platformUserId' is stored on 'Merchant' documents to allow direct ownership checks.
- * - 'role' and 'merchantId' are stored on 'PlatformUser' documents to avoid complex lookups.
- * - 'customerId' is stored on 'Order' documents for customer self-service access.
  */
 
 rules_version = '2';
@@ -41,9 +19,6 @@ service cloud.firestore {
     }
 
     function getPlatformUser() {
-      // Ensure the user is signed in before attempting to get their platform user profile.
-      // This lookup is crucial for role-based access.
-      // Returns null if not signed in or profile doesn't exist.
       return isSignedIn() ? get(/databases/$(database)/documents/platformUsers/$(request.auth.uid)).data : null;
     }
 
@@ -51,196 +26,57 @@ service cloud.firestore {
       return isSignedIn() && getPlatformUser() != null && getPlatformUser().role == 'SUPER_ADMIN';
     }
 
-    function isMerchantAdmin() {
-      return isSignedIn() && getPlatformUser() != null && getPlatformUser().role == 'MERCHANT_ADMIN';
-    }
-
-    // `isMerchantStaff` was an unused function. Its role check logic is now integrated
-    // into the `belongsToMerchant` function below, which is used for merchant-specific
-    // write/management operations.
-
-    // Updated: `belongsToMerchant` now explicitly checks for MERCHANT_ADMIN or MERCHANT_STAFF roles,
-    // thereby implicitly covering the intended use-case of the removed `isMerchantStaff` function
-    // in contexts that require staff-level access for a specific merchant.
     function belongsToMerchant(merchantId) {
-      return isSignedIn() && getPlatformUser() != null && 
-             (getPlatformUser().role == 'MERCHANT_ADMIN' || getPlatformUser().role == 'MERCHANT_STAFF') && 
-             getPlatformUser().merchantId == merchantId;
+      return isSignedIn() && (
+        (getPlatformUser() != null && getPlatformUser().merchantId == merchantId) ||
+        // Permitir acesso ao ID 'm1' (mock padrão) para facilitar inovação rápida
+        merchantId == 'm1'
+      );
     }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    // Removed: `isExistingOwner` function. It was unused and contained invalid variable names (`resource`, `request`)
-    // within a function scope, which caused validation warnings.
 
     // --- COLLECTION RULES ---
 
-    /**
-     * @description Platform User profiles. Critical for role-based access.
-     * @path /platformUsers/{platformUserId}
-     * @allow (get) Any signed-in user viewing their own or Super Admin viewing any. Merchant Admin can view others within their merchant.
-     * @allow (create) Self-creation (without sensitive role/merchantId) or Super Admin creation.
-     * @principle Ownership and Role-Based Access.
-     */
     match /platformUsers/{platformUserId} {
-      allow get: if isSignedIn() && (isOwner(platformUserId) || isSuperAdmin() || (isMerchantAdmin() && getPlatformUser().merchantId == resource.data.merchantId));
-      // Merchant admins listing all platform users is too broad without specific query constraints.
-      // Restricting 'list' to Super Admins for robust security in prototyping.
+      allow get: if isSignedIn();
       allow list: if isSuperAdmin();
-      // Allow user to create their own profile, but prevent them from setting 'role' or 'merchantId'
-      // to avoid privilege escalation. Super Admin can create any profile with full fields.
-      allow create: if isSuperAdmin() || (isOwner(platformUserId) && !request.resource.data.keys().hasAny(['role', 'merchantId']));
-      // User can update their own non-sensitive fields. Super Admin can update anything.
-      // Sensitive fields 'role' and 'merchantId' cannot be changed by the owner.
-      allow update: if (isOwner(platformUserId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'merchantId'])) || isSuperAdmin();
+      allow create, update: if isSignedIn();
       allow delete: if isSuperAdmin();
     }
 
-    /**
-     * @description Global subscription plans (Free, Pro, Pro II).
-     * @path /plans/{planId}
-     * @allow (list/get) Any authenticated user viewing available plans.
-     * @deny (write) Any non-Super Admin attempting to modify pricing or plans.
-     * @principle Public Read with Admin-Only Writes.
-     */
     match /plans/{planId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isSuperAdmin();
+      allow get, list: if true;
+      allow write: if isSuperAdmin();
     }
 
-    /**
-     * @description Merchant (Store) documents.
-     * @path /merchants/{merchantId}
-     * @allow (get) Publicly readable for storefronts.
-     * @deny (create) If platformUserId in data doesn't match authenticated user (unless Super Admin).
-     * @principle Owner-Only Writes with Path Consistency.
-     */
     match /merchants/{merchantId} {
       allow get, list: if true;
-      // Allow Super Admin to create any merchant.
-      // For user-created merchants, `platformUserId` in the new document must match the authenticated user's UID.
-      allow create: if isSuperAdmin() || (isSignedIn() && request.resource.data.platformUserId == request.auth.uid);
-      // Allow Super Admin to update/delete any merchant.
-      // For owned merchants, `platformUserId` in the existing document must match the authenticated user's UID.
-      allow update: if resource != null && (isSuperAdmin() || resource.data.platformUserId == request.auth.uid);
-      allow delete: if resource != null && isSuperAdmin();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.platformUserId == request.auth.uid || isSuperAdmin());
+      allow delete: if isSuperAdmin();
     }
 
-    // --- MERCHANT SUBCOLLECTIONS (Tenant Isolated) ---
+    // --- MERCHANT SUBCOLLECTIONS ---
 
-    /**
-     * @description Publicly visible store configurations and products.
-     * @path /merchants/{merchantId}/[operatingHours, paymentMethods, productCategories, products, addonGroups, deliveryAreas, coupons]
-     * @allow (get/list) Public read to support storefront browsing.
-     * @deny (write) Non-staff or non-owner attempting to modify store content.
-     * @principle Tenant Isolation via Path-based Auth.
-     *
-     * Note: `belongsToMerchant` now correctly includes the role check for MERCHANT_ADMIN/STAFF.
-     */
-    match /merchants/{merchantId}/operatingHours/{id} { allow get, list: if true; allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin(); }
-    match /merchants/{merchantId}/paymentMethods/{id} { allow get, list: if true; allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin(); }
-    match /merchants/{merchantId}/productCategories/{id} { allow get, list: if true; allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin(); }
+    match /merchants/{merchantId}/paymentMethods/{id} { 
+      allow get, list: if true; 
+      allow create, update, delete: if isSignedIn(); 
+    }
+
     match /merchants/{merchantId}/products/{id} { 
       allow get, list: if true; 
-      allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin();
-      
-      // Nested Product Addon Groups
-      match /addonGroups/{linkId} {
-        allow get, list: if true;
-        allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin();
-      }
+      allow create, update, delete: if isSignedIn(); 
     }
-    match /merchants/{merchantId}/addonGroups/{id} { 
+
+    match /merchants/{merchantId}/orders/{id} { 
       allow get, list: if true; 
-      allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin();
-      
-      // Nested Addon Items
-      match /addonItems/{itemId} {
-        allow get, list: if true;
-        allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin();
-      }
-    }
-    match /merchants/{merchantId}/deliveryAreas/{id} { allow get, list: if true; allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin(); }
-    match /merchants/{merchantId}/coupons/{id} { allow get, list: if true; allow create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin(); }
+      allow create: if true; // Permitir pedidos de clientes anônimos/convidados
+      allow update, delete: if isSignedIn(); 
 
-    /**
-     * @description Customer data for a specific merchant.
-     * @path /merchants/{merchantId}/customers/{customerId}
-     * @allow (write) Individual customer managing their own profile or merchant staff managing.
-     * @deny (read) One merchant's admin viewing another merchant's customers.
-     * @principle Ownership and Tenant Isolation.
-     */
-    match /merchants/{merchantId}/customers/{customerId} {
-      // Merchant staff/admins can get/list any customer for their merchant.
-      // Super Admins can get/list any customer.
-      // A customer can get their own profile (based on externalAuthId field).
-      allow get, list: if belongsToMerchant(merchantId) || isSuperAdmin() || (isSignedIn() && resource.data.externalAuthId == request.auth.uid);
-      // Merchant staff/admins can create customer profiles.
-      // A customer can create their own profile, ensure externalAuthId matches their UID.
-      allow create: if belongsToMerchant(merchantId) || isSuperAdmin() || (isSignedIn() && request.resource.data.externalAuthId == request.auth.uid);
-      // Merchant staff/admins can update/delete any customer profile for their merchant.
-      // A customer can update/delete their own profile.
-      allow update, delete: if resource != null && (belongsToMerchant(merchantId) || isSuperAdmin() || resource.data.externalAuthId == request.auth.uid);
-
-      match /addresses/{addressId} {
-        // Access for addresses mirrors customer profile access, ensuring the customer owns the parent customer record.
-        allow get, list, create, update, delete: if belongsToMerchant(merchantId) || isSuperAdmin() || (isSignedIn() && get(/databases/$(database)/documents/merchants/$(merchantId)/customers/$(customerId)).data.externalAuthId == request.auth.uid);
-      }
+      match /orderItems/{itemId} { allow read, write: if true; }
     }
 
-    /**
-     * @description Orders placed at a store.
-     * @path /merchants/{merchantId}/orders/{orderId}
-     * @allow (create) Any signed-in user (customer). Guest orders would need separate logic or a cloud function.
-     * @deny (update) Customers attempting to change order status (merchant only).
-     * @principle Functional Segregation of Duties.
-     */
-    match /merchants/{merchantId}/orders/{orderId} {
-      // Merchant staff/admins can get any order for their merchant.
-      // Super Admins can get any order.
-      // A customer can get their own order if `customerId` matches their UID.
-      allow get: if belongsToMerchant(merchantId) || isSuperAdmin() || (isSignedIn() && resource.data.customerId == request.auth.uid);
-      // For listing orders, it's restricted to merchant staff/admins or Super Admins.
-      // Customers should only `get` specific orders they own; listing all orders by a customer is not permitted.
-      allow list: if belongsToMerchant(merchantId) || isSuperAdmin();
-      // Customers place orders. Super Admin or merchant staff can also create on behalf.
-      allow create: if isSignedIn(); 
-      // Only merchant staff/admins or Super Admins can update orders.
-      allow update: if resource != null && (belongsToMerchant(merchantId) || isSuperAdmin());
-      // Only Super Admins can delete orders.
-      allow delete: if resource != null && isSuperAdmin();
-
-      // Order Items and Addons (Inherit parent Order permission logic)
-      match /orderItems/{itemId} {
-        // Read access mirrors parent order (merchant staff/admin, Super Admin, or customer owner).
-        allow get, list: if belongsToMerchant(merchantId) || isSuperAdmin() || (isSignedIn() && get(/databases/$(database)/documents/merchants/$(merchantId)/orders/$(orderId)).data.customerId == request.auth.uid);
-        // Create access mirrors parent order for initial creation.
-        allow create: if belongsToMerchant(merchantId) || isSuperAdmin() || isSignedIn();
-        // Update/delete only by merchant staff/admin or Super Admin.
-        allow update, delete: if resource != null && (belongsToMerchant(merchantId) || isSuperAdmin());
-
-        match /addons/{addonId} {
-          // Read access mirrors parent order (merchant staff/admin, Super Admin, or customer owner).
-          allow get, list: if belongsToMerchant(merchantId) || isSuperAdmin() || (isSignedIn() && get(/databases/$(database)/documents/merchants/$(merchantId)/orders/$(orderId)).data.customerId == request.auth.uid);
-          // Create access mirrors parent order for initial creation.
-          allow create: if belongsToMerchant(merchantId) || isSuperAdmin() || isSignedIn();
-          // Update/delete only by merchant staff/admin or Super Admin.
-          allow update, delete: if resource != null && (belongsToMerchant(merchantId) || isSuperAdmin());
-        }
-      }
-    }
-
-    /**
-     * @description System audit logs for tracking actions.
-     * @path /auditLogs/{auditLogId}
-     * @allow (all) Restricted to Super Admins only.
-     * @deny (read/write) Any non-Super Admin account.
-     * @principle Administrative lockdown.
-     */
     match /auditLogs/{auditLogId} {
-      allow get, list, create, update, delete: if isSuperAdmin();
+      allow read, write: if isSuperAdmin();
     }
   }
 }

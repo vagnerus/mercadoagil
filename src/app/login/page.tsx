@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, Star } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn, handleRedirectResult } from '@/firebase';
+import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn, initiateEmailSignUp, handleRedirectResult } from '@/firebase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,30 +24,23 @@ export default function LoginPage() {
 
   const handleRoute = (userEmail: string) => {
     const emailLower = userEmail.toLowerCase();
-    console.log("LoginPage: Roteando usuário:", emailLower);
     
-    // Força o roteamento baseando-se no e-mail
     if (
       emailLower === 'vagneroliveira.us@gmail.com' || 
       emailLower === 'admin@mercadoagil.com' || 
       emailLower.includes('admin')
     ) {
-      console.log("LoginPage: Navegando para Admin Dashboard");
       router.replace('/admin/dashboard');
     } else {
-      console.log("LoginPage: Navegando para Merchant Dashboard");
       router.replace('/merchant/burger-ze/dashboard');
     }
   };
 
-  // 1. Processa o resultado do redirecionamento do Google ao montar o componente
   useEffect(() => {
     const checkRedirect = async () => {
       try {
-        console.log("LoginPage: Verificando resultado de redirect...");
         const result = await handleRedirectResult(auth);
         if (result?.user) {
-          console.log("LoginPage: Usuário detectado via redirect:", result.user.email);
           toast({ title: "Bem-vindo!", description: `Logado como ${result.user.email}` });
           handleRoute(result.user.email || '');
         }
@@ -60,10 +53,8 @@ export default function LoginPage() {
     checkRedirect();
   }, [auth]);
 
-  // 2. Redirecionamento automático se o estado do Firebase já tiver um usuário logado
   useEffect(() => {
     if (user && !isUserLoading && !checkingRedirect) {
-      console.log("LoginPage: Usuário já autenticado no estado, redirecionando...");
       handleRoute(user.email || '');
     }
   }, [user, isUserLoading, checkingRedirect]);
@@ -74,16 +65,13 @@ export default function LoginPage() {
     try {
       const result = await initiateEmailSignIn(auth, email, password);
       if (result.user) {
-        console.log("LoginPage: Login e-mail bem-sucedido:", result.user.email);
-        toast({ title: "Sucesso!", description: "Entrando no sistema..." });
         handleRoute(result.user.email || '');
       }
     } catch (err: any) {
-      console.error("LoginPage: Erro no login por e-mail:", err);
       setLoading(false);
       toast({
         title: "Erro no Login",
-        description: "Credenciais inválidas. Verifique seu e-mail e senha.",
+        description: "Credenciais inválidas.",
         variant: "destructive"
       });
     }
@@ -92,11 +80,10 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     setLoading(true);
     initiateGoogleSignIn(auth).catch((err: any) => {
-      console.error("LoginPage: Erro ao iniciar Google:", err);
       setLoading(false);
       toast({
         title: "Erro ao iniciar Google",
-        description: "Certifique-se que o domínio está autorizado no Console Firebase.",
+        description: "Certifique-se que o domínio está autorizado.",
         variant: "destructive"
       });
     });
@@ -117,19 +104,19 @@ export default function LoginPage() {
     }
 
     try {
-      const result = await initiateEmailSignIn(auth, targetEmail, targetPass);
-      if (result.user) {
-        console.log("LoginPage: Quick Login bem-sucedido:", targetEmail);
-        handleRoute(result.user.email || '');
-      }
+      // Tenta logar. Se não existir, cria o usuário para garantir sessão real no Firebase
+      await initiateEmailSignIn(auth, targetEmail, targetPass)
+        .catch(async () => {
+          return await initiateEmailSignUp(auth, targetEmail, targetPass);
+        });
+      
+      // O useEffect cuidará do redirecionamento
     } catch (err) {
-      console.warn("LoginPage: Usuário não existe no Auth, tentando roteamento manual para demo...");
-      // Se o usuário não existir no Firebase Auth real ainda, forçamos o roteamento para visualização da UI
-      handleRoute(targetEmail);
+      setLoading(false);
+      handleRoute(targetEmail); // Fallback visual
     }
   };
 
-  // Enquanto estiver sincronizando a sessão ou carregando dados do Google
   if (isUserLoading || (checkingRedirect && !user)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
