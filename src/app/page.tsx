@@ -55,13 +55,13 @@ export default function LandingPage() {
     setIsMagicAnimating(true);
     setLoading(true);
     
-    // Simulation of magic generation
+    // Simulação do processamento da mágica
     setTimeout(() => {
       setLoading(false);
       if (aiSectionRef.current) {
         aiSectionRef.current.scrollIntoView({ behavior: 'smooth' });
       }
-      toast({ title: "Preview Gerado!", description: "Veja abaixo como sua loja pode ficar com IA." });
+      toast({ title: "Vitrine Gerada!", description: "Veja abaixo como a IA estruturou seu catálogo." });
     }, 1500);
   };
 
@@ -76,9 +76,9 @@ export default function LandingPage() {
              <CheckCircle2 className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs font-black text-slate-900 leading-none">Nova Loja Ativada!</p>
+            <p className="text-xs font-black text-slate-900 leading-none">Nova Instância Ativada!</p>
             <p className="text-[10px] font-bold text-slate-500 mt-1">
-              <span className="text-primary">{socialProof?.name}</span> em plano <span className="text-primary font-black">Pro</span>
+              <span className="text-primary">{socialProof?.name}</span> em plano <span className="text-primary font-black">SaaS Pro</span>
             </p>
           </div>
         </div>
@@ -94,13 +94,13 @@ export default function LandingPage() {
           </Link>
           <nav className="ml-auto flex items-center gap-8">
             <Link className="text-sm font-bold text-slate-500 hover:text-primary transition-colors hidden lg:block" href="/login">
-              Entrar
+              Entrar no Painel
             </Link>
             <div className="hidden lg:flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full text-[10px] font-black text-slate-400">
-               <Monitor className="h-3 w-3" /> Desktop App v2.9
+               <Monitor className="h-3 w-3" /> Enterprise v2.9
             </div>
             <Button className="rounded-full px-6 font-black italic bg-slate-900 text-white shadow-lg shadow-slate-200" asChild>
-              <Link href="/login">Criar Minha Loja</Link>
+              <Link href="/login">Começar Agora</Link>
             </Button>
           </nav>
         </div>
@@ -112,13 +112,13 @@ export default function LandingPage() {
             <div className="space-y-10">
               <div className="space-y-6">
                 <div className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-black bg-primary/10 text-primary uppercase tracking-widest border border-primary/20">
-                  <Monitor className="h-3 w-3 mr-2 animate-pulse" /> Agora com Versão para Computador
+                  <Monitor className="h-3 w-3 mr-2 animate-pulse" /> Desktop & Mobile Cross-Platform
                 </div>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-slate-900 leading-[0.9] italic">
                   Sua Loja em <span className="text-primary not-italic">Segundos.</span>
                 </h1>
                 <p className="text-slate-500 text-lg md:text-xl font-medium max-w-lg leading-relaxed">
-                  A única plataforma Multi-Device que libera o seu delivery em minutos. Planos de Free a Enterprise.
+                  A plataforma multi-canal que libera seu delivery instantaneamente. Teste grátis no plano Free ou escale com Pro.
                 </p>
               </div>
 
@@ -143,7 +143,7 @@ export default function LandingPage() {
                       <Terminal className="h-4 w-4" />
                    </div>
                    <div className="flex gap-4 font-mono text-[10px] font-bold uppercase tracking-widest">
-                      <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> {latency}ms Latency</span>
+                      <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> {latency}ms Global Ping</span>
                       <span className="text-slate-500">|</span>
                       <span className="text-primary">Desktop App Ready</span>
                    </div>
@@ -163,9 +163,9 @@ export default function LandingPage() {
                       <div className="absolute bottom-4 left-4 h-12 w-12 rounded-xl bg-white shadow-lg"></div>
                    </div>
                    <div className="p-4 space-y-2">
-                      <p className="text-xs font-black uppercase text-primary tracking-widest">Aberto agora</p>
+                      <p className="text-xs font-black uppercase text-primary tracking-widest">Operação Nominal</p>
                       <h3 className="text-xl font-black italic text-slate-800 truncate">
-                        {storeName || "Nome da Sua Loja"}
+                        {storeName || "Preview da Vitrine"}
                       </h3>
                       <div className="flex gap-1">
                          <div className="h-1.5 w-12 bg-slate-200 rounded-full"></div>
@@ -203,25 +203,28 @@ export default function LandingPage() {
                        </div>
                        <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter">O Segredo da nossa <span className="text-primary">Mágica.</span></h2>
                        <p className="text-slate-400 text-lg leading-relaxed max-w-md">
-                          Nossa IA transforma esboços e nomes em anúncios profissionais de alto nível. Teste grátis por 30 dias no plano <span className="text-white font-black italic underline decoration-primary underline-offset-4">Free.</span>
+                          Nossa IA transforma esboços e nomes em anúncios profissionais. Teste o plano <span className="text-white font-black italic underline decoration-primary underline-offset-4">Free</span> por 30 dias agora mesmo.
                        </p>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                        <div className="p-6 bg-slate-800 rounded-3xl border border-white/5 space-y-2">
+                          <Badge variant="outline" className="bg-white/5 border-white/10 text-[8px] font-black uppercase text-slate-400">Plano</Badge>
                           <p className="text-xs font-black text-primary uppercase">Free</p>
                           <p className="text-lg font-black italic">R$ 0</p>
-                          <p className="text-[10px] font-bold text-slate-500">30 Dias de Teste</p>
+                          <p className="text-[10px] font-bold text-slate-500">Degustação 30d</p>
                        </div>
                        <div className="p-6 bg-primary/10 rounded-3xl border border-primary/20 space-y-2">
+                          <Badge variant="outline" className="bg-primary/20 border-primary/30 text-[8px] font-black uppercase text-primary">Plano</Badge>
                           <p className="text-xs font-black text-primary uppercase">Pro</p>
                           <p className="text-lg font-black italic">R$ 150</p>
-                          <p className="text-[10px] font-bold text-slate-500">Completo + Desktop</p>
+                          <p className="text-[10px] font-bold text-slate-500">SaaS Completo</p>
                        </div>
                        <div className="p-6 bg-slate-800 rounded-3xl border border-white/5 space-y-2">
+                          <Badge variant="outline" className="bg-white/5 border-white/10 text-[8px] font-black uppercase text-slate-400">Plano</Badge>
                           <p className="text-xs font-black text-primary uppercase">Pro II</p>
                           <p className="text-lg font-black italic">R$ 300</p>
-                          <p className="text-[10px] font-bold text-slate-500">Escalável & Global</p>
+                          <p className="text-[10px] font-bold text-slate-500">High-Scale</p>
                        </div>
                     </div>
 
@@ -232,9 +235,9 @@ export default function LandingPage() {
                       }}
                       className="h-16 px-8 rounded-2xl font-black text-lg gap-3 bg-white text-slate-900 hover:bg-slate-100 transition-all"
                     >
-                      {aiStep === 0 && "Simular Geração IA"}
-                      {aiStep === 1 && "Processando Visão..."}
-                      {aiStep === 2 && "Resultado Final!"}
+                      {aiStep === 0 && "Simular Processamento IA"}
+                      {aiStep === 1 && "Arquitetando Vitrine..."}
+                      {aiStep === 2 && "Instância Pronta!"}
                       <MousePointer2 className="h-5 w-5" />
                     </Button>
                  </div>
@@ -246,7 +249,7 @@ export default function LandingPage() {
                             <div className="w-full h-full relative group">
                                <img src="https://picsum.photos/seed/raw/800/600?grayscale" className="w-full h-full object-cover blur-[2px]" alt="Raw Product" />
                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                  <Badge className="bg-red-500 text-white font-black border-none uppercase tracking-widest text-[8px]">Foto Original (Smartphone)</Badge>
+                                  <Badge className="bg-red-500 text-white font-black border-none uppercase tracking-widest text-[8px]">Foto Smartphone Original</Badge>
                                </div>
                             </div>
                           )}
@@ -260,7 +263,7 @@ export default function LandingPage() {
                             <div className="w-full h-full relative animate-in zoom-in-95 duration-700">
                                <img src="https://picsum.photos/seed/final/800/600" className="w-full h-full object-cover" alt="AI Enhanced" />
                                <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-1 rounded-full text-[10px] font-black tracking-widest animate-bounce">
-                                  GERADO POR IA
+                                  RENDER IA 4K
                                </div>
                             </div>
                           )}
@@ -269,13 +272,13 @@ export default function LandingPage() {
                        <div className="mt-8 space-y-4">
                           <div className="flex gap-2">
                              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Texto Persuasivo Automatizado</p>
+                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Copywriting Persuasivo IA</p>
                           </div>
                           <div className="min-h-[80px] bg-slate-900/50 p-6 rounded-2xl border border-white/5 font-medium italic text-sm text-slate-300">
                              {aiStep === 2 ? (
-                               `Delicie-se com o novo ${storeName || 'Produto'}. Qualidade premium, entrega rápida e o melhor preço da região. Peça agora!`
+                               `Apresentamos o novo ${storeName || 'Produto'}. Uma experiência premium em delivery, com entrega expressa nos clusters locais. Peça agora!`
                              ) : (
-                               aiStep === 1 ? "Otimizando para vendas..." : "Aguardando processamento..."
+                               aiStep === 1 ? "Otimizando para conversão..." : "Aguardando input de imagem..."
                              )}
                           </div>
                        </div>
@@ -288,14 +291,14 @@ export default function LandingPage() {
         <section className="w-full py-24 bg-white overflow-hidden">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="text-center mb-20 space-y-4">
-              <h2 className="text-4xl font-black tracking-tight sm:text-6xl text-slate-900 italic">Multi-Platform Ready.</h2>
-              <p className="text-slate-500 text-xl font-medium max-w-2xl mx-auto italic opacity-70">Sua loja em todo lugar: Celular, Web e Desktop.</p>
+              <h2 className="text-4xl font-black tracking-tight sm:text-6xl text-slate-900 italic">Multi-Platform Ecosystem.</h2>
+              <p className="text-slate-500 text-xl font-medium max-w-2xl mx-auto italic opacity-70">Operação fluida em qualquer dispositivo.</p>
             </div>
             <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
               {[
-                { title: "Dashboard Desktop", desc: "Aplicação nativa para PC/Mac focada em gestão de balcão ultra-rápida.", icon: Monitor, color: "primary" },
-                { title: "App Mobile PWA", desc: "Instalação instantânea no celular do cliente sem necessidade de App Store.", icon: Smartphone, color: "accent" },
-                { title: "Gestão Master", desc: "Controle todas as suas unidades em uma interface imersiva e integrada.", icon: ShieldCheck, color: "blue-600" }
+                { title: "Native Desktop", desc: "Gestão de balcão ultra-rápida com atalhos de teclado e impressão local.", icon: Monitor, color: "primary" },
+                { title: "Mobile App PWA", desc: "Experiência de app nativo no celular do cliente sem downloads pesados.", icon: Smartphone, color: "accent" },
+                { title: "Master Global", desc: "Central de inteligência para controlar franquias e grupos de lojas.", icon: ShieldCheck, color: "blue-600" }
               ].map((feat, i) => (
                 <div key={i} className="group perspective-[1000px]">
                   <div className="flex flex-col items-center space-y-6 text-center p-12 rounded-[40px] border bg-slate-50/30 transition-all duration-500 transform-gpu group-hover:rotate-x-6 group-hover:-rotate-y-6 group-hover:scale-105 group-hover:shadow-3xl group-hover:bg-white group-hover:border-primary/20 relative overflow-hidden">
@@ -324,21 +327,21 @@ export default function LandingPage() {
               <span className="text-2xl font-black tracking-tighter text-slate-900 uppercase">MERCADO ÁGIL</span>
             </Link>
             <p className="text-sm text-slate-500 font-medium leading-relaxed">
-              Redefinindo o comércio digital com Inteligência Artificial e performance Multi-Unit.
+              Infraestrutura SaaS de alta performance para o comércio moderno.
             </p>
           </div>
           <div>
-            <h4 className="font-black text-xs uppercase tracking-widest text-slate-400 mb-8 italic">Dashboards</h4>
+            <h4 className="font-black text-xs uppercase tracking-widest text-slate-400 mb-8 italic">Painéis de Controle</h4>
             <div className="space-y-4">
                <Link href="/login" className="block p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                  <p className="text-[10px] font-black uppercase text-primary mb-1">Entrar no Painel</p>
-                  <p className="text-xs font-bold text-slate-700">Acesso Restrito</p>
+                  <p className="text-[10px] font-black uppercase text-primary mb-1">Acesso Administrador</p>
+                  <p className="text-xs font-bold text-slate-700">Login Seguro</p>
                </Link>
             </div>
           </div>
         </div>
         <div className="container mx-auto border-t mt-20 pt-10 flex flex-col sm:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-          <p>© 2024 MERCADO ÁGIL TECNOLOGIA. PLATFORM VERSION 2.9 - ENTERPRISE EDITION.</p>
+          <p>© 2024 MERCADO ÁGIL TECNOLOGIA. ENTERPRISE EDITION V2.9.</p>
         </div>
       </footer>
     </div>

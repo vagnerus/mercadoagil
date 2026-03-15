@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, Info } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, Info, AlertCircle } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn, handleRedirectResult } from '@/firebase';
+import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn } from '@/firebase';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
@@ -21,39 +22,19 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
 
-  // Handle successful login and redirection
+  // Redirecionamento automático baseado no perfil do usuário logado
   useEffect(() => {
     if (user && !isUserLoading) {
       const emailLower = user.email?.toLowerCase() || '';
       if (emailLower.includes('admin') || emailLower === 'admin@mercadoagil.com') {
         router.push('/admin/dashboard');
-        toast({ title: "Bem-vindo Admin", description: "Acesso total liberado." });
+        toast({ title: "Bem-vindo Admin", description: "Painel Master liberado." });
       } else {
         router.push('/merchant/burger-ze/dashboard');
-        toast({ title: "Bem-vindo Lojista", description: "Seu painel está pronto." });
+        toast({ title: "Bem-vindo Lojista", description: "Gestão da loja ativada." });
       }
     }
   }, [user, isUserLoading, router, toast]);
-
-  // Explicitly handle the result of a redirect login
-  useEffect(() => {
-    if (!auth) return;
-    
-    handleRedirectResult(auth).then((result) => {
-      if (result) {
-        setLoading(true); // Keep loading while useEffect above triggers redirect
-      }
-    }).catch((err) => {
-      setLoading(false);
-      if (err.code !== 'auth/popup-closed-by-user') {
-        toast({
-          title: "Erro no Redirecionamento",
-          description: err.message,
-          variant: "destructive"
-        });
-      }
-    });
-  }, [auth, toast]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +43,7 @@ export default function LoginPage() {
       setLoading(false);
       toast({
         title: "Erro no Login",
-        description: "E-mail ou senha inválidos.",
+        description: "Credenciais inválidas ou erro de conexão.",
         variant: "destructive"
       });
     });
@@ -70,14 +51,26 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     setLoading(true);
-    initiateGoogleSignIn(auth).catch((err: any) => {
-      setLoading(false);
-      toast({
-        title: "Erro ao iniciar Google",
-        description: err.message,
-        variant: "destructive"
+    initiateGoogleSignIn(auth)
+      .then(() => {
+        // O useEffect acima cuidará do redirecionamento
+      })
+      .catch((err: any) => {
+        setLoading(false);
+        if (err.code === 'auth/popup-blocked') {
+          toast({
+            title: "Pop-up Bloqueado",
+            description: "Por favor, autorize pop-ups para este site para logar com Google.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Erro no Google Login",
+            description: err.message,
+            variant: "destructive"
+          });
+        }
       });
-    });
   };
 
   const handleQuickDemoLogin = (type: 'admin' | 'merchant') => {
@@ -86,19 +79,18 @@ export default function LoginPage() {
     initiateEmailSignIn(auth, targetEmail, 'password123').catch(() => {
       setLoading(false);
       toast({ 
-        title: "Erro Demo", 
-        description: "Usuário demo não configurado no console.",
+        title: "Demo não encontrada", 
+        description: "Use o login social ou crie uma conta real.",
         variant: "destructive"
       });
     });
   };
 
-  // Screen-wide loader during initialization or processing
-  if (isUserLoading || (user && !isUserLoading)) {
+  if (isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse">Autenticando...</p>
+        <p className="font-black italic text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando Plataforma...</p>
       </div>
     );
   }
@@ -113,22 +105,14 @@ export default function LoginPage() {
             </div>
             <span className="text-2xl font-black tracking-tighter text-slate-900 uppercase">MERCADO ÁGIL</span>
           </Link>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Acesso ao Painel</h1>
-          <p className="text-slate-500 font-medium italic opacity-70">Gerencie sua loja ou a plataforma global.</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Portal de Acesso</h1>
+          <p className="text-slate-500 font-medium italic opacity-70">Gerenciamento Enterprise v2.9</p>
         </div>
-
-        <Alert className="bg-blue-50 border-blue-200 text-blue-800 rounded-3xl">
-          <Info className="h-4 w-4 text-blue-600" />
-          <AlertTitle className="font-black text-xs uppercase tracking-widest">Dica de Estabilidade</AlertTitle>
-          <AlertDescription className="text-xs font-medium">
-            Se você já autorizou o domínio no Console Firebase, o login com Google agora processará o seu redirecionamento automaticamente.
-          </AlertDescription>
-        </Alert>
 
         <Card className="border-none shadow-2xl rounded-[40px] overflow-hidden bg-white">
           <CardHeader className="p-10 pb-4">
             <CardTitle className="text-xl font-black italic">Entrar</CardTitle>
-            <CardDescription className="font-medium">Escolha seu método de acesso preferido.</CardDescription>
+            <CardDescription className="font-medium">Escolha seu método de autenticação.</CardDescription>
           </CardHeader>
           <CardContent className="p-10 pt-4 space-y-8">
             
@@ -153,15 +137,15 @@ export default function LoginPage() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
-              <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-400 bg-white px-2">Ou use e-mail</div>
+              <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-400 bg-white px-2">Credenciais Diretas</div>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">E-mail</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">E-mail Corporativo</Label>
                 <Input 
                   type="email" 
-                  placeholder="seu@email.com" 
+                  placeholder="admin@mercadoagil.com" 
                   className="h-14 rounded-2xl bg-slate-50 border-none font-bold"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -169,9 +153,9 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center px-1">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Senha</Label>
-                  <Button variant="link" className="text-[10px] font-black uppercase tracking-widest text-primary p-0 h-auto">Esqueci a senha</Button>
+                  <Button variant="link" className="text-[10px] font-black uppercase tracking-widest text-primary p-0 h-auto">Recuperar</Button>
                 </div>
                 <Input 
                   type="password" 
@@ -189,7 +173,7 @@ export default function LoginPage() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
-              <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-400 bg-white px-2">Acesso Rápido (Demo)</div>
+              <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-400 bg-white px-2">Atalhos Master</div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -213,8 +197,8 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm font-bold text-slate-400">
-          Não tem uma loja? <Link href="/" className="text-primary hover:underline">Comece agora gratuitamente.</Link>
+        <p className="text-center text-sm font-bold text-slate-400 italic">
+          Mercado Ágil Tecnologias - Versão SaaS Enterprise
         </p>
       </div>
     </div>

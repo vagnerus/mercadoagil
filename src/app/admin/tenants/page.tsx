@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -34,30 +33,30 @@ export default function AdminTenants() {
     ownerName: ""
   });
 
-  const handleCreateStore = async (e: React.FormEvent) => {
+  const handleCreateStore = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    try {
-      const plan = SYSTEM_PLANS.find(p => p.id === formData.planId);
-      
-      await addDocumentNonBlocking(collection(db, 'merchants'), {
-        ...formData,
-        status: 'active',
-        createdAt: new Date().toISOString(),
-        timestamp: serverTimestamp(),
-        planName: plan?.name || 'Free',
-        mrr: formData.planId === 'p_free' ? 0 : (formData.planId === 'p_pro' ? 150 : 300)
-      });
+    const plan = SYSTEM_PLANS.find(p => p.id === formData.planId);
+    
+    // Operação não-bloqueante seguindo as diretrizes de performance do Firestore
+    addDocumentNonBlocking(collection(db, 'merchants'), {
+      ...formData,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      timestamp: serverTimestamp(),
+      planName: plan?.name || 'Free',
+      mrr: formData.planId === 'p_free' ? 0 : (formData.planId === 'p_pro' ? 150 : 300)
+    });
 
-      setIsCreateOpen(false);
-      setFormData({ name: "", slug: "", planId: "p_free", email: "", ownerName: "" });
-      toast({ title: "Loja Criada!", description: "O novo lojista já pode acessar o painel." });
-    } catch (error) {
-      toast({ title: "Erro", description: "Falha ao criar loja.", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
+    // Feedback imediato ao usuário (Optimistic UI)
+    setIsCreateOpen(false);
+    setFormData({ name: "", slug: "", planId: "p_free", email: "", ownerName: "" });
+    setLoading(false);
+    toast({ 
+      title: "Solicitação Enviada!", 
+      description: "A loja está sendo provisionada nos clusters regionais." 
+    });
   };
 
   return (
@@ -106,7 +105,7 @@ export default function AdminTenants() {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Multi-Tenancy</h1>
-            <p className="text-slate-500 font-medium">Monitoramento individual de cada lojista (tenant).</p>
+            <p className="text-slate-500 font-medium">Provisionamento e monitoramento individual de lojistas.</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -118,17 +117,17 @@ export default function AdminTenants() {
                 <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
                    <div className="bg-primary p-10 text-white relative overflow-hidden">
                       <div className="relative z-10">
-                         <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Nova Loja & Usuário</DialogTitle>
-                         <p className="text-white/80 font-bold mt-2 uppercase text-[10px] tracking-widest">Configuração de novo lojista na plataforma.</p>
+                         <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Nova Instância Lojista</DialogTitle>
+                         <p className="text-white/80 font-bold mt-2 uppercase text-[10px] tracking-widest">Configuração de ambiente e usuário mestre.</p>
                       </div>
                       <Store className="absolute -bottom-10 -right-10 h-40 w-40 opacity-10" />
                    </div>
                    <form onSubmit={handleCreateStore} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar">
                       <div className="grid grid-cols-2 gap-6">
                          <div className="space-y-4">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Dados da Loja</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Configuração do Ambiente</h3>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nome da Loja</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nome Fantasia</Label>
                                <Input 
                                 placeholder="Ex: Pizzaria Roma" 
                                 className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
@@ -138,7 +137,7 @@ export default function AdminTenants() {
                                />
                             </div>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Slug / URL</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Subdomínio / Slug</Label>
                                <div className="flex items-center">
                                   <Input 
                                     placeholder="pizzaria-roma" 
@@ -151,7 +150,7 @@ export default function AdminTenants() {
                                </div>
                             </div>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Plano Mercado Ágil</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nível de Serviço (Plano)</Label>
                                <Select value={formData.planId} onValueChange={v => setFormData({...formData, planId: v})}>
                                   <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
                                      <SelectValue />
@@ -159,7 +158,7 @@ export default function AdminTenants() {
                                   <SelectContent className="rounded-2xl border-none shadow-xl">
                                      {SYSTEM_PLANS.map(p => (
                                        <SelectItem key={p.id} value={p.id} className="font-bold">
-                                          {p.name} - {p.price === 0 ? 'Grátis (30 dias)' : `R$ ${p.price}/mês`}
+                                          {p.name} - {p.price === 0 ? 'Free (30 dias)' : `R$ ${p.price}/mês`}
                                        </SelectItem>
                                      ))}
                                   </SelectContent>
@@ -167,9 +166,9 @@ export default function AdminTenants() {
                             </div>
                          </div>
                          <div className="space-y-4">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Usuário Master Lojista</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Perfil do Lojista Responsável</h3>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nome Completo</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nome Completo</Label>
                                <Input 
                                 placeholder="Ricardo Silva" 
                                 className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
@@ -179,10 +178,10 @@ export default function AdminTenants() {
                                />
                             </div>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">E-mail de Acesso</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">E-mail Administrativo</Label>
                                <Input 
                                 type="email" 
-                                placeholder="ricardo@email.com" 
+                                placeholder="lojista@email.com" 
                                 className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
                                 required 
                                 value={formData.email}
@@ -192,14 +191,14 @@ export default function AdminTenants() {
                          </div>
                       </div>
                       <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl">
-                         {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Confirmar Cadastro'}
+                         {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Confirmar Provisionamento'}
                       </Button>
                    </form>
                 </DialogContent>
              </Dialog>
              <div className="relative flex-1 md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input className="pl-12 h-12 rounded-2xl bg-white border-none shadow-sm font-medium" placeholder="Buscar lojista..." />
+                <Input className="pl-12 h-12 rounded-2xl bg-white border-none shadow-sm font-medium" placeholder="Buscar instância..." />
              </div>
           </div>
         </header>
@@ -212,10 +211,10 @@ export default function AdminTenants() {
               <Table>
                 <TableHeader className="bg-slate-50">
                   <TableRow>
-                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Lojista / Slug</TableHead>
-                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano Atual</TableHead>
+                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Loja / Cluster</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano</TableHead>
                     <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Criado em</TableHead>
-                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status Global</TableHead>
                     <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -236,7 +235,7 @@ export default function AdminTenants() {
                              plan?.name === 'Pro II' ? 'bg-orange-100 text-orange-700' : 
                              plan?.name === 'Pro' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'
                            }`}>
-                             {plan?.name || 'Personalizado'}
+                             {plan?.name || 'SaaS Custom'}
                            </Badge>
                         </TableCell>
                         <TableCell className="font-bold text-slate-400 text-xs">
