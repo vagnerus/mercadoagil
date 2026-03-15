@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Store, LayoutDashboard, Database, Server, LogOut, ShieldCheck, Activity, Globe, LayoutGrid, Building2, TrendingUp, AlertTriangle } from "lucide-react";
+import { Users, Store, LayoutDashboard, Database, Server, LogOut, ShieldCheck, Activity, Globe, LayoutGrid, Building2, TrendingUp, AlertTriangle, Search } from "lucide-react";
 import { MOCK_MERCHANTS } from "@/lib/mock-data";
 import Link from 'next/link';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Input } from "@/components/ui/input";
 
 const globalData = [
   { month: 'Jan', rev: 80000, churn: 1.5 },
@@ -27,7 +28,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
+      <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-primary p-1.5 rounded-lg">
@@ -40,16 +41,16 @@ export default function AdminDashboard() {
           <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-semibold">
             <LayoutDashboard className="h-5 w-5" /> Global
           </Link>
-          <Link href="#" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href="/admin/franchises" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Building2 className="h-5 w-5" /> Gestão de Franquias
           </Link>
-          <Link href="#" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <LayoutGrid className="h-5 w-5" /> Multi-Tenancy
           </Link>
-          <Link href="#" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href="/admin/audit" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Database className="h-5 w-5" /> Auditoria SaaS
           </Link>
-          <Link href="#" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Server className="h-5 w-5" /> Infraestrutura
           </Link>
         </nav>
@@ -63,8 +64,8 @@ export default function AdminDashboard() {
       <main className="flex-1 p-8 overflow-y-auto">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Visão Geral Franquias</h1>
-            <p className="text-slate-500 font-medium">Controle consolidado de redes e faturamento Multi-Unit.</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Visão Geral Global</h1>
+            <p className="text-slate-500 font-medium">Controle consolidado de redes e faturamento SaaS.</p>
           </div>
           <div className="flex items-center gap-3">
              <Badge className="bg-slate-200 text-slate-700 font-black uppercase text-[10px]">v2.9.5-enterprise</Badge>
@@ -91,8 +92,8 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
-          <Card className="lg:col-span-2 border-none shadow-sm p-8 rounded-[40px]">
-             <CardTitle className="text-2xl font-black italic mb-8">Consolidado MRR (Rede)</CardTitle>
+          <Card className="lg:col-span-2 border-none shadow-sm p-8 rounded-[40px] bg-white">
+             <CardTitle className="text-2xl font-black italic mb-8">Consolidado MRR (SaaS)</CardTitle>
              <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={globalData}>
@@ -133,16 +134,20 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <Card className="border-none shadow-sm rounded-[40px] overflow-hidden">
-          <CardHeader className="p-8 border-b">
-            <CardTitle className="text-2xl font-black italic">Lojistas & Franquias</CardTitle>
+        <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
+          <CardHeader className="p-8 border-b flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl font-black italic">Lojistas Recentes</CardTitle>
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input className="pl-10 h-10 rounded-xl border-none bg-slate-100 font-medium" placeholder="Buscar lojista..." />
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader className="bg-slate-50">
                 <TableRow>
                   <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Lojista</TableHead>
-                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Grupo/Franquia</TableHead>
+                  <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Franquia</TableHead>
                   <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano</TableHead>
                   <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status</TableHead>
                   <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">MRR</TableHead>
