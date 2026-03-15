@@ -86,76 +86,81 @@ const VIDEO_SAMPLES = [
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackAds.mp4"
 ];
 
-// Biblioteca de 500 Cursos para o AVA (Totalmente Gratuitos para Lojistas)
+const CATEGORIES = ["Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
+
+const TOPICS_POOL = [
+  { cat: "Beleza", topics: ["Corte Masculino Moderno", "Barboterapia Pro", "Visagismo Aplicado", "Colorimetria de Salão", "Manicure e Nail Art", "Gestão de Barbearias", "Biossegurança em Estética", "Técnicas de Penteado", "Design de Sobrancelhas", "Maquiagem Social"] },
+  { cat: "Varejo", topics: ["Exposição de Gôndolas", "Técnicas de Venda PDV", "Gestão de Estoque", "Prevenção de Perdas", "Visual Merchandising", "Atendimento de Excelência", "Logística de Entrega", "Embalagem Criativa", "Curva ABC na Prática", "Compras Estratégicas"] },
+  { cat: "Gestão", topics: ["Liderança de Equipes", "Planejamento Financeiro", "Fluxo de Caixa Real", "Indicadores de Sucesso (KPI)", "Recrutamento e Seleção", "Cultura Organizacional", "Expansão de Negócios", "Gestão de Conflitos", "Negociação com Fornecedores", "Empreendedorismo Ágil"] },
+  { cat: "Marketing", topics: ["Instagram para Lojistas", "Anúncios no Google", "WhatsApp Marketing", "Criação de Conteúdo IA", "Fidelização de Clientes", "Tráfego Pago Iniciante", "Branding e Identidade", "Copywriting de Vendas", "Marketing de Guerrilha", "SEO para Negócios Locais"] },
+  { cat: "Saúde", topics: ["Telemedicina na Prática", "Gestão de Clínicas", "Humanização no Atendimento", "LGPD para Saúde", "Biossegurança Hospitalar", "Marketing Médico Ético", "Financeiro para Consultórios", "Novas Tecnologias em Saúde", "Prontuário Digital", "Experiência do Paciente"] },
+  { cat: "Tecnologia", topics: ["IA para Negócios", "Segurança da Informação", "E-commerce do Zero", "Automação de Processos", "Cloud Computing MEI", "Ferramentas No-Code", "Análise de Dados BI", "Transformação Digital", "Suporte Técnico Pro", "Desenvolvimento Web Básico"] }
+];
+
+// Gerador de Conteúdo Didático Realista
 const generateCourses = () => {
-  const categories = ["Varejo", "Beleza", "Gestão", "Marketing", "Saúde", "Tecnologia"];
   const courses = [];
   
   for (let i = 1; i <= 500; i++) {
-    const cat = categories[Math.floor(Math.random() * categories.length)];
-    const topic = getCourseTopic(i);
+    const poolItem = TOPICS_POOL[i % TOPICS_POOL.length];
+    const topic = poolItem.topics[i % poolItem.topics.length];
+    const cat = poolItem.cat;
     const videoUrl = VIDEO_SAMPLES[i % VIDEO_SAMPLES.length];
     
     courses.push({
       id: `c${i}`,
-      title: `Curso Especialista ${i}: ${topic}`,
-      description: `Treinamento intensivo sobre ${topic}. Este curso foi desenvolvido para acelerar os resultados do seu negócio no Mercado Ágil, focando em métricas reais e implementação prática. Através deste conteúdo, você aprenderá técnicas validadas para otimizar sua operação e escalar suas vendas de forma consistente.`,
+      title: `${topic} - Módulo ${Math.ceil(i/50)}`,
+      description: `Este treinamento completo em ${topic} foi estruturado para capacitar lojistas e profissionais que buscam excelência operacional. Você aprenderá desde os fundamentos teóricos até a aplicação prática no dia a dia do seu negócio, utilizando as ferramentas exclusivas do ecossistema Mercado Ágil.`,
       category: cat,
-      duration: `${Math.floor(Math.random() * 30) + 10}h`,
-      lessons: Math.floor(Math.random() * 20) + 10,
-      rating: (Math.random() * (5 - 4.2) + 4.2).toFixed(1),
+      duration: `${Math.floor(Math.random() * 15) + 5}h`,
+      lessons: 8,
+      rating: (Math.random() * (5 - 4.5) + 4.5).toFixed(1),
       price: 0,
-      thumb: `https://picsum.photos/seed/course${i}/400/250`,
+      thumb: `https://picsum.photos/seed/agil_course_${i}/600/400`,
       modules: [
         {
-          title: "Módulo 1: Fundamentos Estratégicos",
+          title: "Módulo 1: Introdução e Contexto",
           lessons: [
-            { id: `c${i}l1`, title: `Introdução ao ${topic}`, videoUrl: videoUrl, duration: "12:45" },
-            { id: `c${i}l2`, title: "Mentalidade de Crescimento Exponencial", videoUrl: videoUrl, duration: "18:20" },
-            { id: `c${i}l3`, title: "Mapeamento de Processos Atuais", videoUrl: videoUrl, duration: "22:15" }
+            { id: `c${i}l1`, title: `Introdução ao Universo de ${topic}`, videoUrl: videoUrl, duration: "10:20" },
+            { id: `c${i}l2`, title: `Cenário Atual do Mercado de ${cat}`, videoUrl: videoUrl, duration: "15:45" },
+            { id: `c${i}l3`, title: `Preparação e Ferramentas Necessárias`, videoUrl: videoUrl, duration: "12:10" }
           ]
         },
         {
-          title: "Módulo 2: Prática e Execução Ágil",
+          title: "Módulo 2: Técnicas e Implementação",
           lessons: [
-            { id: `c${i}l4`, title: "Configuração de Ferramentas de Automação", videoUrl: videoUrl, duration: "28:30" },
-            { id: `c${i}l5`, title: "Primeiros Resultados e Ajustes Finos", videoUrl: videoUrl, duration: "35:00" },
-            { id: `c${i}l6`, title: "Escalabilidade e Delegação", videoUrl: videoUrl, duration: "24:10" }
+            { id: `c${i}l4`, title: `Técnicas Avançadas de ${topic}`, videoUrl: videoUrl, duration: "25:30" },
+            { id: `c${i}l5`, title: `Estudo de Caso: Sucesso em ${cat}`, videoUrl: videoUrl, duration: "30:00" },
+            { id: `c${i}l6`, title: `Evitando Erros Comuns na Prática`, videoUrl: videoUrl, duration: "18:20" }
+          ]
+        },
+        {
+          title: "Módulo 3: Escala e Resultados",
+          lessons: [
+            { id: `c${i}l7`, title: `Métricas de Desempenho e KPI`, videoUrl: videoUrl, duration: "22:15" },
+            { id: `c${i}l8`, title: `Conclusão e Próximos Passos`, videoUrl: videoUrl, duration: "14:50" }
           ]
         }
       ],
       materials: [
-        { title: `Guia Completo: ${topic}`, type: "PDF", size: "4.8MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
-        { title: "Planilha de Gestão Financeira v3.2", type: "XLSX", size: "2.1MB", url: "https://file-examples.com/wp-content/uploads/2017/02/file_example_XLSX_10.xlsx" },
-        { title: "Checklist de Implementação Diária", type: "PDF", size: "1.2MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+        { title: `Guia de Estudo: ${topic}`, type: "PDF", size: "3.2MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+        { title: `Checklist de Implementação - ${cat}`, type: "PDF", size: "1.5MB", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+        { title: `Planilha de Resultados ${topic}`, type: "XLSX", size: "2.1MB", url: "https://file-examples.com/wp-content/uploads/2017/02/file_example_XLSX_10.xlsx" }
       ],
       syllabus: [
-        `Introdução profunda ao universo de ${topic}`,
-        "Configuração passo a passo do Ecossistema Ágil",
-        "Estratégias avançadas de atração de clientes qualificados",
-        "Retenção, Fidelização e Recompra Automática",
-        "Análise de Big Data e Tomada de Decisão com IA"
+        `Domínio completo das ferramentas de ${topic}`,
+        `Estratégias de diferenciação no setor de ${cat}`,
+        "Redução de custos operacionais e otimização de tempo",
+        "Aumento do ticket médio através de atendimento especializado",
+        "Utilização de IA para acelerar processos rotineiros"
       ]
     });
   }
   return courses;
-};
-
-const getCourseTopic = (i: number) => {
-  const topics = [
-    "Vendas de Alto Impacto", "Design de Experiência do Cliente", "Gestão de Crises e Reputação", "Marketing Viral no TikTok", 
-    "Liderança Ágil para Equipes", "Análise de Dados e BI Pro", "Atendimento VIP e Encantamento", "Finanças Estratégicas para MEI",
-    "Estética Avançada e Biossegurança", "Corte Europeu Masculino", "Colorimetria Real Aplicada", "Manicure Russa e Nail Art",
-    "Google Ads para Negócios Locais", "Copywriting Persuasivo com IA", "SEO Dominante para Lojas", "Instagram para Negócios 2024",
-    "Primeiros Socorros no Estabelecimento", "Nutrição Clínica Funcional", "Gestão Hospitalar Eficiente", "Ética na Saúde Digital",
-    "JavaScript Moderno para Lojistas", "React do Zero ao Painel", "Cloud Computing para Pequenos Negócios", "Segurança Digital e LGPD",
-    "Roteirização Inteligente de Entregas", "Controle de Estoque Inteligente", "Curva ABC na Prática Real", "Fidelização 2.0 e Cashback",
-    "Escala de Franquias e Multitenancy", "Processos Operacionais Padrão", "Venda Consultiva de Serviços", "Psicologia do Consumidor Moderno"
-  ];
-  return topics[i % topics.length];
 };
 
 export const COURSE_LIBRARY = generateCourses();

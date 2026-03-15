@@ -126,7 +126,7 @@ export default function CoursePlayer() {
       <main className="flex-1 flex flex-col h-full bg-black overflow-y-auto no-scrollbar">
          <div className="aspect-video w-full bg-slate-900 relative group overflow-hidden">
             <video 
-              key={currentLesson.id} // Chave única força o reload do elemento de vídeo
+              key={currentLesson.id} 
               className="w-full h-full object-contain"
               controls
               autoPlay
@@ -169,20 +169,20 @@ export default function CoursePlayer() {
 
                <TabsContent value="overview" className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 outline-none">
                   <div className="prose prose-invert max-w-none">
-                     <h3 className="text-2xl font-black italic uppercase text-white mb-4">Sobre esta lição</h3>
+                     <h3 className="text-2xl font-black italic uppercase text-white mb-4">Objetivos desta Lição</h3>
                      <p className="text-slate-400 text-lg leading-relaxed italic">{course.description}</p>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
                      <Card className="bg-white/5 border-none p-6 rounded-[35px] relative overflow-hidden">
                         <Sparkles className="absolute -bottom-4 -right-4 h-24 w-24 opacity-5 text-primary" />
                         <h4 className="text-xs font-black text-primary uppercase mb-4 tracking-widest">Dica do Tutor</h4>
-                        <p className="text-sm font-bold text-slate-300 italic leading-relaxed">"Não pule as etapas práticas. A configuração correta do ecossistema é o segredo para vender mais no automático e garantir a escalabilidade do seu negócio."</p>
+                        <p className="text-sm font-bold text-slate-300 italic leading-relaxed">"O conhecimento em {course.category} é o que separa os lojistas amadores dos profissionais de alta performance. Pratique o que aprendeu hoje."</p>
                      </Card>
                      <Card className="bg-white/5 border-none p-6 rounded-[35px]">
-                        <h4 className="text-xs font-black text-slate-500 uppercase mb-4 tracking-widest">Tempo de Estudo Recomendado</h4>
+                        <h4 className="text-xs font-black text-slate-500 uppercase mb-4 tracking-widest">Carga Horária Estimada</h4>
                         <div className="flex items-center gap-3">
                            <Clock className="h-6 w-6 text-slate-600" />
-                           <p className="text-xl font-black italic text-white uppercase">45 Minutos Intensivos</p>
+                           <p className="text-xl font-black italic text-white uppercase">{course.duration} de conteúdo</p>
                         </div>
                      </Card>
                   </div>
@@ -230,16 +230,6 @@ export default function CoursePlayer() {
                            </div>
                         </div>
                      </div>
-
-                     <div className="space-y-6 pt-10 border-t border-white/5">
-                        <div className="p-6 bg-white/5 rounded-3xl border border-white/5 space-y-3">
-                           <div className="flex justify-between items-center">
-                              <span className="text-xs font-black text-primary uppercase italic">João Silva (Lojista Premium)</span>
-                              <span className="text-[8px] font-bold text-slate-600 uppercase">Há 2 horas</span>
-                           </div>
-                           <p className="text-sm font-medium italic text-slate-400">"Essa estratégia de automação mudou o jogo no meu estabelecimento. Reduzi o tempo de resposta em 60%. Valeu Ágil Academy!"</p>
-                        </div>
-                     </div>
                   </div>
                </TabsContent>
 
@@ -250,7 +240,7 @@ export default function CoursePlayer() {
                      </div>
                      <div className="space-y-2">
                         <h3 className="text-3xl font-black italic uppercase tracking-tighter">Desafio de Fixação Pro</h3>
-                        <p className="text-slate-400 font-medium italic max-w-lg mx-auto">Responda as questões geradas pela nossa IA baseadas no conteúdo exclusivo desta aula para pontuar no ranking global de lojistas.</p>
+                        <p className="text-slate-400 font-medium italic max-w-lg mx-auto">Responda as questões geradas pela nossa IA baseadas no conteúdo exclusivo de "{course.title}" para pontuar no ranking.</p>
                      </div>
                      <Button className="h-16 px-12 rounded-[25px] bg-primary hover:bg-primary/90 text-white font-black italic text-lg shadow-2xl shadow-primary/20">
                         COMEÇAR DESAFIO IA
