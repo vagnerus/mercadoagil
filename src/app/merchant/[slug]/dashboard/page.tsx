@@ -9,20 +9,28 @@ import { Button } from "@/components/ui/button";
 import { 
   ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, 
   TrendingUp, BrainCircuit, Activity, Zap, Users, Monitor, 
-  Calendar, Scissors, Wallet, Globe, Plus, LogOut, ShieldCheck
+  Calendar, Scissors, Wallet, Globe, Plus, LogOut, ShieldCheck,
+  ChevronRight, ArrowRight
 } from "lucide-react";
 import Link from 'next/link';
-import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, limit } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 
 export default function MerchantDashboard({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const db = useFirestore();
+  const { toast } = useToast();
   
-  // No mundo real, buscaríamos o merchantId associado ao slug via query ou auth.
-  // Para o protótipo, vamos assumir que o sistema busca o merchant ativo.
-  const [merchant, setMerchant] = useState<any>(null);
+  // Buscar os dados do Merchant baseado no slug
+  const merchantQuery = useMemoFirebase(() => query(
+    collection(db, 'merchants'), 
+    where('slug', '==', slug),
+    limit(1)
+  ), [db, slug]);
+
+  const { data: merchantData, isLoading: loadingMerchant } = useCollection(merchantQuery);
+  const merchant = merchantData?.[0];
 
   const stats = [
     { title: "Vendas Hoje", value: "R$ 0,00", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "0%" },
@@ -33,6 +41,14 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
   const isBeauty = merchant?.segment === 'BEAUTY' || merchant?.segment === 'HEALTH';
   const isFood = merchant?.segment === 'RESTAURANT';
+
+  if (loadingMerchant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Activity className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
@@ -65,7 +81,10 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </>
           )}
 
-          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><List className="h-5 w-5" /> Catálogo</Link>
+          {!isBeauty && !isFood && (
+            <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><List className="h-5 w-5" /> Catálogo</Link>
+          )}
+
           <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Monitor className="h-5 w-5 text-primary" /> PDV Cloud</Link>
           <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
           <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
@@ -78,12 +97,17 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       <main className="flex-1 p-8">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">Painel Enterprise</h1>
-            <p className="text-slate-500 font-medium">Gestão inteligente para o seu negócio.</p>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">Painel {merchant?.segment || 'Enterprise'}</h1>
+            <p className="text-slate-500 font-medium">Bem-vindo, {merchant?.name || 'Lojista'}.</p>
           </div>
-          <Button className="bg-primary rounded-2xl h-12 gap-2 shadow-xl shadow-primary/20 font-black italic px-8">
-            <BrainCircuit className="h-5 w-5" /> Consultoria IA
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" className="rounded-xl h-12 gap-2" asChild>
+              <Link href={`/store/${slug}`} target="_blank"><Globe className="h-4 w-4" /> Ver Vitrine</Link>
+            </Button>
+            <Button className="bg-primary rounded-2xl h-12 gap-2 shadow-xl shadow-primary/20 font-black italic px-8">
+              <BrainCircuit className="h-5 w-5" /> Consultoria IA
+            </Button>
+          </div>
         </header>
 
         <div className="grid gap-6 md:grid-cols-4 mb-8">
@@ -103,10 +127,45 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           ))}
         </div>
 
-        <div className="p-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-200">
-           <Activity className="h-12 w-12 text-slate-200 mx-auto mb-4" />
-           <h2 className="text-xl font-black italic text-slate-400 uppercase">Aguardando Lançamentos</h2>
-           <p className="text-sm font-medium text-slate-400 max-w-xs mx-auto mt-2">Seus dados de faturamento e agendamentos aparecerão aqui assim que a operação começar.</p>
+        <div className="grid gap-8 lg:grid-cols-2">
+           <Card className="border-none shadow-sm rounded-[40px] p-10 bg-slate-900 text-white relative overflow-hidden">
+              <div className="relative z-10 space-y-6">
+                 <h2 className="text-2xl font-black italic uppercase tracking-tighter">Status da Operação</h2>
+                 <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10">
+                    <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 animate-pulse">
+                       <Activity className="h-6 w-6" />
+                    </div>
+                    <div>
+                       <p className="font-black italic text-lg uppercase">Online & Aberto</p>
+                       <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Sua loja está recebendo {isBeauty ? 'agendamentos' : 'pedidos'}.</p>
+                    </div>
+                 </div>
+                 <Button className="w-full h-14 bg-white text-slate-900 font-black italic rounded-2xl hover:bg-slate-100">
+                    Gerenciar Expediente
+                 </Button>
+              </div>
+              <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
+           </Card>
+
+           <Card className="border-none shadow-sm rounded-[40px] p-10 bg-white">
+              <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-6">Sugestões Growth</h2>
+              <div className="space-y-4">
+                 <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
+                    <div className="flex items-center gap-3">
+                       <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
+                       <p className="text-sm font-bold text-slate-700">Aumentar ticket médio em 15%</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                 </div>
+                 <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
+                    <div className="flex items-center gap-3">
+                       <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4" /></Badge>
+                       <p className="text-sm font-bold text-slate-700">Recuperar clientes inativos</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                 </div>
+              </div>
+           </Card>
         </div>
       </main>
     </div>

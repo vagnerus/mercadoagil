@@ -12,18 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Store, ShieldCheck, LogOut, LayoutDashboard, LayoutGrid, 
-  Server, Plus, Loader2, Globe, Scissors, Stethoscope, 
+  Server, Plus, Loader2, Scissors, Stethoscope, 
   Wrench, Dog, GraduationCap, HeartHandshake, ShoppingBag, 
   Briefcase, Zap, ArrowUpRight
 } from "lucide-react";
 import Link from 'next/link';
-import { SYSTEM_PLANS, MerchantSegment } from "@/lib/mock-data";
+import { MerchantSegment } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, addDocumentNonBlocking, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { collection, serverTimestamp, query, orderBy, doc } from 'firebase/firestore';
 
 const SEGMENTS: { value: MerchantSegment; label: string; icon: any }[] = [
-  { value: 'BEAUTY', label: 'Beleza / Barber / Salão', icon: Scissors },
+  { value: 'BEAUTY', label: 'Barbearia / Estética', icon: Scissors },
   { value: 'HEALTH', label: 'Saúde / Clínicas', icon: Stethoscope },
   { value: 'RESTAURANT', label: 'Restaurante / Food', icon: ShoppingBag },
   { value: 'RETAIL', label: 'Varejo / Loja', icon: Briefcase },
@@ -57,9 +57,8 @@ export default function AdminTenants() {
     setLoading(true);
     
     const merchantId = `m_${Math.random().toString(36).substring(7)}`;
-    const plan = SYSTEM_PLANS.find(p => p.id === formData.planId);
     
-    // Injeção de DNA do Segmento
+    // Configurações padrão por segmento
     const initialSettings = {
       enableWallet: true,
       enableCashback: true,
@@ -67,26 +66,33 @@ export default function AdminTenants() {
       appointmentInterval: formData.segment === 'BEAUTY' || formData.segment === 'HEALTH' ? 30 : 0
     };
 
-    addDocumentNonBlocking(collection(db, 'merchants'), {
+    const merchantData = {
       id: merchantId,
-      ...formData,
+      name: formData.name,
+      slug: formData.slug,
+      segment: formData.segment,
+      email: formData.email,
       status: 'active',
       createdAt: new Date().toISOString(),
       timestamp: serverTimestamp(),
-      planName: plan?.name || 'Pro',
-      mrr: formData.planId === 'p_free' ? 0 : 150,
+      planName: 'Pro',
+      mrr: 150,
       settings: initialSettings,
       logoUrl: `https://picsum.photos/seed/${formData.segment}/200/200`,
       bannerUrl: `https://picsum.photos/seed/${formData.slug}/1200/400`
-    });
+    };
+
+    addDocumentNonBlocking(collection(db, 'merchants'), merchantData);
 
     const userRef = doc(db, 'platformUsers', formData.email.replace(/[.@]/g, '_'));
     setDocumentNonBlocking(userRef, {
+      id: formData.email.replace(/[.@]/g, '_'),
       email: formData.email,
       firstName: formData.ownerName.split(' ')[0],
       lastName: formData.ownerName.split(' ').slice(1).join(' '),
       role: 'MERCHANT_ADMIN',
       merchantId: merchantId,
+      merchantSlug: formData.slug,
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -197,9 +203,11 @@ export default function AdminTenants() {
                       </div>
                     </TableCell>
                     <TableCell className="font-bold text-slate-500">{m.email}</TableCell>
-                    <TableCell><Badge className="bg-primary/10 text-primary border-none font-black italic uppercase text-[9px]">{m.planName}</Badge></TableCell>
+                    <TableCell><Badge className="bg-primary/10 text-primary border-none font-black italic uppercase text-[9px]">{m.planName || 'Pro'}</Badge></TableCell>
                     <TableCell className="text-right px-8">
-                      <Button variant="ghost" size="icon" className="rounded-xl"><ArrowUpRight className="h-5 w-5 text-slate-300" /></Button>
+                      <Button variant="ghost" size="icon" asChild className="rounded-xl">
+                        <Link href={`/merchant/${m.slug}/dashboard`}><ArrowUpRight className="h-5 w-5 text-slate-300" /></Link>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

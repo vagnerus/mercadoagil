@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Store, ShieldCheck, ArrowRight, Loader2, UserCircle, Star } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn, initiateEmailSignUp, handleRedirectResult } from '@/firebase';
+import { useAuth, useUser, initiateGoogleSignIn, initiateEmailSignIn, initiateEmailSignUp, handleRedirectResult, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, limit } from 'firebase/firestore';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -20,32 +21,40 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const auth = useAuth();
+  const db = useFirestore();
   const { user, isUserLoading } = useUser();
 
-  const handleRoute = (userEmail: string) => {
-    const emailLower = userEmail.toLowerCase();
+  // Buscar perfil do usuário no Firestore para saber a rota correta
+  const userProfileQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(db, 'platformUsers'), where('email', '==', user.email), limit(1));
+  }, [db, user]);
+
+  const { data: userProfiles } = useCollection(userProfileQuery);
+
+  const handleRoute = (profile: any) => {
+    if (!profile) return;
     
-    if (
-      emailLower === 'vagneroliveira.us@gmail.com' || 
-      emailLower === 'admin@mercadoagil.com' || 
-      emailLower.includes('admin')
-    ) {
+    if (profile.role === 'SUPER_ADMIN') {
       router.replace('/admin/dashboard');
-    } else {
-      router.replace('/merchant/burger-ze/dashboard');
+    } else if (profile.role === 'MERCHANT_ADMIN' || profile.role === 'MERCHANT_STAFF') {
+      const slug = profile.merchantSlug || 'demo';
+      router.replace(`/merchant/${slug}/dashboard`);
     }
   };
 
   useEffect(() => {
+    if (user && userProfiles && userProfiles.length > 0) {
+      handleRoute(userProfiles[0]);
+    }
+  }, [user, userProfiles]);
+
+  useEffect(() => {
     const checkRedirect = async () => {
       try {
-        const result = await handleRedirectResult(auth);
-        if (result?.user) {
-          toast({ title: "Bem-vindo!", description: `Logado como ${result.user.email}` });
-          handleRoute(result.user.email || '');
-        }
+        await handleRedirectResult(auth);
       } catch (err: any) {
-        console.error("LoginPage: Erro no Redirect Google:", err);
+        console.error("LoginPage Error:", err);
       } finally {
         setCheckingRedirect(false);
       }
@@ -53,20 +62,11 @@ export default function LoginPage() {
     checkRedirect();
   }, [auth]);
 
-  useEffect(() => {
-    if (user && !isUserLoading && !checkingRedirect) {
-      handleRoute(user.email || '');
-    }
-  }, [user, isUserLoading, checkingRedirect]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await initiateEmailSignIn(auth, email, password);
-      if (result.user) {
-        handleRoute(result.user.email || '');
-      }
+      await initiateEmailSignIn(auth, email, password);
     } catch (err: any) {
       setLoading(false);
       toast({
@@ -75,18 +75,6 @@ export default function LoginPage() {
         variant: "destructive"
       });
     }
-  };
-
-  const handleGoogleLogin = () => {
-    setLoading(true);
-    initiateGoogleSignIn(auth).catch((err: any) => {
-      setLoading(false);
-      toast({
-        title: "Erro ao iniciar Google",
-        description: "Certifique-se que o domínio está autorizado.",
-        variant: "destructive"
-      });
-    });
   };
 
   const handleQuickDemoLogin = async (type: 'super' | 'admin' | 'merchant') => {
@@ -104,16 +92,12 @@ export default function LoginPage() {
     }
 
     try {
-      // Tenta logar. Se não existir, cria o usuário para garantir sessão real no Firebase
       await initiateEmailSignIn(auth, targetEmail, targetPass)
         .catch(async () => {
           return await initiateEmailSignUp(auth, targetEmail, targetPass);
         });
-      
-      // O useEffect cuidará do redirecionamento
     } catch (err) {
       setLoading(false);
-      handleRoute(targetEmail); // Fallback visual
     }
   };
 
@@ -148,35 +132,25 @@ export default function LoginPage() {
           <CardContent className="p-10 pt-4 space-y-8">
             
             <Button 
-              onClick={handleGoogleLogin} 
+              onClick={() => initiateGoogleSignIn(auth)} 
               disabled={loading}
               variant="outline" 
               className="w-full h-14 rounded-2xl border-2 border-slate-100 font-bold gap-3 hover:bg-slate-50 transition-all shadow-sm"
             >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
-                <>
-                  <svg className="h-5 w-5" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.14-4.53z" fill="#EA4335"/>
-                  </svg>
-                  Continuar com Google
-                </>
-              )}
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.14-4.53z" fill="#EA4335"/>
+              </svg>
+              Continuar com Google
             </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
-              <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-400 bg-white px-2">Ou use e-mail</div>
-            </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">E-mail Corporativo</Label>
                 <Input 
                   type="email" 
-                  placeholder="ex: admin@mercadoagil.com" 
                   className="h-14 rounded-2xl bg-slate-50 border-none font-bold"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -187,14 +161,13 @@ export default function LoginPage() {
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Senha</Label>
                 <Input 
                   type="password" 
-                  placeholder="••••••••" 
                   className="h-14 rounded-2xl bg-slate-50 border-none font-bold"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
-              <Button type="submit" disabled={loading} className="w-full h-16 bg-primary hover:bg-primary/90 rounded-[28px] text-lg font-black italic shadow-xl shadow-primary/20 gap-3">
+              <Button type="submit" disabled={loading} className="w-full h-16 bg-primary hover:bg-primary/90 rounded-[28px] text-lg font-black italic shadow-xl gap-3">
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Entrar no Painel <ArrowRight className="h-5 w-5" /></>}
               </Button>
             </form>
@@ -204,7 +177,6 @@ export default function LoginPage() {
                 variant="outline" 
                 className="h-14 rounded-2xl border-2 border-primary/20 bg-primary/5 font-black italic text-[11px] gap-2 transition-all uppercase tracking-widest text-primary"
                 onClick={() => handleQuickDemoLogin('super')}
-                disabled={loading}
                >
                  <Star className="h-4 w-4 fill-primary" /> VAGNER SUPER ADMIN
                </Button>
@@ -213,7 +185,6 @@ export default function LoginPage() {
                     variant="outline" 
                     className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
                     onClick={() => handleQuickDemoLogin('admin')}
-                    disabled={loading}
                   >
                     <ShieldCheck className="h-4 w-4" /> MASTER ADM
                   </Button>
@@ -221,7 +192,6 @@ export default function LoginPage() {
                     variant="outline" 
                     className="h-14 rounded-2xl border-2 border-slate-100 font-black italic text-[10px] gap-2 transition-all uppercase tracking-widest"
                     onClick={() => handleQuickDemoLogin('merchant')}
-                    disabled={loading}
                   >
                     <UserCircle className="h-4 w-4" /> LOJISTA
                   </Button>
@@ -229,10 +199,6 @@ export default function LoginPage() {
             </div>
           </CardContent>
         </Card>
-
-        <p className="text-center text-sm font-bold text-slate-400 italic">
-          © 2024 Mercado Ágil Tecnologias - Versão SaaS Enterprise
-        </p>
       </div>
     </div>
   );
