@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Users, Store, TrendingUp, AlertCircle, LayoutDashboard, Settings, Package, CreditCard } from "lucide-react";
 import { MOCK_MERCHANTS } from "@/lib/mock-data";
 import Link from 'next/link';

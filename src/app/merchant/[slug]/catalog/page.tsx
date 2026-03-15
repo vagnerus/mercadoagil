@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { ProductAiGenerator } from "@/components/merchant/product-ai-generator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Search, Trash2, Edit2, LayoutDashboard, List, ShoppingBag, Settings, Package } from "lucide-react";
@@ -143,7 +144,7 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
                         <TableCell className="font-medium">{product.name}</TableCell>
                         <TableCell>R$ {product.price.toFixed(2)}</TableCell>
                         <TableCell>
-                           <Badge className={product.isAvailable ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"}>
+                           <Badge variant="outline" className={product.isAvailable ? "bg-green-100 text-green-700 border-green-200" : "bg-slate-100 text-slate-500 border-slate-200"}>
                               {product.isAvailable ? "Disponível" : "Indisponível"}
                            </Badge>
                         </TableCell>
