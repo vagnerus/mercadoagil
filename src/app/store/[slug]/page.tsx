@@ -10,6 +10,7 @@ import { ShoppingCart, Clock, Info, Search, MapPin, ChevronRight, Plus, Minus, T
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
 
@@ -49,7 +50,6 @@ export default function StoreFront() {
     toast({ 
       title: isFav ? "Removido" : "Favoritado!", 
       description: isFav ? "Item removido da sua lista." : "Item salvo para facilitar sua próxima compra.",
-      variant: isFav ? "default" : "default" 
     });
   };
 
