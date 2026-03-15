@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { MOCK_MERCHANTS, MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_COUPONS, Product, Merchant, Coupon } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Clock, Info, Search, MapPin, ChevronRight, Plus, Minus, Trash2, CheckCircle2, ArrowLeft, Star, Heart, Share2, Ticket, QrCode, Gift, Zap, Download, Copy } from "lucide-react";
+import { ShoppingCart, Clock, Info, Search, MapPin, ChevronRight, Plus, Minus, Trash2, CheckCircle2, ArrowLeft, Star, Heart, Share2, Ticket, QrCode, Gift, Zap, Download, Copy, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ export default function StoreFront() {
   const [cart, setCart] = useState<{product: Product, quantity: number, variationId?: string}[]>([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);
+  const [isUpsellOpen, setIsUpsellOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -47,6 +48,8 @@ export default function StoreFront() {
     p.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const upsellProduct = products.find(p => p.id === 'p2'); // Sugerindo a Coca-Cola como upsell
+
   const toggleFavorite = (productId: string) => {
     const isFav = favorites.includes(productId);
     setFavorites(prev => isFav ? prev.filter(id => id !== productId) : [...prev, productId]);
@@ -65,6 +68,12 @@ export default function StoreFront() {
       return [...prev, { product, quantity: 1, variationId }];
     });
     setSelectedProduct(null);
+    
+    // Abrir upsell se não for o produto de upsell
+    if (product.id !== 'p2' && cart.length === 0) {
+      setIsUpsellOpen(true);
+    }
+
     toast({ title: "No carrinho!", description: `${product.name} adicionado.` });
   };
 
@@ -114,7 +123,7 @@ export default function StoreFront() {
            </div>
            <div className="flex-1 pb-2 space-y-2">
              <div className="flex items-center gap-2">
-                <Badge className="bg-primary border-none px-4 py-1 text-white text-[9px] font-black rounded-full uppercase tracking-widest shadow-lg shadow-primary/30">Lojista Pro</Badge>
+                <Badge className="bg-primary border-none px-4 py-1 text-white text-[9px] font-black rounded-full uppercase tracking-widest shadow-lg shadow-primary/30">Nível Ouro</Badge>
                 <div className="flex items-center text-white text-xs font-black gap-1 drop-shadow-md">
                   <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> 4.9
                 </div>
@@ -153,7 +162,7 @@ export default function StoreFront() {
                <div className="h-3 w-full bg-slate-200/50 rounded-full overflow-hidden">
                   <div className="h-full bg-accent w-[70%] rounded-full shadow-lg shadow-accent/20"></div>
                </div>
-               <p className="text-[10px] font-bold text-slate-400">Faltam apenas 3 pedidos para sua recompensa!</p>
+               <p className="text-[10px] font-bold text-slate-400">Faltam apenas 3 pedidos para seu brinde!</p>
             </div>
          </div>
       </div>
@@ -203,7 +212,14 @@ export default function StoreFront() {
                     >
                       <div className="flex-1 flex flex-col justify-between py-1">
                         <div>
-                          <h3 className="font-black text-slate-900 text-lg leading-tight group-hover/card:text-primary transition-colors">{product.name}</h3>
+                          <div className="flex justify-between items-start">
+                             <h3 className="font-black text-slate-900 text-lg leading-tight group-hover/card:text-primary transition-colors">{product.name}</h3>
+                          </div>
+                          <div className="flex gap-1 mt-1">
+                             {product.tags?.map(tag => (
+                               <Badge key={tag} className="text-[7px] py-0 px-1 bg-slate-100 text-slate-400 border-none font-black uppercase">{tag}</Badge>
+                             ))}
+                          </div>
                           <p className="text-xs text-slate-500 line-clamp-2 mt-2 font-medium leading-relaxed">{product.description}</p>
                         </div>
                         <div className="flex items-center gap-4 mt-4">
@@ -230,6 +246,35 @@ export default function StoreFront() {
           );
         })}
       </div>
+
+      {/* IA Upsell Dialog */}
+      <Dialog open={isUpsellOpen} onOpenChange={setIsUpsellOpen}>
+         <DialogContent className="sm:max-w-sm rounded-[45px] p-0 overflow-hidden border-none shadow-2xl font-body">
+            <div className="bg-primary p-8 text-white text-center space-y-2 relative">
+               <Sparkles className="absolute top-4 right-4 h-6 w-6 opacity-40 animate-pulse" />
+               <h3 className="text-2xl font-black italic tracking-tighter">Sugestão do Chef</h3>
+               <p className="text-white/80 font-bold text-xs">Que tal uma bebida gelada para acompanhar?</p>
+            </div>
+            <div className="p-8 space-y-6 bg-white">
+               {upsellProduct && (
+                 <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                    <img src={upsellProduct.imageUrl} className="h-16 w-16 rounded-2xl object-cover" alt="" />
+                    <div className="flex-1">
+                       <p className="font-black text-slate-900 text-sm">{upsellProduct.name}</p>
+                       <p className="text-primary font-black italic text-lg">R$ {upsellProduct.price.toFixed(2)}</p>
+                    </div>
+                    <Button onClick={() => {
+                      addToCart(upsellProduct);
+                      setIsUpsellOpen(false);
+                    }} className="h-10 w-10 rounded-xl bg-primary text-white p-0">
+                       <Plus className="h-5 w-5" />
+                    </Button>
+                 </div>
+               )}
+               <Button variant="ghost" className="w-full font-bold text-slate-400" onClick={() => setIsUpsellOpen(false)}>Agora não, obrigado</Button>
+            </div>
+         </DialogContent>
+      </Dialog>
 
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
         <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-[50px] border-none shadow-2xl font-body">

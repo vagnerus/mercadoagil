@@ -1,5 +1,14 @@
 
 export type PlanType = 'Free' | 'Basic' | 'Pro';
+export type UserRole = 'Admin' | 'Chef' | 'Waiter' | 'Manager';
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: UserRole;
+  email: string;
+  avatar: string;
+}
 
 export interface Merchant {
   id: string;
@@ -12,6 +21,7 @@ export interface Merchant {
   themeColor: string;
   status: 'active' | 'blocked';
   createdAt: string;
+  mrr: number; // Monthly Recurring Revenue para o Master Admin
 }
 
 export interface Category {
@@ -33,11 +43,13 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  costPrice?: number;
   imageUrl: string;
   isAvailable: boolean;
   stock?: number;
-  variations?: ProductVariation[];
+  tags?: string[]; // ['Vegano', 'Sem Glúten', 'Pimenta']
   rating?: number;
+  salesCount?: number;
 }
 
 export type OrderStatus = 'new' | 'preparing' | 'delivering' | 'finished' | 'cancelled';
@@ -67,6 +79,17 @@ export interface Coupon {
   code: string;
   discount: number;
   type: 'fixed' | 'percent';
+  expiryDate?: string;
+  usageLimit?: number;
+  currentUsage?: number;
+}
+
+export interface AuditLog {
+  id: string;
+  user: string;
+  action: string;
+  timestamp: string;
+  details: string;
 }
 
 export const MOCK_MERCHANTS: Merchant[] = [
@@ -81,6 +104,7 @@ export const MOCK_MERCHANTS: Merchant[] = [
     themeColor: '#28A1DB',
     status: 'active',
     createdAt: '2023-10-01',
+    mrr: 149.00
   },
   {
     id: 'm2',
@@ -93,7 +117,19 @@ export const MOCK_MERCHANTS: Merchant[] = [
     themeColor: '#FF5733',
     status: 'active',
     createdAt: '2023-11-15',
+    mrr: 79.00
   }
+];
+
+export const MOCK_STAFF: StaffMember[] = [
+  { id: 's1', name: 'Ricardo Chef', role: 'Chef', email: 'ricardo@burger.com', avatar: 'https://i.pravatar.cc/150?u=s1' },
+  { id: 's2', name: 'Ana Gerente', role: 'Manager', email: 'ana@burger.com', avatar: 'https://i.pravatar.cc/150?u=s2' },
+  { id: 's3', name: 'Lucas Garçom', role: 'Waiter', email: 'lucas@burger.com', avatar: 'https://i.pravatar.cc/150?u=s3' },
+];
+
+export const MOCK_AUDIT_LOGS: AuditLog[] = [
+  { id: 'l1', user: 'Ana Gerente', action: 'Alteração de Preço', timestamp: '2024-03-20 14:30', details: 'X-Tudo Monstro de R$ 32,90 para R$ 35,90' },
+  { id: 'l2', user: 'Ricardo Chef', action: 'Item Indisponível', timestamp: '2024-03-20 12:15', details: 'Coca-Cola 2L marcada como fora de estoque' },
 ];
 
 export const MOCK_CATEGORIES: Category[] = [
@@ -111,14 +147,13 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'X-Tudo Monstro',
     description: 'Pão, carne de 180g, bacon, ovo, queijo, presunto, alface e tomate.',
     price: 35.90,
+    costPrice: 14.50,
     imageUrl: 'https://picsum.photos/seed/burger1/400/300',
     isAvailable: true,
     stock: 5,
     rating: 4.8,
-    variations: [
-      { id: 'v1', name: 'Combo Médio', price: 45.90 },
-      { id: 'v2', name: 'Combo Grande', price: 55.90 }
-    ]
+    salesCount: 1240,
+    tags: ['Pimenta']
   },
   {
     id: 'p2',
@@ -127,10 +162,12 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Coca-Cola 2L',
     description: 'Gelada e refrescante.',
     price: 12.00,
+    costPrice: 6.20,
     imageUrl: 'https://picsum.photos/seed/coke/400/300',
     isAvailable: true,
     stock: 50,
-    rating: 5.0
+    rating: 5.0,
+    salesCount: 3500
   },
   {
     id: 'p3',
@@ -139,10 +176,13 @@ export const MOCK_PRODUCTS: Product[] = [
     name: 'Smash Ágil',
     description: 'Dois blends prensados, queijo cheddar derretido e molho especial.',
     price: 24.90,
+    costPrice: 9.80,
     imageUrl: 'https://picsum.photos/seed/smash/400/300',
     isAvailable: true,
     stock: 12,
-    rating: 4.9
+    rating: 4.9,
+    salesCount: 890,
+    tags: ['Vegano']
   }
 ];
 
@@ -177,6 +217,6 @@ export const MOCK_ORDERS: Order[] = [
 ];
 
 export const MOCK_COUPONS: Coupon[] = [
-  { id: 'cp1', code: 'PRIMEIRACOMPRA', discount: 10, type: 'percent' },
-  { id: 'cp2', code: 'DEZOFF', discount: 10, type: 'fixed' }
+  { id: 'cp1', code: 'PRIMEIRACOMPRA', discount: 10, type: 'percent', expiryDate: '2025-12-31', usageLimit: 100, currentUsage: 45 },
+  { id: 'cp2', code: 'DEZOFF', discount: 10, type: 'fixed', expiryDate: '2025-06-30', usageLimit: 50, currentUsage: 12 }
 ];
