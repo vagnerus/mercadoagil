@@ -1,25 +1,39 @@
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, UtensilsCrossed, TrendingUp, AlertTriangle, Download, Users, Ticket } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, UtensilsCrossed, TrendingUp, AlertTriangle, Download, Users, Ticket, Sparkles, Loader2, BrainCircuit } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import Link from 'next/link';
 import { MOCK_PRODUCTS } from "@/lib/mock-data";
+import { getBusinessAdvice, BusinessAdvisorOutput } from "@/ai/flows/business-advisor-flow";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const chartData = [
-  { name: 'Seg', sales: 4000 },
-  { name: 'Ter', sales: 3000 },
-  { name: 'Qua', sales: 2000 },
-  { name: 'Qui', sales: 2780 },
-  { name: 'Sex', sales: 1890 },
-  { name: 'Sab', sales: 2390 },
-  { name: 'Dom', sales: 3490 },
+const salesData = [
+  { name: 'Seg', sales: 4200, orders: 45 },
+  { name: 'Ter', sales: 3100, orders: 32 },
+  { name: 'Qua', sales: 2500, orders: 28 },
+  { name: 'Qui', sales: 4800, orders: 51 },
+  { name: 'Sex', sales: 6200, orders: 68 },
+  { name: 'Sab', sales: 8400, orders: 92 },
+  { name: 'Dom', sales: 7100, orders: 78 },
+];
+
+const productPerformance = [
+  { name: 'X-Tudo', value: 45, color: '#3b82f6' },
+  { name: 'Pizza Calabresa', value: 30, color: '#f59e0b' },
+  { name: 'Coca 2L', value: 15, color: '#ef4444' },
+  { name: 'Batata Frita', value: 10, color: '#10b981' },
 ];
 
 export default function MerchantDashboard({ params }: { params: { slug: string } }) {
+  const [loadingAdvice, setLoadingAdvice] = useState(false);
+  const [advice, setAdvice] = useState<BusinessAdvisorOutput | null>(null);
+  const [isAdviceOpen, setIsAdviceOpen] = useState(false);
+  
   const lowStockProducts = MOCK_PRODUCTS.filter(p => p.stock && p.stock < 10);
 
   const stats = [
@@ -28,6 +42,23 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
     { title: "Novos Clientes", value: "12", icon: Users, color: "text-purple-600", bg: "bg-purple-100" },
     { title: "Tempo Médio", value: "32 min", icon: Clock, color: "text-orange-600", bg: "bg-orange-100" },
   ];
+
+  const handleGetAdvice = async () => {
+    setLoadingAdvice(true);
+    try {
+      const result = await getBusinessAdvice({
+        merchantName: params.slug.replace('-', ' '),
+        salesData: salesData.map(d => ({ date: d.name, total: d.sales, itemCount: d.orders })),
+        topProducts: productPerformance.map(p => ({ name: p.name, quantity: p.value }))
+      });
+      setAdvice(result);
+      setIsAdviceOpen(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingAdvice(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -50,9 +81,6 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
           <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <List className="h-5 w-5" /> Catálogo
           </Link>
-          <Link href={`/merchant/${params.slug}/coupons`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Ticket className="h-5 w-5" /> Cupons
-          </Link>
           <Link href={`/merchant/${params.slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
@@ -63,32 +91,39 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 uppercase tracking-tight">{params.slug.replace('-', ' ')}</h1>
-            <p className="text-slate-500">Métricas e alertas em tempo real.</p>
+            <p className="text-slate-500 font-medium">Insights baseados em inteligência artificial.</p>
           </div>
           <div className="flex gap-3">
-             <Button variant="outline" className="rounded-xl h-12 gap-2"><Download className="h-4 w-4" /> Exportar Vendas</Button>
-             <Badge className="bg-green-500 text-white h-12 px-6 rounded-xl flex items-center text-sm font-bold">LOJA ABERTA</Badge>
+             <Button 
+              onClick={handleGetAdvice} 
+              disabled={loadingAdvice}
+              className="bg-primary hover:bg-primary/90 rounded-xl h-12 gap-2 shadow-lg shadow-primary/20"
+             >
+               {loadingAdvice ? <Loader2 className="h-4 w-4 animate-spin" /> : <BrainCircuit className="h-5 w-5" />}
+               Consultoria IA
+             </Button>
+             <Badge className="bg-green-500 text-white h-12 px-6 rounded-xl flex items-center text-sm font-bold shadow-sm">LOJA ABERTA</Badge>
           </div>
         </header>
 
         {lowStockProducts.length > 0 && (
-          <div className="mb-8 p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-center justify-between">
+          <div className="mb-8 p-5 bg-orange-50 border border-orange-100 rounded-[32px] flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-4">
-               <div className="p-3 bg-orange-100 rounded-xl">
+               <div className="p-3 bg-orange-100 rounded-2xl">
                  <AlertTriangle className="h-6 w-6 text-orange-600" />
                </div>
                <div>
                   <h4 className="font-bold text-orange-900">Alerta de Estoque</h4>
-                  <p className="text-sm text-orange-700">Existem {lowStockProducts.length} itens com menos de 10 unidades no estoque.</p>
+                  <p className="text-sm text-orange-700 font-medium">Atenção! {lowStockProducts.length} itens estão abaixo do nível crítico.</p>
                </div>
             </div>
-            <Button variant="ghost" asChild className="text-orange-900 font-bold hover:bg-orange-100"><Link href={`/merchant/${params.slug}/catalog`}>Ver Estoque</Link></Button>
+            <Button variant="outline" asChild className="border-orange-200 text-orange-900 font-bold rounded-xl hover:bg-orange-100"><Link href={`/merchant/${params.slug}/catalog`}>Gerenciar Estoque</Link></Button>
           </div>
         )}
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           {stats.map((stat, i) => (
-            <Card key={i} className="border-none shadow-sm rounded-3xl">
+            <Card key={i} className="border-none shadow-sm rounded-[32px] hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className={`${stat.bg} p-3 rounded-2xl`}>
@@ -96,8 +131,8 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
                   </div>
                 </div>
                 <div className="mt-4">
-                  <p className="text-sm font-medium text-slate-500">{stat.title}</p>
-                  <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
+                  <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{stat.title}</p>
+                  <p className="text-2xl font-black text-slate-900 mt-1 italic tracking-tight">{stat.value}</p>
                 </div>
               </CardContent>
             </Card>
@@ -105,48 +140,105 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl p-6">
-             <CardHeader className="p-0 mb-6 flex flex-row items-center justify-between">
+          <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-8">
+             <CardHeader className="p-0 mb-8 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl">Faturamento Semanal</CardTitle>
+                  <CardTitle className="text-2xl font-black">Performance Semanal</CardTitle>
+                  <CardDescription className="font-medium">Volume de vendas e pedidos por dia.</CardDescription>
                 </div>
              </CardHeader>
-             <div className="h-[300px]">
+             <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
+                  <BarChart data={salesData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                    <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `R$ ${value}`} />
-                    <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
-                    <Bar dataKey="sales" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 600}} tickFormatter={(value) => `R$ ${value}`} />
+                    <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
+                    <Bar dataKey="sales" fill="hsl(var(--accent))" radius={[12, 12, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
              </div>
           </Card>
 
-          <Card className="border-none shadow-sm rounded-3xl p-6 flex flex-col gap-6">
+          <Card className="border-none shadow-sm rounded-[40px] p-8 flex flex-col gap-8">
              <div>
-                <CardTitle className="text-xl">Ações Rápidas</CardTitle>
-                <p className="text-sm text-slate-500">Funcionalidades de gestão.</p>
+                <CardTitle className="text-2xl font-black">Mix de Produtos</CardTitle>
+                <CardDescription className="font-medium">Participação por categoria.</CardDescription>
              </div>
-             <div className="space-y-4">
-                <Button className="w-full h-14 bg-slate-900 rounded-2xl justify-start gap-4 px-6" asChild>
-                  <Link href={`/merchant/${params.slug}/team`}><Users className="h-5 w-5" /> Gerenciar Equipe</Link>
-                </Button>
-                <Button variant="outline" className="w-full h-14 rounded-2xl justify-start gap-4 px-6" asChild>
-                   <Link href={`/merchant/${params.slug}/customers`}><ShoppingBag className="h-5 w-5" /> Base de Clientes</Link>
-                </Button>
-                <div className="pt-4 border-t">
-                   <p className="text-xs font-bold text-slate-400 uppercase mb-3">Seu Plano</p>
-                   <div className="bg-primary/10 p-4 rounded-2xl flex items-center justify-between">
-                      <span className="font-bold text-primary">Plano PRO</span>
-                      <Button size="sm" variant="ghost" className="text-xs underline">Mudar plano</Button>
-                   </div>
-                </div>
+             <div className="h-[250px] relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={productPerformance}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {productPerformance.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+             </div>
+             <div className="space-y-3">
+                {productPerformance.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm font-bold">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{backgroundColor: item.color}}></div>
+                      <span className="text-slate-600">{item.name}</span>
+                    </div>
+                    <span className="text-slate-900">{item.value}%</span>
+                  </div>
+                ))}
              </div>
           </Card>
         </div>
       </main>
+
+      <Dialog open={isAdviceOpen} onOpenChange={setIsAdviceOpen}>
+        <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
+           <div className="bg-primary p-8 text-white relative overflow-hidden">
+              <Sparkles className="absolute -top-6 -right-6 h-32 w-32 opacity-10" />
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-black italic tracking-tighter">Relatório Estratégico IA</DialogTitle>
+                <p className="text-white/80 font-bold uppercase text-xs tracking-widest mt-2">Análise de Performance Mercado Ágil</p>
+              </DialogHeader>
+           </div>
+           <div className="p-8 space-y-8">
+              {advice && (
+                <>
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Status do Negócio</h3>
+                    <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-none px-4 py-1.5 rounded-full font-black italic">{advice.sentiment}</Badge>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Resumo da Análise</h3>
+                    <p className="text-slate-600 font-medium leading-relaxed">{advice.summary}</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Próximos Passos</h3>
+                    <div className="grid gap-3">
+                      {advice.advice.map((item, i) => (
+                        <div key={i} className="flex gap-4 p-4 bg-slate-50 border rounded-2xl items-start">
+                           <div className="bg-primary/10 text-primary h-6 w-6 rounded-full flex items-center justify-center shrink-0 text-xs font-black">{i+1}</div>
+                           <p className="text-sm font-bold text-slate-700 leading-snug">{item}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              <Button className="w-full h-14 bg-slate-900 rounded-2xl font-black italic text-lg shadow-xl" onClick={() => setIsAdviceOpen(false)}>Entendido!</Button>
+           </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
