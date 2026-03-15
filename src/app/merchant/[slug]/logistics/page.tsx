@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Truck, MapPin, Navigation, Clock, 
   CheckCircle2, AlertTriangle, Users, 
-  Settings, Phone, ShoppingBag, LayoutDashboard, Plus, Search, Activity
+  Settings, Phone, ShoppingBag, LayoutDashboard, Plus, Search, Activity, Monitor
 } from "lucide-react";
 import Link from 'next/link';
 import { MOCK_STAFF } from "@/lib/mock-data";
@@ -38,7 +38,7 @@ export default function MerchantLogistics({ params }: { params: Promise<{ slug: 
             <Truck className="h-5 w-5" /> Logística & Frota
           </Link>
           <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Monitor className="h-5 w-5" /> PDV Cloud
+            <Monitor className="h-5 w-5 text-primary" /> PDV Cloud
           </Link>
         </nav>
       </aside>
