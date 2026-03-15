@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +36,8 @@ const productPerformance = [
   { name: 'Batata Frita', value: 10, color: '#10b981' },
 ];
 
-export default function MerchantDashboard({ params }: { params: { slug: string } }) {
+export default function MerchantDashboard({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = React.use(params);
   const [loadingAdvice, setLoadingAdvice] = useState(false);
   const [advice, setAdvice] = useState<BusinessAdvisorOutput | null>(null);
   const [isAdviceOpen, setIsAdviceOpen] = useState(false);
@@ -51,7 +53,7 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
     setLoadingAdvice(true);
     try {
       const result = await getBusinessAdvice({
-        merchantName: params.slug.replace('-', ' '),
+        merchantName: slug.replace('-', ' '),
         salesData: salesData.map(d => ({ date: d.name, total: d.sales, itemCount: d.orders })),
         topProducts: productPerformance.map(p => ({ name: p.name, quantity: p.value }))
       });
@@ -76,22 +78,22 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
           </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">
-          <Link href={`/merchant/${params.slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
+          <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <LayoutDashboard className="h-5 w-5" /> Dashboard
           </Link>
-          <Link href={`/merchant/${params.slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <ShoppingBag className="h-5 w-5" /> Pedidos
           </Link>
-          <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <List className="h-5 w-5" /> Catálogo
           </Link>
-          <Link href={`/merchant/${params.slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Users className="h-5 w-5" /> CRM Clientes
           </Link>
-          <Link href={`/merchant/${params.slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Wallet className="h-5 w-5" /> Financeiro
           </Link>
-          <Link href={`/merchant/${params.slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
         </nav>
@@ -100,7 +102,7 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
       <main className="flex-1 p-8 overflow-y-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">{params.slug.replace('-', ' ')}</h1>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">{slug.replace('-', ' ')}</h1>
             <p className="text-slate-500 font-medium">Feed operacional e insights estratégicos.</p>
           </div>
           <div className="flex gap-3">
@@ -177,34 +179,36 @@ export default function MerchantDashboard({ params }: { params: { slug: string }
         </div>
       </main>
 
-      <Dialog open={isAdviceOpen} onOpenChange={setIsAdviceOpen}>
-        <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
-           <div className="bg-primary p-10 text-white relative overflow-hidden">
-              <DialogHeader>
-                <DialogTitle className="text-3xl font-black italic tracking-tighter">Insights Estratégicos IA</DialogTitle>
-                <p className="text-white/80 font-bold uppercase text-[10px] tracking-widest mt-2">Análise Preditiva Mercado Ágil</p>
-              </DialogHeader>
-           </div>
-           <div className="p-10 space-y-6">
-              {advice && (
-                <div className="space-y-6">
-                  <div className="p-6 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200">
-                    <p className="text-sm font-medium leading-relaxed italic text-slate-600">{advice.summary}</p>
+      <div className="p-10 space-y-6">
+        <Dialog open={isAdviceOpen} onOpenChange={setIsAdviceOpen}>
+          <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
+            <div className="bg-primary p-10 text-white relative overflow-hidden">
+                <DialogHeader>
+                  <DialogTitle className="text-3xl font-black italic tracking-tighter">Insights Estratégicos IA</DialogTitle>
+                  <p className="text-white/80 font-bold uppercase text-[10px] tracking-widest mt-2">Análise Preditiva Mercado Ágil</p>
+                </DialogHeader>
+            </div>
+            <div className="p-10 space-y-6">
+                {advice && (
+                  <div className="space-y-6">
+                    <div className="p-6 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200">
+                      <p className="text-sm font-medium leading-relaxed italic text-slate-600">{advice.summary}</p>
+                    </div>
+                    <div className="grid gap-4">
+                      {advice.advice.map((item, i) => (
+                        <div key={i} className="flex gap-4 p-5 bg-white border border-slate-100 rounded-[28px] items-center">
+                          <div className="bg-primary/10 text-primary h-8 w-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-black">{i+1}</div>
+                          <p className="text-sm font-bold text-slate-700">{item}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid gap-4">
-                    {advice.advice.map((item, i) => (
-                      <div key={i} className="flex gap-4 p-5 bg-white border border-slate-100 rounded-[28px] items-center">
-                         <div className="bg-primary/10 text-primary h-8 w-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-black">{i+1}</div>
-                         <p className="text-sm font-bold text-slate-700">{item}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <Button className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg" onClick={() => setIsAdviceOpen(false)}>Vamos Vender Mais!</Button>
-           </div>
-        </DialogContent>
-      </Dialog>
+                )}
+                <Button className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg" onClick={() => setIsAdviceOpen(false)}>Vamos Vender Mais!</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

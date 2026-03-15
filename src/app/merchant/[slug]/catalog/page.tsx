@@ -1,6 +1,6 @@
-
 "use client";
 
+import * as React from 'react';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,8 @@ import { MOCK_PRODUCTS, MOCK_CATEGORIES } from "@/lib/mock-data";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 
-export default function MerchantCatalog({ params }: { params: { slug: string } }) {
+export default function MerchantCatalog({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = React.use(params);
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -56,22 +57,22 @@ export default function MerchantCatalog({ params }: { params: { slug: string } }
           </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">
-          <Link href={`/merchant/${params.slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <LayoutDashboard className="h-5 w-5" /> Dashboard
           </Link>
-          <Link href={`/merchant/${params.slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <ShoppingBag className="h-5 w-5" /> Pedidos
           </Link>
-          <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
+          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <List className="h-5 w-5" /> Catálogo
           </Link>
-          <Link href={`/merchant/${params.slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Users className="h-5 w-5" /> CRM Clientes
           </Link>
-          <Link href={`/merchant/${params.slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Wallet className="h-5 w-5" /> Financeiro
           </Link>
-          <Link href={`/merchant/${params.slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
         </nav>

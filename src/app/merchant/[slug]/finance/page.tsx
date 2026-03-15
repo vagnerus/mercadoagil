@@ -1,6 +1,6 @@
-
 "use client";
 
+import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,8 @@ const transactions = [
   { id: 'tx4', date: '2024-03-17', type: 'Venda', value: 420.00, status: 'Pendente', method: 'Boleto' },
 ];
 
-export default function MerchantFinance({ params }: { params: { slug: string } }) {
+export default function MerchantFinance({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = React.use(params);
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
@@ -28,19 +29,19 @@ export default function MerchantFinance({ params }: { params: { slug: string } }
           </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">
-          <Link href={`/merchant/${params.slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <LayoutDashboard className="h-5 w-5" /> Dashboard
           </Link>
-          <Link href={`/merchant/${params.slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <ShoppingBag className="h-5 w-5" /> Pedidos
           </Link>
-          <Link href={`/merchant/${params.slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <List className="h-5 w-5" /> Catálogo
           </Link>
-          <Link href={`/merchant/${params.slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
+          <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 bg-accent/10 text-accent rounded-xl font-bold">
             <Wallet className="h-5 w-5" /> Financeiro
           </Link>
-          <Link href={`/merchant/${params.slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+          <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
             <Settings className="h-5 w-5" /> Configurações
           </Link>
         </nav>
