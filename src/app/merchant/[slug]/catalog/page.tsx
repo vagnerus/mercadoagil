@@ -17,7 +17,7 @@ import {
   Plus, Search, Trash2, Edit2, LayoutDashboard, List, 
   ShoppingBag, Settings, Package, Image as ImageIcon, 
   Wand2, Download, TrendingUp, Sparkles, AlertCircle, 
-  Lock, Zap, Box, Layers, MousePointer2, Layers3
+  Lock, Zap, Box, Layers, MousePointer2, Layers3, FileJson, FileSpreadsheet, RefreshCw
 } from "lucide-react";
 import { MOCK_PRODUCTS, Product } from "@/lib/mock-data";
 import Link from 'next/link';
@@ -77,6 +77,10 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
     setCostPrice("");
   };
 
+  const handleBulkImport = () => {
+    toast({ title: "Processando CSV...", description: "A IA está mapeando 150 novos produtos detectados." });
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
@@ -96,7 +100,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
             <Box className="h-5 w-5" /> Multi-Estoques
           </Link>
           <Link href={`/merchant/${slug}/subscriptions`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Zap className="h-5 w-5" /> Assinaturas
+            <Zap className="h-5 w-5" /> Assinaturas IA
           </Link>
         </nav>
       </aside>
@@ -105,10 +109,10 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão de Catálogo Enterprise</h1>
-            <p className="text-slate-500 font-medium">Grade de produtos, kits e precificação dinâmica IA.</p>
+            <p className="text-slate-500 font-medium">Grade de produtos, kits e processamento massivo via IA.</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="rounded-2xl h-12 gap-2 font-bold"><Layers3 className="h-4 w-4" /> Bulk Editor</Button>
+            <Button variant="outline" className="rounded-2xl h-12 gap-2 font-bold" onClick={handleBulkImport}><FileSpreadsheet className="h-4 w-4" /> Importar CSV/Excel</Button>
             <Button className="bg-slate-900 rounded-2xl h-12 gap-2 font-bold px-6 shadow-xl shadow-slate-200">
               <Plus className="h-5 w-5" /> Novo Item / Kit
             </Button>
@@ -212,7 +216,7 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                   </div>
                 </div>
                 <div className="flex gap-2">
-                   <Button variant="ghost" size="icon" className="rounded-xl"><TrendingUp className="h-5 w-5 text-slate-400" /></Button>
+                   <Button variant="ghost" size="icon" className="rounded-xl"><RefreshCw className="h-5 w-5 text-slate-400" /></Button>
                    <Button variant="ghost" size="icon" className="rounded-xl"><Download className="h-5 w-5 text-slate-400" /></Button>
                 </div>
               </CardHeader>
@@ -281,13 +285,13 @@ export default function MerchantCatalog({ params }: { params: Promise<{ slug: st
                   <div className="space-y-4 max-w-md">
                      <div className="flex items-center gap-2 text-accent">
                         <Zap className="h-5 w-5 fill-current" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Performance de Vendas</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Plano de Recorrência IA</span>
                      </div>
-                     <h3 className="text-2xl font-black italic">Ative o Cross-Sell Inteligente</h3>
+                     <h3 className="text-2xl font-black italic">Gerar Clube de Assinaturas</h3>
                      <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                        Nossa IA identificou que 45% dos seus clientes que compram {products[0]?.name} também compram itens da categoria "Bebidas". Deseja criar um kit promocional agora?
+                        Nossa IA detectou que seus clientes compram {products[0]?.name} a cada 15 dias. Deseja criar um plano de assinatura mensal com 15% de desconto automático?
                      </p>
-                     <Button className="h-12 bg-white text-slate-900 rounded-xl font-black italic px-8 hover:bg-slate-50">Gerar Kit com IA</Button>
+                     <Button className="h-12 bg-white text-slate-900 rounded-xl font-black italic px-8 hover:bg-slate-50">Configurar Assinatura IA</Button>
                   </div>
                   <Layers className="h-32 w-32 opacity-5 text-white" />
                </div>

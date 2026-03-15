@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { MOCK_MERCHANTS, MOCK_CATEGORIES, MOCK_PRODUCTS, Product, Merchant } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
   Star, Heart, Share2, QrCode, Gift, Zap, Sparkles, Lock, 
   ShieldCheck, ShoppingBag, MapPin, Phone, User, Check,
   Download, Copy, TrendingUp, CreditCard, Landmark, Wallet, 
-  Trophy, Flame, Clock, RefreshCw, MessageSquare, Globe
+  Trophy, Flame, Clock, RefreshCw, MessageSquare, Globe, Mic, Send, Bot, Users as UsersIcon
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -39,6 +39,8 @@ export default function StoreFront() {
   const [useWallet, setUseWallet] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
   const [lang, setLang] = useState('PT');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
@@ -85,6 +87,15 @@ export default function StoreFront() {
       return [...prev, { product, quantity: 1 }];
     });
     toast({ title: "Na Sacola!", description: `${product.name} pronto para você.` });
+  };
+
+  const handleVoiceSearch = () => {
+    setIsListening(true);
+    setTimeout(() => {
+      setIsListening(false);
+      setSearchTerm("X-Tudo");
+      toast({ title: "IA Ativada", description: "Ouvindo: 'Quero o hambúrguer mais suculento'" });
+    }, 2000);
   };
 
   const handleFinishOrder = async () => {
@@ -137,6 +148,36 @@ export default function StoreFront() {
          <Badge className="bg-green-500 text-white border-4 border-white shadow-2xl py-2 px-4 rounded-full font-black text-[10px] uppercase tracking-tighter">
             LOJA ABERTA ⚡
          </Badge>
+      </div>
+
+      {/* AI Chatbot Widget */}
+      <div className="fixed bottom-32 right-6 z-50">
+         <Button 
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="h-14 w-14 rounded-full bg-primary text-white shadow-2xl border-4 border-white hover:scale-110 transition-all p-0"
+         >
+            {isChatOpen ? <Check className="h-6 w-6" /> : <Bot className="h-6 w-6" />}
+         </Button>
+         {isChatOpen && (
+           <div className="absolute bottom-20 right-0 w-80 bg-white rounded-[35px] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.3)] border-none overflow-hidden animate-in slide-in-from-bottom-10">
+              <div className="bg-slate-900 p-6 text-white flex items-center gap-3">
+                 <div className="h-8 w-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><Bot className="h-5 w-5" /></div>
+                 <div>
+                    <p className="font-black italic text-sm">Concierge IA</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Online agora</p>
+                 </div>
+              </div>
+              <div className="p-6 h-64 overflow-y-auto space-y-4 bg-slate-50">
+                 <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-xs font-bold text-slate-600 italic">
+                    Olá! Sou a inteligência da {merchant.name}. Como posso ajudar no seu pedido hoje?
+                 </div>
+              </div>
+              <div className="p-4 bg-white border-t flex gap-2">
+                 <Input className="h-10 rounded-xl bg-slate-50 border-none text-xs font-bold" placeholder="Pergunte algo..." />
+                 <Button size="icon" className="h-10 w-10 rounded-xl bg-primary shadow-lg shadow-primary/20"><Send className="h-4 w-4" /></Button>
+              </div>
+           </div>
+         )}
       </div>
 
       {/* Language Switcher */}
@@ -216,10 +257,10 @@ export default function StoreFront() {
          </div>
          <div className="bg-white p-5 rounded-[30px] flex flex-col justify-between h-32 relative overflow-hidden border border-slate-100 shadow-sm group cursor-pointer" onClick={() => setShowSubscription(true)}>
             <RefreshCw className="h-10 w-10 opacity-5 absolute -right-2 -bottom-2 group-hover:rotate-180 transition-transform duration-700" />
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Assinaturas</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Collaborative Cart</p>
             <div>
-               <p className="text-xl font-black italic tracking-tighter text-slate-900">Clube {merchant.name.split(' ')[0]}</p>
-               <p className="text-[8px] font-bold text-green-600 mt-1 flex items-center gap-1">Assine e economize 20%</p>
+               <p className="text-xl font-black italic tracking-tighter text-slate-900">Pedir em Grupo</p>
+               <p className="text-[8px] font-bold text-primary mt-1 flex items-center gap-1"><UsersIcon className="h-2 w-2" /> Convide 3 amigos</p>
             </div>
          </div>
       </div>
@@ -228,11 +269,19 @@ export default function StoreFront() {
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input 
-            className="w-full h-14 bg-white border border-slate-100 shadow-sm rounded-[24px] pl-12 pr-4 text-sm font-bold outline-none focus:border-primary transition-all" 
+            className="w-full h-14 bg-white border border-slate-100 shadow-sm rounded-[24px] pl-12 pr-12 text-sm font-bold outline-none focus:border-primary transition-all" 
             placeholder={`Buscar no catálogo de ${merchant.name}...`}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <Button 
+            onClick={handleVoiceSearch}
+            variant="ghost" 
+            size="icon" 
+            className={`absolute right-4 top-1/2 -translate-y-1/2 rounded-full ${isListening ? 'bg-red-100 text-red-500 animate-pulse' : 'text-primary'}`}
+          >
+             <Mic className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 

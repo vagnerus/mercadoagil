@@ -6,8 +6,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart, Monitor, ChevronRight } from "lucide-react";
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell } from 'recharts';
+import { ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, TrendingUp, BrainCircuit, Activity, Zap, History, MousePointer2, PieChart as PieChartIcon, Users, Truck, Briefcase, ShoppingCart, Monitor, ChevronRight, MessageCircle, BarChart, Smile, AlertCircle, Heart } from "lucide-react";
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart as ReBarChart, Bar, Cell } from 'recharts';
 import Link from 'next/link';
 import { MOCK_AUDIT_LOGS, MOCK_MERCHANTS } from "@/lib/mock-data";
 import { getBusinessAdvice, BusinessAdvisorOutput } from "@/ai/flows/business-advisor-flow";
@@ -125,57 +125,82 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
           <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-8 bg-white">
-             <CardTitle className="text-2xl font-black italic mb-8">Fluxo de Expedição Logística</CardTitle>
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: 'Preparação', val: '12', color: 'bg-orange-500' },
-                  { label: 'Aguardando', val: '04', color: 'bg-blue-500' },
-                  { label: 'Em Rota', val: '08', color: 'bg-purple-500' },
-                  { label: 'Entregues', val: '142', color: 'bg-green-500' },
-                ].map(item => (
-                  <div key={item.label} className="p-6 rounded-[35px] bg-slate-50 border border-dashed flex flex-col items-center text-center space-y-2">
-                     <div className={`h-3 w-3 rounded-full ${item.color} shadow-lg`}></div>
-                     <p className="text-2xl font-black italic">{item.val}</p>
-                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">{item.label}</p>
-                  </div>
-                ))}
-             </div>
-             <div className="mt-8 p-6 bg-slate-900 rounded-[35px] text-white flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                   <div className="bg-primary/20 p-3 rounded-2xl">
-                      <Truck className="h-6 w-6 text-primary" />
+             <CardTitle className="text-2xl font-black italic mb-8">AI Customer Segmentation</CardTitle>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 bg-slate-50 rounded-[35px] border border-dashed flex flex-col gap-4">
+                   <div className="flex justify-between items-center">
+                      <Badge className="bg-primary text-white border-none font-black italic">BALEIAS</Badge>
+                      <TrendingUp className="h-4 w-4 text-primary" />
                    </div>
                    <div>
-                      <p className="font-black italic">Fleet Dispatcher IA</p>
-                      <p className="text-xs text-slate-400">Sugestão: Agrupar 3 pedidos na Rota Sul.</p>
+                      <p className="text-3xl font-black italic">142</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Clientes High-Ticket</p>
+                   </div>
+                   <p className="text-[9px] text-slate-500 font-medium">Aumentou 12% desde a última campanha IA.</p>
+                </div>
+                <div className="p-6 bg-slate-50 rounded-[35px] border border-dashed flex flex-col gap-4">
+                   <div className="flex justify-between items-center">
+                      <Badge className="bg-green-500 text-white border-none font-black italic">FIÉIS</Badge>
+                      <Heart className="h-4 w-4 text-green-500" />
+                   </div>
+                   <div>
+                      <p className="text-3xl font-black italic">842</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Recorrência Mensal</p>
+                   </div>
+                   <p className="text-[9px] text-slate-500 font-medium">Taxa de retenção em níveis recordes (68%).</p>
+                </div>
+                <div className="p-6 bg-red-50 rounded-[35px] border border-dashed border-red-100 flex flex-col gap-4">
+                   <div className="flex justify-between items-center">
+                      <Badge className="bg-red-500 text-white border-none font-black italic">CHURN RISK</Badge>
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                   </div>
+                   <div>
+                      <p className="text-3xl font-black italic">24</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Inativos 15+ dias</p>
+                   </div>
+                   <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase">Reativar agora</Button>
+                </div>
+             </div>
+             
+             <div className="mt-8 p-6 bg-slate-900 rounded-[35px] text-white flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                   <div className="bg-primary/20 p-3 rounded-2xl text-primary">
+                      <Smile className="h-6 w-6" />
+                   </div>
+                   <div>
+                      <p className="font-black italic">AI Sentiment Score</p>
+                      <p className="text-xs text-slate-400 italic">"O feedback geral é altamente positivo, foco em 'Entrega Rápida'."</p>
                    </div>
                 </div>
-                <Button variant="outline" className="border-white/10 rounded-xl font-black italic h-10 px-6">Ver Mapa</Button>
+                <Badge className="bg-green-500 text-white font-black italic px-4 py-1">POSITIVO (94%)</Badge>
              </div>
           </Card>
 
           <div className="space-y-6">
             <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white h-fit">
-               <CardTitle className="text-xl font-black italic mb-6">Atalhos Operacionais</CardTitle>
+               <CardTitle className="text-xl font-black italic mb-6">Omnichannel Hub</CardTitle>
                <div className="space-y-3">
-                  <Button variant="outline" className="w-full h-14 justify-between rounded-2xl font-black italic hover:bg-primary hover:text-white transition-all group" asChild>
-                     <Link href={`/merchant/${slug}/pdv`}>
-                        <div className="flex items-center gap-3">
-                           <Monitor className="h-5 w-5 text-primary group-hover:text-white" />
-                           ABRIR PDV CLOUD
-                        </div>
-                        <ChevronRight className="h-4 w-4 opacity-30" />
-                     </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full h-14 justify-between rounded-2xl font-black italic hover:bg-primary hover:text-white transition-all group" asChild>
-                     <Link href={`/merchant/${slug}/logistics`}>
-                        <div className="flex items-center gap-3">
-                           <Truck className="h-5 w-5 text-primary group-hover:text-white" />
-                           GESTÃO DE FROTA
-                        </div>
-                        <ChevronRight className="h-4 w-4 opacity-30" />
-                     </Link>
-                  </Button>
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border">
+                     <div className="flex items-center gap-3">
+                        <div className="bg-green-100 p-2 rounded-xl text-green-600"><MessageCircle className="h-4 w-4" /></div>
+                        <span className="font-bold text-xs">WhatsApp</span>
+                     </div>
+                     <span className="font-black text-xs text-primary">42 Pedidos</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border">
+                     <div className="flex items-center gap-3">
+                        <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><Globe className="h-4 w-4" /></div>
+                        <span className="font-bold text-xs">Web Store</span>
+                     </div>
+                     <span className="font-black text-xs text-primary">85 Pedidos</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border">
+                     <div className="flex items-center gap-3">
+                        <div className="bg-purple-100 p-2 rounded-xl text-purple-600"><Monitor className="h-4 w-4" /></div>
+                        <span className="font-bold text-xs">PDV Balcão</span>
+                     </div>
+                     <span className="font-black text-xs text-primary">12 Pedidos</span>
+                  </div>
                </div>
             </Card>
 

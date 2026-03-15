@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LayoutDashboard, ShoppingBag, List, Settings, Package, Bell, Store, Shield, Globe, Wallet, Palette, QrCode, Share2, Check, Download } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { LayoutDashboard, ShoppingBag, List, Settings, Package, Bell, Store, Shield, Globe, Wallet, Palette, QrCode, Share2, Check, Download, Monitor, Zap, ExternalLink, Key } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,6 +20,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
   const { toast } = useToast();
   const [primaryColor, setPrimaryColor] = useState("#3b82f6");
   const [isQrGenerated, setIsQrGenerated] = useState(false);
+  const [isKioskMode, setIsKioskMode] = useState(false);
 
   const handleSaveBranding = () => {
     toast({
@@ -64,17 +66,17 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
 
         <Tabs defaultValue="store" className="space-y-8">
           <TabsList className="bg-white p-1 rounded-2xl shadow-sm border h-auto w-full md:w-auto grid grid-cols-2 md:flex overflow-x-auto no-scrollbar">
-            <TabsTrigger value="store" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic">
+            <TabsTrigger value="store" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic text-xs">
               <Store className="h-4 w-4 mr-2" /> Minha Loja
             </TabsTrigger>
-            <TabsTrigger value="branding" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic">
+            <TabsTrigger value="branding" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic text-xs">
               <Palette className="h-4 w-4 mr-2" /> Branding Pro
             </TabsTrigger>
-            <TabsTrigger value="tables" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic">
-              <QrCode className="h-4 w-4 mr-2" /> Pedido em Mesa
+            <TabsTrigger value="tables" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic text-xs">
+              <QrCode className="h-4 w-4 mr-2" /> Autoatendimento
             </TabsTrigger>
-            <TabsTrigger value="localization" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic">
-              <Globe className="h-4 w-4 mr-2" /> Global
+            <TabsTrigger value="infra" className="rounded-xl py-3 px-6 data-[state=active]:bg-primary data-[state=active]:text-white font-black italic text-xs">
+              <Shield className="h-4 w-4 mr-2" /> Domínios & Segurança
             </TabsTrigger>
           </TabsList>
 
@@ -185,12 +187,12 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
           </TabsContent>
 
           <TabsContent value="tables">
-             <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
-                <CardTitle className="text-2xl font-black italic mb-8">Auto-Atendimento & Mesas</CardTitle>
-                <div className="grid md:grid-cols-2 gap-10">
+             <div className="grid gap-8 md:grid-cols-2">
+                <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
+                   <CardTitle className="text-2xl font-black italic mb-8">Pedido em Mesa & Retirada</CardTitle>
                    <div className="space-y-6">
-                      <p className="text-slate-500 font-medium leading-relaxed">
-                         Gere códigos QR inteligentes que permitem ao cliente pedir e pagar direto da mesa sem chamar o garçom. Aumente o giro de mesas em até 22%.
+                      <p className="text-slate-500 font-medium leading-relaxed text-sm">
+                         Gere códigos QR inteligentes que permitem ao cliente pedir e pagar direto da mesa sem chamar o garçom.
                       </p>
                       <div className="grid grid-cols-2 gap-4">
                          <div className="space-y-2">
@@ -198,23 +200,100 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                             <Input type="number" defaultValue="10" className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
                          </div>
                          <div className="flex items-end">
-                            <Button onClick={handleGenerateQr} className="w-full h-12 bg-primary rounded-xl font-black italic">Gerar Agora</Button>
+                            <Button onClick={handleGenerateQr} className="w-full h-12 bg-primary rounded-xl font-black italic text-xs">Gerar Agora</Button>
+                         </div>
+                      </div>
+                      {isQrGenerated && (
+                        <div className="grid grid-cols-3 gap-4 pt-4 animate-in fade-in zoom-in duration-500">
+                           {[1,2,3,4,5,6].map(i => (
+                             <div key={i} className="bg-slate-50 p-4 rounded-2xl border flex flex-col items-center gap-2 group cursor-pointer hover:bg-white hover:shadow-lg transition-all">
+                                <QrCode className="h-8 w-8 text-slate-400" />
+                                <span className="text-[10px] font-black italic">MESA {i}</span>
+                                <Download className="h-3 w-3 text-primary opacity-0 group-hover:opacity-100" />
+                             </div>
+                           ))}
+                        </div>
+                      )}
+                   </div>
+                </Card>
+
+                <Card className="border-none shadow-sm rounded-[40px] p-8 bg-slate-900 text-white relative overflow-hidden">
+                   <CardTitle className="text-2xl font-black italic mb-8 flex items-center gap-3">
+                      <Monitor className="h-6 w-6 text-primary" /> Self-Service Kiosk
+                   </CardTitle>
+                   <div className="space-y-6 relative z-10">
+                      <p className="text-slate-400 font-medium text-sm leading-relaxed">
+                         Ative o modo totem para tablets em sua loja física. A interface muda para botões gigantes e fluxo de pagamento assistido.
+                      </p>
+                      <div className="flex items-center justify-between p-6 bg-white/5 rounded-3xl border border-white/10">
+                         <div>
+                            <p className="font-black italic">Habilitar Modo Quiosque</p>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold">Segurança por biometria requerida</p>
+                         </div>
+                         <Switch checked={isKioskMode} onCheckedChange={setIsKioskMode} />
+                      </div>
+                      <Button disabled={!isKioskMode} className="w-full h-14 bg-white text-slate-900 font-black italic rounded-2xl hover:bg-slate-50 transition-all gap-2">
+                         <ExternalLink className="h-4 w-4" /> Abrir Terminal de Autoatendimento
+                      </Button>
+                   </div>
+                   <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
+                </Card>
+             </div>
+          </TabsContent>
+
+          <TabsContent value="infra">
+             <div className="grid gap-8 md:grid-cols-2">
+                <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
+                   <CardTitle className="text-2xl font-black italic mb-8 flex items-center gap-3">
+                      <Globe className="h-6 w-6 text-primary" /> Domínios Customizados
+                   </CardTitle>
+                   <div className="space-y-6">
+                      <p className="text-slate-500 font-medium text-sm">
+                         Conecte seu próprio domínio (ex: www.sualoja.com.br) para fortalecer seu branding.
+                      </p>
+                      <div className="space-y-4">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Seu Domínio</Label>
+                            <div className="flex gap-2">
+                               <Input placeholder="ex: compras.burguerze.com.br" className="h-12 rounded-xl bg-slate-50 border-none font-bold flex-1" />
+                               <Button className="h-12 bg-slate-900 rounded-xl font-black italic text-xs">Validar DNS</Button>
+                            </div>
+                         </div>
+                         <div className="p-4 bg-blue-50 rounded-2xl space-y-2 border border-blue-100">
+                            <p className="text-[10px] font-black uppercase text-blue-600">Configuração Requerida</p>
+                            <div className="flex justify-between text-[10px] font-mono font-bold">
+                               <span>Tipo: CNAME</span>
+                               <span>Valor: nodes.mercadoagil.com</span>
+                            </div>
                          </div>
                       </div>
                    </div>
-                   {isQrGenerated && (
-                     <div className="grid grid-cols-3 gap-4 animate-in fade-in zoom-in duration-500">
-                        {[1,2,3,4,5,6].map(i => (
-                          <div key={i} className="bg-slate-50 p-4 rounded-2xl border flex flex-col items-center gap-2 group cursor-pointer hover:bg-white hover:shadow-lg transition-all">
-                             <QrCode className="h-8 w-8 text-slate-400" />
-                             <span className="text-[10px] font-black italic">MESA {i}</span>
-                             <Download className="h-3 w-3 text-primary opacity-0 group-hover:opacity-100" />
-                          </div>
-                        ))}
-                     </div>
-                   )}
-                </div>
-             </Card>
+                </Card>
+
+                <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
+                   <CardTitle className="text-2xl font-black italic mb-8 flex items-center gap-3">
+                      <Key className="h-6 w-6 text-primary" /> API & Segurança
+                   </CardTitle>
+                   <div className="space-y-6">
+                      <p className="text-slate-500 font-medium text-sm">
+                         Integre seu sistema ERP ou use Webhooks para automações externas.
+                      </p>
+                      <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Merchant API Key</Label>
+                         <div className="relative">
+                            <Input value="mk_live_51P2...9Xz2" readOnly className="h-12 rounded-xl bg-slate-50 border-none font-mono text-xs pr-12" />
+                            <Button size="icon" variant="ghost" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg">
+                               <Check className="h-4 w-4 text-green-500" />
+                            </Button>
+                         </div>
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border">
+                         <span className="text-xs font-bold text-slate-600 uppercase">Hardware Fingerprinting</span>
+                         <Switch defaultChecked />
+                      </div>
+                   </div>
+                </Card>
+             </div>
           </TabsContent>
         </Tabs>
       </main>
