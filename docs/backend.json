@@ -1,0 +1,1380 @@
+{
+  "entities": {
+    "PlatformUser": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PlatformUser",
+      "type": "object",
+      "description": "Represents a user of the platform, either a Super Admin managing the overall platform or a Merchant Admin/Staff managing a specific store. Passwords are handled by an external authentication system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PlatformUser entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for login and communication.",
+          "format": "email"
+        },
+        "passwordHash": {
+          "type": "string",
+          "description": "Hashed password for authentication. Raw passwords are not stored."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user within the platform (e.g., 'SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_STAFF')."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant this user is associated with. (Relationship: Merchant 1:N PlatformUser) This is null for 'SUPER_ADMIN' role."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the user account is active."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "passwordHash",
+        "firstName",
+        "lastName",
+        "role",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Plan": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Plan",
+      "type": "object",
+      "description": "Defines the subscription tiers available for merchants on the platform, outlining features and pricing.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Plan entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the plan (e.g., 'Free', 'Basic', 'Pro', 'Pro II')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the plan's offerings and benefits."
+        },
+        "price": {
+          "type": "number",
+          "description": "The monthly price of the plan in local currency (e.g., BRL). Set to 0 for 'Free' plans."
+        },
+        "durationDays": {
+          "type": "number",
+          "description": "The duration in days for which the plan is active, primarily for 'Free' plans. Null for paid plans that renew monthly/annually."
+        },
+        "maxProducts": {
+          "type": "number",
+          "description": "The maximum number of products a merchant can create under this plan. Null for unlimited."
+        },
+        "hasCustomDomain": {
+          "type": "boolean",
+          "description": "Indicates if the plan allows merchants to use a custom domain for their storefront."
+        },
+        "hasReports": {
+          "type": "boolean",
+          "description": "Indicates if the plan includes access to advanced sales and business reports."
+        },
+        "hasAiProductDescriptionGenerator": {
+          "type": "boolean",
+          "description": "Indicates if the plan includes the AI product description generator feature."
+        },
+        "availableSystemVersions": {
+          "type": "array",
+          "description": "A list of system access versions available with this plan (e.g., 'WEB_PWA', 'DESKTOP_APP', 'MOBILE_APP').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the plan is currently active and available for new subscriptions."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "price",
+        "hasCustomDomain",
+        "hasReports",
+        "hasAiProductDescriptionGenerator",
+        "availableSystemVersions",
+        "isActive"
+      ]
+    },
+    "Merchant": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Merchant",
+      "type": "object",
+      "description": "Represents a single store or business ('lojista') operating on the e-commerce platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Merchant entity."
+        },
+        "platformUserId": {
+          "type": "string",
+          "description": "Reference to the PlatformUser who is the primary administrator/owner of this merchant account. (Relationship: PlatformUser 1:N Merchant)"
+        },
+        "planId": {
+          "type": "string",
+          "description": "Reference to the subscription Plan the merchant is currently on. (Relationship: Plan 1:N Merchant)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The official name of the merchant's store."
+        },
+        "slug": {
+          "type": "string",
+          "description": "A unique, URL-friendly identifier for the merchant's public storefront (e.g., 'loja-do-ze'). Used for generating subdomains or unique links."
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL to the merchant's store logo image.",
+          "format": "uri"
+        },
+        "bannerUrl": {
+          "type": "string",
+          "description": "URL to the merchant's store banner image.",
+          "format": "uri"
+        },
+        "themeColorPrimary": {
+          "type": "string",
+          "description": "Hexadecimal code for the primary theme color of the merchant's storefront."
+        },
+        "themeColorSecondary": {
+          "type": "string",
+          "description": "Hexadecimal code for the secondary theme color of the merchant's storefront."
+        },
+        "themeColorAccent": {
+          "type": "string",
+          "description": "Hexadecimal code for the accent theme color of the merchant's storefront."
+        },
+        "minimumOrderValue": {
+          "type": "number",
+          "description": "The minimum total value required for an order from this merchant."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current operational status of the merchant (e.g., 'ACTIVE', 'BLOCKED', 'PENDING_SETUP', 'FREE_EXPIRED')."
+        },
+        "subscriptionEndDate": {
+          "type": "string",
+          "description": "The date and time when the merchant's current subscription (especially 'Free' plans) is set to expire. Null for perpetually active paid plans.",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the merchant account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the merchant account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "platformUserId",
+        "planId",
+        "name",
+        "slug",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MerchantOperatingHour": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MerchantOperatingHour",
+      "type": "object",
+      "description": "Specifies the opening and closing times for a merchant's store on a particular day of the week.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MerchantOperatingHour entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant this operating hour belongs to. (Relationship: Merchant 1:N MerchantOperatingHour)"
+        },
+        "dayOfWeek": {
+          "type": "string",
+          "description": "The day of the week (e.g., 'MONDAY', 'TUESDAY', ..., 'SUNDAY')."
+        },
+        "openingTime": {
+          "type": "string",
+          "description": "The time the store opens for business on this day (e.g., '09:00')."
+        },
+        "closingTime": {
+          "type": "string",
+          "description": "The time the store closes for business on this day (e.g., '18:00')."
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "dayOfWeek",
+        "openingTime",
+        "closingTime"
+      ]
+    },
+    "MerchantPaymentMethod": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MerchantPaymentMethod",
+      "type": "object",
+      "description": "Defines the payment methods accepted by a specific merchant.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MerchantPaymentMethod entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant who accepts this payment method. (Relationship: Merchant 1:N MerchantPaymentMethod)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of payment method (e.g., 'PIX', 'CREDIT_CARD', 'DEBIT_CARD', 'CASH', 'BANK_TRANSFER')."
+        },
+        "details": {
+          "type": "string",
+          "description": "Additional details or configuration for the payment method (e.g., PIX key for a specific merchant)."
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Human-readable instructions for the customer regarding this payment method (e.g., 'Pay with cash upon delivery')."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if this payment method is currently active and available for use by the merchant's customers."
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "type",
+        "isActive"
+      ]
+    },
+    "ProductCategory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ProductCategory",
+      "type": "object",
+      "description": "Organizes products into logical categories within a merchant's catalog.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ProductCategory entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant this category belongs to. (Relationship: Merchant 1:N ProductCategory)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product category (e.g., 'Bebidas', 'Lanches')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the product category."
+        },
+        "displayOrder": {
+          "type": "number",
+          "description": "The order in which the category should be displayed in the storefront."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the category is currently active and visible in the storefront."
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "name",
+        "displayOrder",
+        "isActive"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents an individual item or service offered by a merchant in their catalog.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant who owns this product. (Relationship: Merchant 1:N Product)"
+        },
+        "productCategoryId": {
+          "type": "string",
+          "description": "Reference to the ProductCategory this product belongs to. (Relationship: ProductCategory 1:N Product)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the product."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to the product's image.",
+          "format": "uri"
+        },
+        "price": {
+          "type": "number",
+          "description": "The base price of the product."
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Indicates if the product is currently available for purchase."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the product was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the product was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "productCategoryId",
+        "name",
+        "description",
+        "price",
+        "isAvailable",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AddonGroup": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AddonGroup",
+      "type": "object",
+      "description": "A group of related optional or mandatory add-ons that can be associated with products.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AddonGroup entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant who owns this addon group. (Relationship: Merchant 1:N AddonGroup)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the addon group (e.g., 'Escolha o ponto da carne', 'Adicionais pagos')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or instruction for the addon group."
+        },
+        "minSelections": {
+          "type": "number",
+          "description": "The minimum number of addon items that must be selected from this group (0 for optional)."
+        },
+        "maxSelections": {
+          "type": "number",
+          "description": "The maximum number of addon items that can be selected from this group. Null for unlimited."
+        },
+        "isMandatory": {
+          "type": "boolean",
+          "description": "Indicates if selecting items from this addon group is mandatory for the product it's associated with."
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "name",
+        "minSelections",
+        "isMandatory"
+      ]
+    },
+    "ProductAddonGroup": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ProductAddonGroup",
+      "type": "object",
+      "description": "Establishes a many-to-many relationship between Products and AddonGroups, defining which addon groups apply to which products.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ProductAddonGroup relationship entity."
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product. (Relationship: Product N:N AddonGroup)"
+        },
+        "addonGroupId": {
+          "type": "string",
+          "description": "Reference to the AddonGroup. (Relationship: Product N:N AddonGroup)"
+        },
+        "displayOrder": {
+          "type": "number",
+          "description": "The order in which this addon group should be displayed for the specific product."
+        }
+      },
+      "required": [
+        "id",
+        "productId",
+        "addonGroupId",
+        "displayOrder"
+      ]
+    },
+    "AddonItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AddonItem",
+      "type": "object",
+      "description": "An individual option or item within an AddonGroup, potentially with an additional cost.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AddonItem entity."
+        },
+        "addonGroupId": {
+          "type": "string",
+          "description": "Reference to the AddonGroup this item belongs to. (Relationship: AddonGroup 1:N AddonItem)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the addon item (e.g., 'Bem passado', 'Com bacon')."
+        },
+        "priceAdjustment": {
+          "type": "number",
+          "description": "The price difference (positive or negative) this addon item adds to the product's base price."
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Indicates if the addon item is currently available for selection."
+        }
+      },
+      "required": [
+        "id",
+        "addonGroupId",
+        "name",
+        "priceAdjustment",
+        "isAvailable"
+      ]
+    },
+    "Customer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Customer",
+      "type": "object",
+      "description": "Represents a customer who interacts with a merchant's storefront, either as a registered user or a guest.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Customer entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant this customer last interacted with or is primarily associated with. (Relationship: Merchant 1:N Customer) Used for tenant isolation of customer data."
+        },
+        "email": {
+          "type": "string",
+          "description": "The customer's email address, if provided or registered.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The customer's phone number, if provided or registered."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the customer, if provided."
+        },
+        "externalAuthId": {
+          "type": "string",
+          "description": "Identifier from an external authentication provider (e.g., Google ID, WhatsApp ID), if used for quick login."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the customer record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the customer record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CustomerAddress": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CustomerAddress",
+      "type": "object",
+      "description": "Stores a delivery address associated with a customer.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CustomerAddress entity."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to the Customer this address belongs to. (Relationship: Customer 1:N CustomerAddress)"
+        },
+        "street": {
+          "type": "string",
+          "description": "The street name of the address."
+        },
+        "number": {
+          "type": "string",
+          "description": "The house or building number."
+        },
+        "complement": {
+          "type": "string",
+          "description": "Additional address information (e.g., apartment number, block)."
+        },
+        "neighborhood": {
+          "type": "string",
+          "description": "The neighborhood or district of the address."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city of the address."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state or province of the address."
+        },
+        "zipCode": {
+          "type": "string",
+          "description": "The postal code (CEP) of the address."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Geographic latitude of the address for delivery purposes."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Geographic longitude of the address for delivery purposes."
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Indicates if this is the customer's default delivery address."
+        }
+      },
+      "required": [
+        "id",
+        "customerId",
+        "street",
+        "number",
+        "neighborhood",
+        "city",
+        "state",
+        "zipCode",
+        "latitude",
+        "longitude",
+        "isDefault"
+      ]
+    },
+    "DeliveryArea": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DeliveryArea",
+      "type": "object",
+      "description": "Defines specific geographical areas where a merchant delivers, along with associated fees.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DeliveryArea entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant this delivery area belongs to. (Relationship: Merchant 1:N DeliveryArea)"
+        },
+        "name": {
+          "type": "string",
+          "description": "A descriptive name for the delivery area (e.g., 'Centro', 'Raio 5KM')."
+        },
+        "type": {
+          "type": "string",
+          "description": "The method used to define the area (e.g., 'NEIGHBORHOOD', 'RADIUS', 'POLYGON', 'EXTERNAL_API')."
+        },
+        "details": {
+          "type": "string",
+          "description": "Details defining the area (e.g., neighborhood name for 'NEIGHBORHOOD', radius value for 'RADIUS', GeoJSON coordinates for 'POLYGON', or external API configuration ID for 'EXTERNAL_API')."
+        },
+        "deliveryFee": {
+          "type": "number",
+          "description": "The standard delivery fee for this area."
+        },
+        "minOrderValueForFreeDelivery": {
+          "type": "number",
+          "description": "The minimum order value required for free delivery in this area. Null if no free delivery option is available."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if this delivery area is currently active and available for customers."
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "name",
+        "type",
+        "details",
+        "deliveryFee",
+        "isActive"
+      ]
+    },
+    "Coupon": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Coupon",
+      "type": "object",
+      "description": "Represents a discount coupon created by a merchant for customers to use.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Coupon entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant who created this coupon. (Relationship: Merchant 1:N Coupon)"
+        },
+        "code": {
+          "type": "string",
+          "description": "The unique alphanumeric code customers use to apply the discount."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the coupon's offer."
+        },
+        "discountType": {
+          "type": "string",
+          "description": "The type of discount ('PERCENTAGE' for percentage-based or 'FIXED' for a fixed monetary amount)."
+        },
+        "discountValue": {
+          "type": "number",
+          "description": "The value of the discount (e.g., 10 for 10% or 10.00 for 10 reais)."
+        },
+        "minimumOrderValue": {
+          "type": "number",
+          "description": "The minimum order total required for the coupon to be applicable."
+        },
+        "usageLimit": {
+          "type": "number",
+          "description": "The maximum number of times this coupon can be used overall. Null for unlimited."
+        },
+        "maxUsesPerCustomer": {
+          "type": "number",
+          "description": "The maximum number of times a single customer can use this coupon. Null for unlimited."
+        },
+        "validFrom": {
+          "type": "string",
+          "description": "The date and time from which the coupon becomes valid.",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "description": "The date and time when the coupon expires.",
+          "format": "date-time"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates if the coupon is currently active and usable."
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "code",
+        "discountType",
+        "discountValue",
+        "minimumOrderValue",
+        "validFrom",
+        "expiresAt",
+        "isActive"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer's confirmed purchase from a merchant.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "merchantId": {
+          "type": "string",
+          "description": "Reference to the Merchant from whom the order was placed. (Relationship: Merchant 1:N Order)"
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to the Customer who placed the order. Null if it was a guest order. (Relationship: Customer 1:N Order)"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "The name of the customer who placed the order (snapshot for guests)."
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "The phone number of the customer who placed the order (snapshot for guests)."
+        },
+        "customerEmail": {
+          "type": "string",
+          "description": "The email of the customer who placed the order (snapshot for guests).",
+          "format": "email"
+        },
+        "deliveryAddressId": {
+          "type": "string",
+          "description": "Reference to the CustomerAddress used for delivery, if selected from saved addresses. Null if a new address was entered or order is for pickup. (Relationship: CustomerAddress 1:N Order)"
+        },
+        "deliveryAddressStreet": {
+          "type": "string",
+          "description": "Snapshot of the street name for delivery at the time of order."
+        },
+        "deliveryAddressNumber": {
+          "type": "string",
+          "description": "Snapshot of the house or building number for delivery at the time of order."
+        },
+        "deliveryAddressComplement": {
+          "type": "string",
+          "description": "Snapshot of additional address information (e.g., apartment number) for delivery at the time of order."
+        },
+        "deliveryAddressNeighborhood": {
+          "type": "string",
+          "description": "Snapshot of the neighborhood for delivery at the time of order."
+        },
+        "deliveryAddressCity": {
+          "type": "string",
+          "description": "Snapshot of the city for delivery at the time of order."
+        },
+        "deliveryAddressState": {
+          "type": "string",
+          "description": "Snapshot of the state for delivery at the time of order."
+        },
+        "deliveryAddressZipCode": {
+          "type": "string",
+          "description": "Snapshot of the postal code (CEP) for delivery at the time of order."
+        },
+        "deliveryLatitude": {
+          "type": "number",
+          "description": "Snapshot of geographic latitude for delivery at the time of order."
+        },
+        "deliveryLongitude": {
+          "type": "number",
+          "description": "Snapshot of geographic longitude for delivery at the time of order."
+        },
+        "orderSubtotal": {
+          "type": "number",
+          "description": "The sum of prices of all items in the order before delivery fees and discounts."
+        },
+        "deliveryFee": {
+          "type": "number",
+          "description": "The delivery fee applied to this order."
+        },
+        "discountAmount": {
+          "type": "number",
+          "description": "The total discount amount applied to this order (e.g., from coupons)."
+        },
+        "orderTotal": {
+          "type": "number",
+          "description": "The final total amount of the order, including items, delivery, and discounts."
+        },
+        "paymentMethodType": {
+          "type": "string",
+          "description": "The type of payment method chosen for this order (e.g., 'PIX', 'CASH')."
+        },
+        "paymentStatus": {
+          "type": "string",
+          "description": "The current payment status of the order (e.g., 'PENDING', 'PAID', 'REFUNDED', 'FAILED')."
+        },
+        "orderStatus": {
+          "type": "string",
+          "description": "The current fulfillment status of the order (e.g., 'NEW', 'PREPARING', 'OUT_FOR_DELIVERY', 'COMPLETED', 'CANCELLED')."
+        },
+        "customerNotes": {
+          "type": "string",
+          "description": "Any special notes or instructions provided by the customer for the order."
+        },
+        "estimatedDeliveryTime": {
+          "type": "string",
+          "description": "The estimated time of delivery for the order.",
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the order was placed.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the order status was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "merchantId",
+        "customerName",
+        "customerPhone",
+        "orderSubtotal",
+        "deliveryFee",
+        "discountAmount",
+        "orderTotal",
+        "paymentMethodType",
+        "paymentStatus",
+        "orderStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents a single product line item within an order, including its chosen quantity and price at the time of order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OrderItem entity."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to the Order this item belongs to. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to the Product this item originated from. (Relationship: Product 1:N OrderItem)"
+        },
+        "productName": {
+          "type": "string",
+          "description": "Snapshot of the product's name at the time the order was placed."
+        },
+        "productPrice": {
+          "type": "number",
+          "description": "Snapshot of the product's base price at the time the order was placed."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of this product ordered."
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "The total calculated price for this order item, including quantity and addon adjustments."
+        },
+        "itemNotes": {
+          "type": "string",
+          "description": "Any specific notes for this individual item in the order (e.g., 'no onions')."
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "productName",
+        "productPrice",
+        "quantity",
+        "totalPrice"
+      ]
+    },
+    "OrderItemAddon": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItemAddon",
+      "type": "object",
+      "description": "Represents an addon selected for a specific OrderItem, including its details at the time of order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OrderItemAddon entity."
+        },
+        "orderItemId": {
+          "type": "string",
+          "description": "Reference to the OrderItem this addon belongs to. (Relationship: OrderItem 1:N OrderItemAddon)"
+        },
+        "addonItemId": {
+          "type": "string",
+          "description": "Reference to the AddonItem that was selected. (Relationship: AddonItem 1:N OrderItemAddon)"
+        },
+        "addonItemName": {
+          "type": "string",
+          "description": "Snapshot of the addon item's name at the time of order."
+        },
+        "addonItemPriceAdjustment": {
+          "type": "number",
+          "description": "Snapshot of the addon item's price adjustment at the time of order."
+        }
+      },
+      "required": [
+        "id",
+        "orderItemId",
+        "addonItemId",
+        "addonItemName",
+        "addonItemPriceAdjustment"
+      ]
+    },
+    "AuditLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AuditLog",
+      "type": "object",
+      "description": "Records significant actions performed by platform users for security and compliance monitoring.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AuditLog entity."
+        },
+        "platformUserId": {
+          "type": "string",
+          "description": "Reference to the PlatformUser who performed the action. (Relationship: PlatformUser 1:N AuditLog)"
+        },
+        "action": {
+          "type": "string",
+          "description": "Description of the action performed (e.g., 'MERCHANT_CREATED', 'PRODUCT_DELETED', 'PLAN_UPDATED')."
+        },
+        "entityType": {
+          "type": "string",
+          "description": "The type of entity affected by the action (e.g., 'Merchant', 'Plan', 'Product')."
+        },
+        "entityId": {
+          "type": "string",
+          "description": "The unique identifier of the entity affected by the action."
+        },
+        "oldValue": {
+          "type": "string",
+          "description": "A JSON string representation of the entity's state before the action, if applicable."
+        },
+        "newValue": {
+          "type": "string",
+          "description": "A JSON string representation of the entity's state after the action, if applicable."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The date and time when the action occurred.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "platformUserId",
+        "action",
+        "entityType",
+        "entityId",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/platformUsers/{platformUserId}",
+        "definition": {
+          "entityName": "PlatformUser",
+          "schema": {
+            "$ref": "#/backend/entities/PlatformUser"
+          },
+          "description": "Stores individual platform user profiles, including their role (SUPER_ADMIN, MERCHANT_ADMIN, MERCHANT_STAFF) and associated merchantId (for merchant roles). This is CRITICAL for Authorization Independence, as rules will use the denormalized 'role' and 'merchantId' from this document for access control across the entire system. Users can manage their own profile; SUPER_ADMINs can manage all; MERCHANT_ADMINs can manage staff within their merchant.",
+          "params": [
+            {
+              "name": "platformUserId",
+              "description": "Unique ID of the platform user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/plans/{planId}",
+        "definition": {
+          "entityName": "Plan",
+          "schema": {
+            "$ref": "#/backend/entities/Plan"
+          },
+          "description": "Defines the subscription tiers available on the platform. Accessible globally for reading by authenticated users to view options. Write access is restricted to SUPER_ADMINs. No specific denormalized authorization fields are included as it's a global configuration.",
+          "params": [
+            {
+              "name": "planId",
+              "description": "Unique ID of the plan."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}",
+        "definition": {
+          "entityName": "Merchant",
+          "schema": {
+            "$ref": "#/backend/entities/Merchant"
+          },
+          "description": "Represents a single store or business. Includes 'platformUserId' as the primary owner for authorization independence, allowing direct verification of ownership. Also includes 'planId' and 'status' for subscription management. Public can read basic storefront info, MERCHANT_ADMINs can manage their own, SUPER_ADMINs can manage all.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the merchant (store)."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/operatingHours/{operatingHourId}",
+        "definition": {
+          "entityName": "MerchantOperatingHour",
+          "schema": {
+            "$ref": "#/backend/entities/MerchantOperatingHour"
+          },
+          "description": "Operating hours for a specific merchant. 'merchantId' is implicit in the path, ensuring tenant isolation and authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "operatingHourId",
+              "description": "Unique ID of the operating hour entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/paymentMethods/{paymentMethodId}",
+        "definition": {
+          "entityName": "MerchantPaymentMethod",
+          "schema": {
+            "$ref": "#/backend/entities/MerchantPaymentMethod"
+          },
+          "description": "Payment methods accepted by a specific merchant. 'merchantId' is implicit in the path for tenant isolation and authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "paymentMethodId",
+              "description": "Unique ID of the payment method."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/productCategories/{productCategoryId}",
+        "definition": {
+          "entityName": "ProductCategory",
+          "schema": {
+            "$ref": "#/backend/entities/ProductCategory"
+          },
+          "description": "Product categories for a specific merchant. 'merchantId' is implicit in the path for tenant isolation and authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "productCategoryId",
+              "description": "Unique ID of the product category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Products offered by a specific merchant. 'merchantId' is implicit in the path for tenant isolation and authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "productId",
+              "description": "Unique ID of the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/addonGroups/{addonGroupId}",
+        "definition": {
+          "entityName": "AddonGroup",
+          "schema": {
+            "$ref": "#/backend/entities/AddonGroup"
+          },
+          "description": "Addon groups for a specific merchant. 'merchantId' is implicit in the path for tenant isolation and authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "addonGroupId",
+              "description": "Unique ID of the addon group."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/products/{productId}/addonGroups/{productAddonGroupId}",
+        "definition": {
+          "entityName": "ProductAddonGroup",
+          "schema": {
+            "$ref": "#/backend/entities/ProductAddonGroup"
+          },
+          "description": "Links specific products to addon groups. 'merchantId' and 'productId' are implicit in the path, ensuring authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "productId",
+              "description": "Unique ID of the parent product."
+            },
+            {
+              "name": "productAddonGroupId",
+              "description": "Unique ID of the product-addon group link."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/addonGroups/{addonGroupId}/addonItems/{addonItemId}",
+        "definition": {
+          "entityName": "AddonItem",
+          "schema": {
+            "$ref": "#/backend/entities/AddonItem"
+          },
+          "description": "Individual addon options within an AddonGroup. 'merchantId' and 'addonGroupId' are implicit in the path, ensuring authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "addonGroupId",
+              "description": "Unique ID of the parent addon group."
+            },
+            {
+              "name": "addonItemId",
+              "description": "Unique ID of the addon item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/customers/{customerId}",
+        "definition": {
+          "entityName": "Customer",
+          "schema": {
+            "$ref": "#/backend/entities/Customer"
+          },
+          "description": "Customer records for a specific merchant. 'merchantId' is implicit in the path for tenant isolation. Includes 'externalAuthId' to link to a customer's `request.auth.uid` for self-management. MERCHANT_ADMINs/STAFF can manage; individual customers can read/write their own record (if authenticated).",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "customerId",
+              "description": "Unique ID of the customer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/customers/{customerId}/addresses/{addressId}",
+        "definition": {
+          "entityName": "CustomerAddress",
+          "schema": {
+            "$ref": "#/backend/entities/CustomerAddress"
+          },
+          "description": "Delivery addresses for a specific customer. 'merchantId' and 'customerId' are implicit in the path, ensuring authorization independence. MERCHANT_ADMINs/STAFF can manage; individual customers can read/write their own addresses (if authenticated).",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "customerId",
+              "description": "Unique ID of the parent customer."
+            },
+            {
+              "name": "addressId",
+              "description": "Unique ID of the customer address."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/deliveryAreas/{deliveryAreaId}",
+        "definition": {
+          "entityName": "DeliveryArea",
+          "schema": {
+            "$ref": "#/backend/entities/DeliveryArea"
+          },
+          "description": "Delivery areas and fees for a specific merchant. 'merchantId' is implicit in the path for tenant isolation and authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read for storefront display.",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "deliveryAreaId",
+              "description": "Unique ID of the delivery area."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/coupons/{couponId}",
+        "definition": {
+          "entityName": "Coupon",
+          "schema": {
+            "$ref": "#/backend/entities/Coupon"
+          },
+          "description": "Discount coupons created by a specific merchant. 'merchantId' is implicit in the path for tenant isolation and authorization independence. MERCHANT_ADMINs/STAFF can manage; public can read (e.g., for applying during checkout).",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "couponId",
+              "description": "Unique ID of the coupon."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Orders placed with a specific merchant. 'merchantId' is implicit in the path for tenant isolation and authorization independence. Includes 'customerId' for direct customer-based authorization. MERCHANT_ADMINs/STAFF can read/write their merchant's orders; individual customers can read their own orders (if authenticated).",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "orderId",
+              "description": "Unique ID of the order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/orders/{orderId}/orderItems/{orderItemId}",
+        "definition": {
+          "entityName": "OrderItem",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItem"
+          },
+          "description": "Individual items within an order. 'merchantId' and 'orderId' are implicit in the path, ensuring authorization independence. MERCHANT_ADMINs/STAFF can read their merchant's orders and items; individual customers can read their own order items (inheriting from parent Order permissions).",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "orderId",
+              "description": "Unique ID of the parent order."
+            },
+            {
+              "name": "orderItemId",
+              "description": "Unique ID of the order item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/orders/{orderId}/orderItems/{orderItemId}/addons/{addonId}",
+        "definition": {
+          "entityName": "OrderItemAddon",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItemAddon"
+          },
+          "description": "Addons selected for a specific order item. 'merchantId', 'orderId', and 'orderItemId' are implicit in the path, ensuring authorization independence. MERCHANT_ADMINs/STAFF can read their merchant's orders, items, and addons; individual customers can read their own (inheriting from parent Order/OrderItem permissions).",
+          "params": [
+            {
+              "name": "merchantId",
+              "description": "Unique ID of the parent merchant."
+            },
+            {
+              "name": "orderId",
+              "description": "Unique ID of the parent order."
+            },
+            {
+              "name": "orderItemId",
+              "description": "Unique ID of the parent order item."
+            },
+            {
+              "name": "addonId",
+              "description": "Unique ID of the order item addon."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/auditLogs/{auditLogId}",
+        "definition": {
+          "entityName": "AuditLog",
+          "schema": {
+            "$ref": "#/backend/entities/AuditLog"
+          },
+          "description": "Records significant platform-level actions. 'platformUserId' is denormalized within the document for direct attribution and authorization. This is a global collection, with read/write access restricted solely to SUPER_ADMINs.",
+          "params": [
+            {
+              "name": "auditLogId",
+              "description": "Unique ID of the audit log entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to adhere strictly to the CORE DESIGN PRINCIPLES, emphasizing Authorization Independence and enabling simple, robust, and debuggable security rules. The central strategy is **Structural Segregation** and **Authorization Independence via Denormalization**.\n\n**Authorization Independence:**\n1.  **PlatformUser Roles and Merchant Association:** The `PlatformUser` entity is crucial. Each `PlatformUser` document (at `/platformUsers/{platformUserId}`) contains a `role` field ('SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_STAFF') and, for merchant-related roles, a `merchantId`. This denormalizes the user's authorization context directly into their user document. Security rules can efficiently retrieve `request.auth.uid`'s associated `role` and `merchantId` with a single `get()` operation on their own `platformUsers/{request.auth.uid}` document at the beginning of the rule set. This avoids chained `get()` calls.\n2.  **Tenant Isolation:** All merchant-specific data (e.g., `Product`, `Order`, `Customer`, `AddonGroup`, `DeliveryArea`, `Coupon`, `MerchantOperatingHour`, `MerchantPaymentMethod`) is nested directly under `/merchants/{merchantId}/...`. This ensures that the `merchantId` is always part of the document path. For any operation on these subcollections, security rules can compare the `{merchantId}` in the path directly against the `merchantId` value denormalized in the authenticated user's `PlatformUser` document (for `MERCHANT_ADMIN`/`MERCHANT_STAFF`) or verify the `SUPER_ADMIN` role. This eliminates the need for `get()` calls to a parent `Merchant` document to determine ownership or permissions.\n3.  **Owner Reference:** The `Merchant` document itself (at `/merchants/{merchantId}`) includes a `platformUserId` field, explicitly linking it to its primary owner. This allows rules to check `resource.data.platformUserId == request.auth.uid` directly, ensuring atomic creation and updates of merchant entities by their designated owner without relying on complex hierarchical lookups.\n\n**QAPs (Rules are not Filters) Support:**\n1.  **Structural Segregation for List Operations:** By organizing data into distinct collections with homogeneous security postures, `list` operations can be securely queried without requiring complex filtering within the rules themselves. For example, all `Product` documents within `/merchants/{merchantId}/products` inherently belong to `{merchantId}`. A `MERCHANT_ADMIN` can perform `list` operations on `/merchants/{request.auth.merchantId}/products` because the rules can verify `request.auth.merchantId` matches the path's `{merchantId}`. Similarly, public access to a merchant's storefront data (like products, categories, operating hours) can be granted through rules that check if the merchant is 'ACTIVE' without needing to filter results for private data.\n2.  **Public vs. Private Data:** Global public data, like `Plans`, is in its own root collection (`/plans`), allowing read access for all authenticated users and controlled write access for `SUPER_ADMIN` only. Private system logs are in `/auditLogs`, accessible only by `SUPER_ADMIN`.\n\nThis design ensures that authorization checks are direct, explicit, and performant, minimizing the risk of security vulnerabilities that arise from complex `get()`-dependent rules or unintended data exposure during `list` operations. The `status` field in `Merchant` also explicitly models a finite state machine, making it clear when a store is active, expired, or blocked, aiding in rule clarity and debuggability."
+  }
+}
