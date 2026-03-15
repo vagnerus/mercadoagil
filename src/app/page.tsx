@@ -11,7 +11,7 @@ import {
   BarChart3, Star, CheckCircle2, Smartphone, Sparkles, 
   Terminal, Activity, Cpu, MousePointer2, Monitor, Loader2,
   Scissors, Stethoscope, Wrench, Dog, GraduationCap, HeartHandshake,
-  ShoppingBag, Car, Camera, Calendar, Wallet
+  ShoppingBag, Car, Camera, Calendar, Wallet, Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
