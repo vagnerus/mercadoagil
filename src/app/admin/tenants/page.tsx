@@ -10,7 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Store, Search, ShieldCheck, LogOut, LayoutDashboard, Building2, LayoutGrid, Database, Server, MoreHorizontal, Plus, Loader2, Monitor, ShoppingBag, Briefcase, Zap, Pill } from "lucide-react";
+import { 
+  Store, Search, ShieldCheck, LogOut, LayoutDashboard, Building2, 
+  LayoutGrid, Database, Server, MoreHorizontal, Plus, Loader2, 
+  Monitor, ShoppingBag, Briefcase, Zap, Pill, CreditCard, 
+  Activity, ArrowUpRight, CheckCircle2, Globe
+} from "lucide-react";
 import Link from 'next/link';
 import { SYSTEM_PLANS, MerchantSegment } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
@@ -94,19 +99,13 @@ export default function AdminTenants() {
         </div>
         <nav className="flex-1 px-4 space-y-2">
           <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <LayoutDashboard className="h-5 w-5" /> Global
-          </Link>
-          <Link href="/admin/franchises" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Building2 className="h-5 w-5" /> Gestão de Franquias
+            <LayoutDashboard className="h-5 w-5" /> Global Dashboard
           </Link>
           <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-semibold">
             <LayoutGrid className="h-5 w-5" /> Multi-Tenancy
           </Link>
-          <Link href="/admin/audit" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Database className="h-5 w-5" /> Auditoria SaaS
-          </Link>
           <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Server className="h-5 w-5" /> Infraestrutura
+            <Server className="h-5 w-5" /> Infraestrutura Cloud
           </Link>
         </nav>
         <div className="p-4 border-t">
@@ -119,8 +118,8 @@ export default function AdminTenants() {
       <main className="flex-1 p-8 overflow-y-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Multi-Tenancy</h1>
-            <p className="text-slate-500 font-medium">Provisionamento de instâncias multi-segmento.</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão de Multi-Tenancy</h1>
+            <p className="text-slate-500 font-medium">Provisionamento de instâncias, monitoramento de saúde e billing.</p>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -132,15 +131,15 @@ export default function AdminTenants() {
                 <DialogContent className="sm:max-w-2xl rounded-[40px] border-none shadow-2xl p-0 overflow-hidden font-body">
                    <div className="bg-primary p-10 text-white relative overflow-hidden">
                       <div className="relative z-10">
-                         <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Nova Instância Lojista</DialogTitle>
-                         <p className="text-white/80 font-bold mt-2 uppercase text-[10px] tracking-widest">Configuração de ambiente e usuário mestre.</p>
+                         <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">Provisionar Instância</DialogTitle>
+                         <p className="text-white/80 font-bold mt-2 uppercase text-[10px] tracking-widest">Configuração de ambiente sandbox e prod.</p>
                       </div>
-                      <Store className="absolute -bottom-10 -right-10 h-40 w-40 opacity-10" />
+                      <Globe className="absolute -bottom-10 -right-10 h-40 w-40 opacity-10" />
                    </div>
                    <form onSubmit={handleCreateStore} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar">
                       <div className="grid grid-cols-2 gap-6">
                          <div className="space-y-4">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Configuração do Ambiente</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Ambiente & Segmento</h3>
                             <div className="space-y-2">
                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nome da Empresa</Label>
                                <Input 
@@ -162,7 +161,7 @@ export default function AdminTenants() {
                                />
                             </div>
                             <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Segmento de Atuação</Label>
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Segmento</Label>
                                <Select value={formData.segment} onValueChange={v => setFormData({...formData, segment: v as MerchantSegment})}>
                                   <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
                                      <SelectValue />
@@ -177,6 +176,30 @@ export default function AdminTenants() {
                                      ))}
                                   </SelectContent>
                                </Select>
+                            </div>
+                         </div>
+                         <div className="space-y-4">
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Usuário & Billing</h3>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Owner Name</Label>
+                               <Input 
+                                placeholder="Ricardo Silva" 
+                                className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
+                                required 
+                                value={formData.ownerName}
+                                onChange={e => setFormData({...formData, ownerName: e.target.value})}
+                               />
+                            </div>
+                            <div className="space-y-2">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Owner Email</Label>
+                               <Input 
+                                type="email" 
+                                placeholder="lojista@email.com" 
+                                className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
+                                required 
+                                value={formData.email}
+                                onChange={e => setFormData({...formData, email: e.target.value})}
+                               />
                             </div>
                             <div className="space-y-2">
                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Plano SaaS</Label>
@@ -194,33 +217,9 @@ export default function AdminTenants() {
                                </Select>
                             </div>
                          </div>
-                         <div className="space-y-4">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest border-b pb-2">Perfil do Lojista Responsável</h3>
-                            <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">Nome Completo</Label>
-                               <Input 
-                                placeholder="Ricardo Silva" 
-                                className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
-                                required 
-                                value={formData.ownerName}
-                                onChange={e => setFormData({...formData, ownerName: e.target.value})}
-                               />
-                            </div>
-                            <div className="space-y-2">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">E-mail Administrativo</Label>
-                               <Input 
-                                type="email" 
-                                placeholder="lojista@email.com" 
-                                className="h-12 rounded-xl bg-slate-50 border-none font-bold" 
-                                required 
-                                value={formData.email}
-                                onChange={e => setFormData({...formData, email: e.target.value})}
-                               />
-                            </div>
-                         </div>
                       </div>
                       <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl">
-                         {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Confirmar Provisionamento'}
+                         {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Executar Provisionamento'}
                       </Button>
                    </form>
                 </DialogContent>
@@ -232,6 +231,24 @@ export default function AdminTenants() {
           </div>
         </header>
 
+        <div className="grid gap-6 md:grid-cols-3 mb-8">
+           <Card className="border-none shadow-sm p-8 rounded-[40px] bg-white flex flex-col justify-center text-center space-y-2">
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Health Score</p>
+              <div className="flex items-center justify-center gap-3">
+                 <p className="text-4xl font-black italic text-slate-900">99.9%</p>
+                 <Badge className="bg-green-100 text-green-700 border-none font-black italic">OPTIMAL</Badge>
+              </div>
+           </Card>
+           <Card className="border-none shadow-sm p-8 rounded-[40px] bg-white flex flex-col justify-center text-center space-y-2">
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Active Databases</p>
+              <p className="text-4xl font-black italic text-slate-900">{merchants?.length || 0}</p>
+           </Card>
+           <Card className="border-none shadow-sm p-8 rounded-[40px] bg-slate-900 text-white flex flex-col justify-center text-center space-y-2">
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Provisioning Rate</p>
+              <p className="text-4xl font-black italic text-primary">+12 <span className="text-xs">/ day</span></p>
+           </Card>
+        </div>
+
         <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
           <CardContent className="p-0">
             {loadingMerchants ? (
@@ -240,17 +257,16 @@ export default function AdminTenants() {
               <Table>
                 <TableHeader className="bg-slate-50">
                   <TableRow>
-                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Loja / Segmento</TableHead>
-                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plano</TableHead>
-                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Status Global</TableHead>
-                    <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Ações</TableHead>
+                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Tenant / Infrastructure</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Plan & Billing</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Health & Usage</TableHead>
+                    <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {merchants?.map((m: any) => {
                     const plan = SYSTEM_PLANS.find(p => p.id === m.planId);
                     const segment = SEGMENTS.find(s => s.value === m.segment);
-                    const isExpired = plan?.name === 'Free' && (Date.now() - new Date(m.createdAt).getTime() > 30 * 24 * 60 * 60 * 1000);
                     return (
                       <TableRow key={m.id} className="hover:bg-slate-50 transition-colors">
                         <TableCell className="px-8 py-6">
@@ -260,28 +276,41 @@ export default function AdminTenants() {
                               </div>
                               <div className="flex flex-col">
                                  <span className="font-black text-slate-900 text-lg italic">{m.name}</span>
-                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{m.segment} • {m.slug}.mercadoagil.com</span>
+                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cluster: SA-EAST-1 • {m.slug}.mercadoagil.com</span>
                               </div>
                            </div>
                         </TableCell>
                         <TableCell>
-                           <Badge className={`font-black italic border-none ${
-                             plan?.name === 'Pro II' ? 'bg-orange-100 text-orange-700' : 
-                             plan?.name === 'Pro' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'
-                           }`}>
-                             {plan?.name || 'SaaS Custom'}
-                           </Badge>
+                           <div className="flex flex-col gap-1">
+                              <Badge className={`w-fit font-black italic border-none ${
+                                plan?.name === 'Pro II' ? 'bg-orange-100 text-orange-700' : 
+                                plan?.name === 'Pro' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'
+                              }`}>
+                                {plan?.name || 'Enterprise'}
+                              </Badge>
+                              <span className="text-[9px] font-bold text-green-600 flex items-center gap-1"><CreditCard className="h-2 w-2" /> Billing in Day</span>
+                           </div>
                         </TableCell>
                         <TableCell>
-                           <div className="flex items-center gap-2">
-                              <div className={`h-2 w-2 rounded-full ${isExpired ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
-                              <span className={`font-black text-[10px] uppercase ${isExpired ? 'text-red-500' : 'text-slate-600'}`}>
-                                 {isExpired ? 'Desativada (Expira Free)' : 'Ativa'}
-                              </span>
+                           <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                 <div className="h-2 w-2 rounded-full bg-green-500" />
+                                 <span className="font-black text-[9px] uppercase text-slate-600">Active</span>
+                              </div>
+                              <div className="flex gap-2 items-center">
+                                 <Activity className="h-3 w-3 text-slate-300" />
+                                 <div className="h-1 w-20 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-primary w-[35%]"></div>
+                                 </div>
+                                 <span className="text-[8px] font-bold text-slate-400">35% Load</span>
+                              </div>
                            </div>
                         </TableCell>
                         <TableCell className="text-right px-8">
-                           <Button variant="ghost" size="icon" className="rounded-xl"><MoreHorizontal className="h-5 w-5 text-slate-400" /></Button>
+                           <div className="flex justify-end gap-2">
+                              <Button variant="ghost" size="icon" className="rounded-xl"><ArrowUpRight className="h-5 w-5 text-slate-400" /></Button>
+                              <Button variant="ghost" size="icon" className="rounded-xl"><MoreHorizontal className="h-5 w-5 text-slate-400" /></Button>
+                           </div>
                         </TableCell>
                       </TableRow>
                     );
