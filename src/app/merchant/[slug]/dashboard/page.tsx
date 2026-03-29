@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from 'react';
@@ -19,11 +18,13 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { AiAssistantChat } from "@/components/merchant/ai-assistant-chat";
 
 export default function MerchantDashboard({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const db = useFirestore();
   const [uiMode, setUiMode] = useState<'advanced' | 'easy'>('advanced');
+  const [showAi, setShowAi] = useState(false);
   
   // Persistência do modo no localStorage
   useEffect(() => {
@@ -31,6 +32,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
     if (savedMode === 'easy' || savedMode === 'advanced') {
       setUiMode(savedMode);
     }
+    // Delay para o balão de IA aparecer sutilmente
+    setTimeout(() => setShowAi(true), 1500);
   }, []);
 
   const toggleMode = (mode: 'advanced' | 'easy') => {
@@ -105,16 +108,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         </>
       )}
 
-      {segment === 'RESTAURANT' && (
-        <>
-          <Link href={`/merchant/${slug}/catalog`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><List className="h-5 w-5" /> Cardápio KDS</Link>
-          <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><ShoppingBag className="h-5 w-5" /> Pedidos/Mesas</Link>
-          <Link href={`/merchant/${slug}/waiter`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Monitor className="h-5 w-5" /> App Garçom</Link>
-        </>
-      )}
-
       <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
-      <Link href={`/merchant/${slug}/analytics`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><BarChart3 className="h-5 w-5" /> BI & IA Insights</Link>
+      <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Monitor className="h-5 w-5" /> Ágil Academy</Link>
       <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
     </div>
   );
@@ -131,7 +126,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const stats = getSegmentStats();
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-body">
+    <div className="flex min-h-screen bg-slate-50 font-body relative">
       {/* Sidebar Desktop */}
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
@@ -151,24 +146,24 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       </aside>
 
       <main className="flex-1 p-4 lg:p-8">
-        {/* Toggle Mode Buttons - Above the Title */}
-        <div className="flex gap-2 mb-6">
+        {/* Toggle Mode Buttons - PERSISTENT & VISIBLE */}
+        <div className="flex gap-2 mb-8 bg-white p-2 rounded-full w-fit shadow-sm border">
           <Button 
             onClick={() => toggleMode('easy')}
-            variant={uiMode === 'easy' ? 'default' : 'outline'}
+            variant={uiMode === 'easy' ? 'default' : 'ghost'}
             className={cn(
-              "rounded-full px-6 font-black italic text-xs uppercase transition-all shadow-sm",
-              uiMode === 'easy' ? "bg-green-600 hover:bg-green-700 text-white" : "border-green-200 text-green-600 hover:bg-green-50"
+              "rounded-full px-6 font-black italic text-xs uppercase transition-all",
+              uiMode === 'easy' ? "bg-green-600 text-white shadow-lg" : "text-slate-400 hover:text-green-600"
             )}
           >
             <MousePointer2 className="h-3.5 w-3.5 mr-2" /> Modo Fácil
           </Button>
           <Button 
             onClick={() => toggleMode('advanced')}
-            variant={uiMode === 'advanced' ? 'default' : 'outline'}
+            variant={uiMode === 'advanced' ? 'default' : 'ghost'}
             className={cn(
-              "rounded-full px-6 font-black italic text-xs uppercase transition-all shadow-sm",
-              uiMode === 'advanced' ? "bg-slate-900 hover:bg-black text-white" : "border-slate-200 text-slate-600"
+              "rounded-full px-6 font-black italic text-xs uppercase transition-all",
+              uiMode === 'advanced' ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-900"
             )}
           >
             <Zap className="h-3.5 w-3.5 mr-2" /> Modo Avançado
@@ -200,7 +195,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </Sheet>
 
             <div>
-              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 uppercase tracking-tighter italic leading-none">
+              <h1 className="text-2xl lg:text-4xl font-black text-slate-900 uppercase tracking-tighter italic leading-none">
                 {uiMode === 'easy' ? 'Meu Painel' : `Console ${segment}`}
               </h1>
               <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">
@@ -219,7 +214,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         </header>
 
         {uiMode === 'advanced' ? (
-          /* --- ADVANCED MODE (CURRENT UI) --- */
+          /* --- ADVANCED MODE --- */
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
               {stats.map((stat, i) => (
@@ -280,10 +275,9 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </div>
           </div>
         ) : (
-          /* --- EASY MODE (ACCESSIBILITY UI) --- */
+          /* --- EASY MODE --- */
           <div className="animate-in zoom-in-95 duration-500">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Easy Action Cards */}
               <Link href={`/merchant/${slug}/${segment === 'BEAUTY' || segment === 'HEALTH' ? 'appointments' : 'orders'}`} className="col-span-1">
                 <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
                   <div className="bg-blue-100 p-6 rounded-[30px] mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -316,7 +310,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                 </Card>
               </Link>
 
-              {/* Simple Stats for Easy Mode */}
               <Card className="md:col-span-2 lg:col-span-3 border-none shadow-sm rounded-[40px] p-10 bg-slate-900 text-white relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                   <div className="text-center md:text-left space-y-4">
@@ -333,7 +326,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                       </div>
                     </div>
                   </div>
-                  <Button className="h-20 px-12 bg-primary hover:bg-primary/90 text-white rounded-[35px] font-black italic text-xl shadow-2xl gap-3">
+                  {/* Assistant Button In Easy Mode */}
+                  <Button onClick={() => setShowAi(true)} className="h-20 px-12 bg-primary hover:bg-primary/90 text-white rounded-[35px] font-black italic text-xl shadow-2xl gap-3">
                     <HelpCircle className="h-8 w-8" /> PRECISO DE AJUDA
                   </Button>
                 </div>
@@ -343,6 +337,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           </div>
         )}
       </main>
+
+      {/* Floating AI Assistant Chat Balloon */}
+      {showAi && (
+        <AiAssistantChat merchantName={merchant?.name} segment={segment} />
+      )}
     </div>
   );
 }

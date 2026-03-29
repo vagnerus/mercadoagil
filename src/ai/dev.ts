@@ -7,3 +7,4 @@ import '@/ai/flows/generate-product-video-flow.ts';
 import '@/ai/flows/text-to-speech-flow.ts';
 import '@/ai/flows/business-advisor-flow.ts';
 import '@/ai/flows/generate-marketing-campaign-flow.ts';
+import '@/ai/flows/ai-assistant-flow.ts';
