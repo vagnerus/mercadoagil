@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -125,8 +125,8 @@ export default function AdminSupport() {
                 </TableHeader>
                 <TableBody>
                   {tickets?.map((ticket: any) => (
-                    <>
-                      <TableRow key={ticket.id} className="dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer" onClick={() => setExpandedTicket(expandedTicket === ticket.id ? null : ticket.id)}>
+                    <Fragment key={ticket.id}>
+                      <TableRow className="dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer" onClick={() => setExpandedTicket(expandedTicket === ticket.id ? null : ticket.id)}>
                         <TableCell className="px-8 py-6">
                           {expandedTicket === ticket.id ? <ChevronUp className="h-4 w-4 text-primary" /> : <ChevronDown className="h-4 w-4 text-slate-300" />}
                         </TableCell>
@@ -196,7 +196,7 @@ export default function AdminSupport() {
                           </TableCell>
                         </TableRow>
                       )}
-                    </>
+                    </Fragment>
                   ))}
                   {tickets?.length === 0 && (
                     <TableRow>
