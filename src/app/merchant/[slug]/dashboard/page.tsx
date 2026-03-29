@@ -10,7 +10,7 @@ import {
   TrendingUp, BrainCircuit, Activity, Zap, Users, Monitor, 
   Calendar, Scissors, Wallet, Globe, LogOut, ShieldCheck,
   ChevronRight, Loader2, Stethoscope, Wrench, Dog, GraduationCap,
-  ClipboardList, HeartPulse, Truck, BarChart3
+  ClipboardList, HeartPulse, Truck, BarChart3, Video, HeartHandshake
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -34,12 +34,18 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const getSegmentStats = () => {
     switch (segment) {
       case 'BEAUTY':
-      case 'HEALTH':
         return [
           { title: "Agendamentos Hoje", value: "12", icon: Calendar, color: "text-blue-600", bg: "bg-blue-100", trend: "+2" },
-          { title: "Consultas Pendentes", value: "4", icon: Clock, color: "text-orange-600", bg: "bg-orange-100", trend: "Normal" },
-          { title: "Pacientes Ativos", value: "842", icon: Users, color: "text-purple-600", bg: "bg-purple-100", trend: "+5%" },
+          { title: "Cadeiras Ocupadas", value: "4", icon: Scissors, color: "text-orange-600", bg: "bg-orange-100", trend: "Normal" },
+          { title: "Clientes Ativos", value: "842", icon: Users, color: "text-purple-600", bg: "bg-purple-100", trend: "+5%" },
           { title: "Faturamento Diário", value: "R$ 2.450", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
+        ];
+      case 'HEALTH':
+        return [
+          { title: "Consultas Hoje", value: "8", icon: Calendar, color: "text-blue-600", bg: "bg-blue-100", trend: "+1" },
+          { title: "Aguardando", value: "2", icon: Clock, color: "text-orange-600", bg: "bg-orange-100", trend: "Baixo" },
+          { title: "Prontuários Ativos", value: "1.2k", icon: ClipboardList, color: "text-purple-600", bg: "bg-purple-100", trend: "+2%" },
+          { title: "Repasse Médico", value: "R$ 8.450", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "On track" },
         ];
       case 'RESTAURANT':
         return [
@@ -68,7 +74,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "Banhos Agendados", value: "15", icon: Dog, color: "text-blue-600", bg: "bg-blue-100", trend: "+5" },
           { title: "Consultas Vet", value: "6", icon: HeartPulse, color: "text-orange-600", bg: "bg-orange-100", trend: "Normal" },
           { title: "Pets Internados", value: "2", icon: Activity, color: "text-red-600", bg: "bg-red-100", trend: "Alerta" },
-          { title: "Vendas Loja", value: "R$ 1.850", icon: ShoppingCart, color: "text-green-600", bg: "bg-green-100", trend: "+15%" },
+          { title: "Vendas Loja", value: "R$ 1.850", icon: ShoppingBag, color: "text-green-600", bg: "bg-green-100", trend: "+15%" },
         ];
       default:
         return [
@@ -107,11 +113,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             <LayoutDashboard className="h-5 w-5" /> Dashboard
           </Link>
           
-          {(segment === 'BEAUTY' || segment === 'HEALTH') && (
+          {segment === 'BEAUTY' && (
             <>
               <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
+              <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe de Estilo</Link>
+              <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Scissors className="h-5 w-5" /> Procedimentos</Link>
+            </>
+          )}
+
+          {segment === 'HEALTH' && (
+            <>
+              <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Consultas</Link>
               <Link href={`/merchant/${slug}/health/pep`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><ClipboardList className="h-5 w-5" /> Prontuários (PEP)</Link>
-              <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe Médica</Link>
+              <Link href={`/merchant/${slug}/health/telemedicine`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Video className="h-5 w-5" /> Telemedicina</Link>
+              <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Stethoscope className="h-5 w-5" /> Equipe Médica</Link>
             </>
           )}
 
