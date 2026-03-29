@@ -29,8 +29,10 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const db = useFirestore();
   const [uiMode, setUiMode] = useState<'advanced' | 'easy'>('advanced');
   const [showAi, setShowAi] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
+    setMounted(true);
     const savedMode = localStorage.getItem('agil_ui_mode');
     if (savedMode === 'easy' || savedMode === 'advanced') {
       setUiMode(savedMode);
@@ -59,6 +61,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="font-black italic text-slate-400 uppercase tracking-widest">Sincronizando Painel {segment}...</p>
+      </div>
+    );
+  }
+
+  // Tratamento para loja não encontrada
+  if (!merchant && !loadingMerchant && mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
+        <div className="text-center space-y-4">
+          <HelpCircle className="h-16 w-16 text-slate-300 mx-auto" />
+          <h1 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900 dark:text-white">Instância não encontrada</h1>
+          <p className="text-slate-500 font-medium">Verifique o link ou contate o administrador.</p>
+          <Button variant="outline" asChild className="rounded-xl"><Link href="/login">Voltar ao Login</Link></Button>
+        </div>
       </div>
     );
   }
@@ -171,7 +187,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </Sheet>
             <div>
               <h1 className="text-2xl lg:text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">{merchant?.name}</h1>
-              <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">Status da Instância: <span className="text-green-500 uppercase font-black">Ativa e Auditada</span></p>
+              <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">Status da Instância: <span className="text-green-500 uppercase font-black">{merchant?.status === 'active' ? 'Ativa e Auditada' : 'Aguardando Aprovação'}</span></p>
             </div>
           </div>
           <AiBusinessHub merchantName={merchant?.name || slug} />
@@ -198,13 +214,45 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
            <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 dark:bg-black text-white relative overflow-hidden">
               <div className="relative z-10 space-y-6">
                  <h2 className="text-2xl font-black italic uppercase tracking-tighter">Configurações Enterprise</h2>
-                 <p className="text-slate-400 text-sm italic font-medium leading-relaxed max-w-lg">Sua unidade está operando no Regime <b>{merchant.legal?.regimeTributario}</b> com CNPJ auditado. Utilize o módulo financeiro para acompanhar o faturamento líquido descontando taxas.</p>
+                 <p className="text-slate-400 text-sm italic font-medium leading-relaxed max-w-lg">
+                   Sua unidade está operando no Regime <b>{merchant?.legal?.regimeTributario || 'Simples Nacional'}</b> com CNPJ auditado. Utilize o módulo financeiro para acompanhar o faturamento líquido descontando taxas.
+                 </p>
                  <div className="flex gap-3">
                     <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl" asChild><Link href={`/merchant/${slug}/settings`}>EDITAR REGRAS DE NEGÓCIO</Link></Button>
                  </div>
               </div>
               <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
            </Card>
+
+           <div className="space-y-6">
+              <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Ações Rápidas IA</h3>
+              
+              <Link href={`/merchant/${slug}/marketing`} className="block group">
+                <Card className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group-hover:bg-primary/10 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
+                    <div>
+                      <p className="text-xs font-black italic uppercase text-slate-900 dark:text-white leading-none">Growth IA</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Gerar Scripts Venda</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-primary group-hover:translate-x-1 transition-transform" />
+                </Card>
+              </Link>
+
+              <Link href={`/merchant/${slug}/feedback`} className="block group">
+                <Card className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group-hover:bg-accent/10 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Star className="h-4 w-4" /></Badge>
+                    <div>
+                      <p className="text-xs font-black italic uppercase text-slate-900 dark:text-white leading-none">Sentiment AI</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Analisar Reviews</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-accent group-hover:translate-x-1 transition-transform" />
+                </Card>
+              </Link>
+           </div>
         </div>
       </main>
 
