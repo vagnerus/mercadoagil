@@ -10,7 +10,8 @@ import {
   ShieldCheck, Activity, Globe, LayoutGrid, Building2, 
   TrendingUp, AlertTriangle, Search, Wallet, Landmark, 
   ArrowUpRight, Map, Heart, Zap, PieChart as PieChartIcon, 
-  ChevronRight, Bell, ShieldAlert, Cpu, Network, Globe2, Loader2
+  ChevronRight, Bell, ShieldAlert, Cpu, Network, Globe2, Loader2,
+  Menu
 } from "lucide-react";
 import Link from 'next/link';
 import { 
@@ -20,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, limit } from 'firebase/firestore';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const planData = [
   { name: 'Free', value: 45, color: '#94a3b8' },
@@ -47,8 +49,23 @@ export default function AdminDashboard() {
     { title: "Royalties Acumulados", value: "R$ 0,00", icon: Landmark, color: "text-orange-600", bg: "bg-orange-100", trend: "0%" },
   ];
 
+  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
+    <nav className={mobile ? "space-y-2" : "flex-1 px-4 space-y-2"}>
+      <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-semibold">
+        <LayoutDashboard className="h-5 w-5" /> Global Dashboard
+      </Link>
+      <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+        <LayoutGrid className="h-5 w-5" /> Multi-Tenancy
+      </Link>
+      <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+        <Server className="h-5 w-5" /> Infraestrutura Cloud
+      </Link>
+    </nav>
+  );
+
   return (
     <div className="flex min-h-screen bg-slate-50">
+      {/* Sidebar Desktop */}
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
@@ -58,17 +75,7 @@ export default function AdminDashboard() {
             <span className="font-bold text-xl text-slate-800 tracking-tight">Master Admin</span>
           </Link>
         </div>
-        <nav className="flex-1 px-4 space-y-2">
-          <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-semibold">
-            <LayoutDashboard className="h-5 w-5" /> Global Dashboard
-          </Link>
-          <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <LayoutGrid className="h-5 w-5" /> Multi-Tenancy
-          </Link>
-          <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
-            <Server className="h-5 w-5" /> Infraestrutura Cloud
-          </Link>
-        </nav>
+        <NavLinks />
         <div className="p-4 border-t">
           <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2 hover:text-red-500" asChild>
             <Link href="/"><LogOut className="h-4 w-4" /> Sair do Console</Link>
@@ -76,11 +83,37 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Command Center Global</h1>
-            <p className="text-slate-500 font-medium">Monitoramento em tempo real do ecossistema Ágil.</p>
+          <div className="flex items-center gap-4">
+            {/* Menu Mobile */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="lg:hidden rounded-xl border-slate-200">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-0 border-none bg-white">
+                <SheetHeader className="p-6 border-b text-left">
+                  <SheetTitle className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">
+                    Master Admin
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="p-4 h-full flex flex-col">
+                  <NavLinks mobile />
+                  <div className="mt-auto pt-4 border-t">
+                    <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2 hover:text-red-500" asChild>
+                      <Link href="/"><LogOut className="h-4 w-4" /> Sair</Link>
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter italic">Command Center Global</h1>
+              <p className="text-slate-500 font-medium text-xs lg:text-base">Monitoramento em tempo real do ecossistema Ágil.</p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
              <Badge className="bg-slate-900 text-white font-black uppercase text-[10px] py-1.5 px-4 rounded-full">v3.2.0-ULTRA-ENTERPRISE</Badge>
@@ -111,8 +144,8 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
-          <Card className="lg:col-span-2 border-none shadow-sm p-8 rounded-[40px] bg-white relative overflow-hidden">
-             <div className="flex justify-between items-center mb-8">
+          <Card className="lg:col-span-2 border-none shadow-sm p-6 lg:p-8 rounded-[40px] bg-white relative overflow-hidden">
+             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                    <CardTitle className="text-2xl font-black italic">Expansão & Forecast IA</CardTitle>
                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Base de Lojistas vs Projeção de Crescimento</p>
@@ -200,9 +233,9 @@ export default function AdminDashboard() {
 
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
            <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
-              <CardHeader className="p-8 border-b flex flex-row items-center justify-between">
+              <CardHeader className="p-6 lg:p-8 border-b flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <CardTitle className="text-2xl font-black italic">Últimos Lojistas Ativados</CardTitle>
-                <div className="relative w-64">
+                <div className="relative w-full md:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input className="pl-10 h-10 rounded-xl border-none bg-slate-100 font-medium" placeholder="Buscar lojista..." />
                 </div>
@@ -225,8 +258,8 @@ export default function AdminDashboard() {
                         <TableRow key={merchant.id}>
                           <TableCell className="px-8 py-6">
                              <div className="flex flex-col">
-                                <span className="font-black text-slate-900 text-lg italic uppercase">{merchant.name}</span>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase">{merchant.slug}.agil.com</span>
+                                <span className="font-black text-slate-900 text-lg italic uppercase leading-tight">{merchant.name}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">{merchant.slug}.agil.com</span>
                              </div>
                           </TableCell>
                           <TableCell>
