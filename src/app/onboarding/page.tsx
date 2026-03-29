@@ -13,6 +13,7 @@ import { useUser, useFirestore, setDocumentNonBlocking, addDocumentNonBlocking }
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import { MerchantSegment, SYSTEM_PLANS } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
 
 const SEGMENTS: { value: MerchantSegment; label: string; icon: any }[] = [
   { value: 'BEAUTY', label: 'Barbearia / Estética', icon: Scissors },
@@ -189,7 +190,7 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full h-20 bg-slate-900 hover:bg-slate-800 rounded-[35px] text-xl font-black italic shadow-2xl gap-3">
+                <Button type="submit" className="w-full h-20 bg-slate-900 hover:bg-slate-800 rounded-[35px] text-xl font-black italic shadow-xl gap-3">
                   PRÓXIMO PASSO <Zap className="h-6 w-6 text-primary" />
                 </Button>
               </form>
