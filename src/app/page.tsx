@@ -11,7 +11,7 @@ import {
   BarChart3, Star, CheckCircle2, Smartphone, Sparkles, 
   Terminal, Activity, Cpu, MousePointer2, Monitor, Loader2,
   Scissors, Stethoscope, Wrench, Dog, GraduationCap, HeartHandshake,
-  ShoppingBag, Car, Camera, Calendar, Wallet, Plus
+  ShoppingBag, Car, Camera, Calendar, Wallet, Plus, Dumbbell, PartyPopper, Gavel
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -20,9 +20,9 @@ const SEGMENTS = [
   { id: 'BEAUTY', label: 'Barbearia & Estética', icon: Scissors, color: 'bg-pink-500', theme: 'primary' },
   { id: 'RETAIL', label: 'Lojas & Varejo', icon: ShoppingBag, color: 'bg-blue-500', theme: 'accent' },
   { id: 'HEALTH', label: 'Saúde & Clínicas', icon: Stethoscope, color: 'bg-emerald-500', theme: 'primary' },
-  { id: 'MAINTENANCE', label: 'Oficinas & T.I.', icon: Wrench, color: 'bg-orange-500', theme: 'accent' },
-  { id: 'PET', label: 'Pet Shops', icon: Dog, color: 'bg-purple-500', theme: 'primary' },
-  { id: 'EDUCATION', label: 'Aulas & Cursos', icon: GraduationCap, color: 'bg-indigo-500', theme: 'accent' },
+  { id: 'FITNESS', label: 'Academias & Studios', icon: Dumbbell, color: 'bg-orange-500', theme: 'accent' },
+  { id: 'EVENTS', label: 'Eventos & Festas', icon: PartyPopper, color: 'bg-purple-500', theme: 'primary' },
+  { id: 'PROFESSIONAL', label: 'Consultoria & Jurídico', icon: Gavel, color: 'bg-indigo-500', theme: 'accent' },
 ];
 
 export default function LandingPage() {
@@ -46,8 +46,8 @@ export default function LandingPage() {
     const proofs = [
       { name: "Barbearia do Zé", segment: "Beleza" },
       { name: "Clínica Vida", segment: "Saúde" },
-      { name: "Moda Express", segment: "Varejo" },
-      { name: "Auto Center Pro", segment: "Automotivo" }
+      { name: "Fit Hub Center", segment: "Fitness" },
+      { name: "Eventos Master", segment: "Eventos" }
     ];
     let index = 0;
     const interval = setInterval(() => {
@@ -70,7 +70,7 @@ export default function LandingPage() {
     }, 1500);
   };
 
-  const isService = selectedSegment.id === 'BEAUTY' || selectedSegment.id === 'HEALTH' || selectedSegment.id === 'EDUCATION' || selectedSegment.id === 'MAINTENANCE';
+  const isService = selectedSegment.id !== 'RETAIL';
 
   return (
     <div className="flex flex-col min-h-screen font-body selection:bg-primary selection:text-white bg-white">
@@ -238,7 +238,7 @@ export default function LandingPage() {
                     Engenharia de <span className="text-primary not-italic">Elite.</span>
                  </h2>
                  <p className="text-slate-400 font-bold max-w-2xl mx-auto uppercase text-xs tracking-[0.3em]">
-                    150+ Funcionalidades extraordinárias distribuídas em 12 verticais
+                    150+ Funcionalidades extraordinárias distribuídas em 15 verticais
                  </p>
               </div>
 

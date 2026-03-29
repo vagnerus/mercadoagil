@@ -1,7 +1,7 @@
 
 export type PlanType = 'Free' | 'Pro' | 'Pro II' | 'Enterprise' | 'Ultra';
 export type UserRole = 'SUPER_ADMIN' | 'MERCHANT_ADMIN' | 'MERCHANT_STAFF';
-export type MerchantSegment = 'RESTAURANT' | 'RETAIL' | 'SERVICE' | 'GROCERY' | 'PHARMACY' | 'BEAUTY' | 'HEALTH' | 'AUTO' | 'PET' | 'EDUCATION' | 'MAINTENANCE';
+export type MerchantSegment = 'RESTAURANT' | 'RETAIL' | 'SERVICE' | 'GROCERY' | 'PHARMACY' | 'BEAUTY' | 'HEALTH' | 'AUTO' | 'PET' | 'EDUCATION' | 'MAINTENANCE' | 'FITNESS' | 'EVENTS' | 'PROFESSIONAL';
 
 export interface PlatformUser {
   id: string;

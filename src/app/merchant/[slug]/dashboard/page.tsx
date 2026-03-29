@@ -15,7 +15,7 @@ import {
   Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone,
   Briefcase, Star, Target, ShieldAlert, Lock, ArrowUpRight, CheckSquare,
   AlertCircle, History, Info, Smartphone, Database, Landmark,
-  Bell, CheckCircle
+  Bell, CheckCircle, Dumbbell, PartyPopper, Gavel
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -118,6 +118,27 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "Cadeiras Ocupadas", value: "4/6", icon: Scissors, color: "text-orange-600", bg: "bg-orange-100", trend: "Normal" },
           { title: "Retention IA", value: "84%", icon: Users, color: "text-purple-600", bg: "bg-purple-100", trend: "+5%" },
           { title: "Faturamento Líquido", value: "R$ 2.450", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
+        ];
+      case 'FITNESS':
+        return [
+          { title: "Alunos On-line", value: "45", icon: Dumbbell, color: "text-blue-600", bg: "bg-blue-100", trend: "Pico" },
+          { title: "Check-ins Hoje", value: "128", icon: CheckCircle, color: "text-green-600", bg: "bg-green-100", trend: "+15%" },
+          { title: "MRR Assinaturas", value: "R$ 14.850", icon: Wallet, color: "text-purple-600", bg: "bg-purple-100", trend: "Estável" },
+          { title: "Churn Rate", value: "1.2%", icon: Activity, color: "text-red-600", bg: "bg-red-100", trend: "-0.5%" },
+        ];
+      case 'EVENTS':
+        return [
+          { title: "Datas Reservadas", value: "12", icon: Calendar, color: "text-pink-600", bg: "bg-pink-100", trend: "Lotado" },
+          { title: "Orçamentos Pendentes", value: "08", icon: ClipboardList, color: "text-blue-600", bg: "bg-blue-100", trend: "+3" },
+          { title: "Ticket Médio", value: "R$ 4.500", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+8%" },
+          { title: "Leads Captados", value: "42", icon: Users, color: "text-orange-600", bg: "bg-orange-100", trend: "High" },
+        ];
+      case 'PROFESSIONAL':
+        return [
+          { title: "Consultas Hoje", value: "06", icon: Clock, color: "text-indigo-600", bg: "bg-indigo-100", trend: "Normal" },
+          { title: "Horas Cobráveis", value: "142h", icon: History, color: "text-blue-600", bg: "bg-blue-100", trend: "Meta" },
+          { title: "Honorários", value: "R$ 8.200", icon: Gavel, color: "text-slate-600", bg: "bg-slate-100", trend: "+12%" },
+          { title: "Score NPS", value: "98", icon: Star, color: "text-yellow-600", bg: "bg-yellow-100", trend: "Elite" },
         ];
       default:
         return [

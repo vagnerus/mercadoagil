@@ -12,7 +12,8 @@ import {
   Store, Loader2, Sparkles, Scissors, ShoppingBag, 
   Briefcase, Utensils, Zap, Dog, GraduationCap, 
   HeartHandshake, Stethoscope, Wrench, ShieldCheck, 
-  CheckCircle2, Building2, MapPin, Settings2, Wallet
+  CheckCircle2, Building2, MapPin, Settings2, Wallet,
+  Dumbbell, PartyPopper, Gavel
 } from "lucide-react";
 import { useUser, useFirestore, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
@@ -28,6 +29,9 @@ const SEGMENTS: { value: MerchantSegment; label: string; icon: any }[] = [
   { value: 'AUTO', label: 'Automotivo / Oficina', icon: Zap },
   { value: 'PET', label: 'Pets / Veterinária', icon: Dog },
   { value: 'EDUCATION', label: 'Educação / Aulas', icon: GraduationCap },
+  { value: 'FITNESS', label: 'Academias & Studios', icon: Dumbbell },
+  { value: 'EVENTS', label: 'Eventos & Produtoras', icon: PartyPopper },
+  { value: 'PROFESSIONAL', label: 'Consultoria & Jurídico', icon: Gavel },
 ];
 
 export default function OnboardingPage() {
@@ -296,7 +300,7 @@ export default function OnboardingPage() {
                       key={plan.id}
                       onClick={() => setFormData({...formData, planId: plan.id})}
                       className={cn(
-                        "p-6 rounded-[30px] border-4 cursor-pointer transition-all flex items-center justify-between",
+                        "p-6 rounded-[30px] border-4 cursor-pointer transition-all flex items-center justify-between group",
                         formData.planId === plan.id ? "border-primary bg-primary/5 shadow-lg" : "border-slate-50 bg-slate-50 hover:border-slate-200"
                       )}
                      >
