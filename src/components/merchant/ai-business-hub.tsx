@@ -14,6 +14,7 @@ import {
 import { getBusinessAdvice } from "@/ai/flows/business-advisor-flow";
 import { generateMarketingCampaign } from "@/ai/flows/generate-marketing-campaign-flow";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export function AiBusinessHub({ merchantName }: { merchantName: string }) {
   const [loading, setLoading] = useState<string | null>(null);
