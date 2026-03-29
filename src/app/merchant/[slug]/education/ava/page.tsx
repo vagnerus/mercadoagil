@@ -13,7 +13,8 @@ import {
   Users, MessageSquare, FileText, LayoutDashboard,
   Zap, Star, Award, Loader2, Search, Filter, PlayCircle, Clock, Sparkles,
   ShoppingBag, CheckCircle2, TrendingUp, ChevronRight, Info, BookMarked,
-  Menu, Settings, LogOut, Scissors, Stethoscope, Video, ClipboardList, Wallet
+  Menu, Settings, LogOut, Scissors, Stethoscope, Video, ClipboardList, Wallet,
+  Calendar
 } from "lucide-react";
 import Link from 'next/link';
 import { COURSE_LIBRARY } from "@/lib/mock-data";
