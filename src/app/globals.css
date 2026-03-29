@@ -24,7 +24,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
-    --radius: 1rem;
+    --radius: 1.5rem;
   }
 
   .dark {
@@ -59,27 +59,19 @@
   }
 }
 
-/* Custom Utilities for Landing Page */
 @layer utilities {
-  .perspective-1000 {
-    perspective: 1000px;
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
-  .rotate-x-6 {
-    transform: rotateX(6deg);
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  .rotate-y-12 {
-    transform: rotateY(12deg);
+  .animate-bounce-slow {
+    animation: bounce 3s infinite;
   }
-  .-rotate-y-6 {
-    transform: rotateY(-6deg);
+  @keyframes bounce {
+    0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+    50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
   }
-}
-
-/* Hide scrollbar */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }

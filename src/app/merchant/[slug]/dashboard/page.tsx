@@ -8,13 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   ShoppingBag, Package, DollarSign, Clock, LayoutDashboard, List, Settings, 
-  TrendingUp, BrainCircuit, Activity, Zap, Users, Monitor, 
+  TrendingUp, Activity, Zap, Users, Monitor, 
   Calendar, Scissors, Wallet, Globe, LogOut, ShieldCheck,
   ChevronRight, Loader2, Stethoscope, Wrench, Dog, GraduationCap,
-  ClipboardList, HeartPulse, Truck, BarChart3, Video, HeartHandshake,
-  Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone,
-  Briefcase, Star, Target, ShieldAlert, Lock, ArrowUpRight, CheckSquare,
-  AlertCircle, History, Info, Smartphone, Database, Landmark,
+  ClipboardList, HeartPulse, Truck, BarChart3, Video,
+  Menu, MousePointer2, HelpCircle, Sparkles, Crown, Megaphone,
+  Briefcase, Star, Target, ShieldAlert, Lock, ArrowUpRight,
+  AlertCircle, Info, Smartphone, Database, Landmark,
   Bell, CheckCircle, Dumbbell, PartyPopper, Gavel, Car, Droplets,
   Utensils, Ticket
 } from "lucide-react";
@@ -118,20 +118,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "MRR Assinaturas", value: "R$ 14.850", icon: Wallet, color: "text-purple-600", bg: "bg-purple-100", trend: "Estável" },
           { title: "Churn Rate", value: "1.2%", icon: Activity, color: "text-red-600", bg: "bg-red-100", trend: "-0.5%" },
         ];
-      case 'AUTO':
-        return [
-          { title: "Boxes Ocupados", value: "04/06", icon: Car, color: "text-slate-600", bg: "bg-slate-100", trend: "80%" },
-          { title: "O.S. em Aberto", value: "15", icon: ClipboardList, color: "text-orange-600", bg: "bg-orange-100", trend: "+2" },
-          { title: "Peças em Falta", value: "03", icon: AlertCircle, color: "text-red-600", bg: "bg-red-100", trend: "Urgente" },
-          { title: "Ticket Médio Mec.", value: "R$ 1.250", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+15%" },
-        ];
-      case 'EDUCATION':
-        return [
-          { title: "Alunos Ativos", value: "542", icon: Users, color: "text-blue-600", bg: "bg-blue-100", trend: "+12" },
-          { title: "Aulas Hoje", value: "24", icon: GraduationCap, color: "text-purple-600", bg: "bg-purple-100", trend: "Normal" },
-          { title: "Nota Média Global", value: "8.4", icon: Star, color: "text-yellow-600", bg: "bg-yellow-100", trend: "Elite" },
-          { title: "Inadimplência", value: "2.4%", icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100", trend: "-0.2%" },
-        ];
       default:
         return [
           { title: "Vendas Brutas", value: "R$ 4.850", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
@@ -144,8 +130,8 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
   const NavLinks = ({ mobile = false }: { mobile?: boolean }) => {
     const commonLinks = [
-      { href: `/merchant/${slug}/dashboard`, label: "Dashboard", icon: LayoutDashboard, active: true },
-      { href: `/merchant/${slug}/analytics`, label: "Deep Analytics", icon: BarChart3 },
+      { href: `/merchant/${slug}/dashboard`, label: "Dashboard", icon: LayoutDashboard },
+      { href: `/merchant/${slug}/analytics`, label: "Analytics Pro", icon: BarChart3 },
       { href: `/merchant/${slug}/inventory`, label: "Inventário IA", icon: Database },
       { href: `/merchant/${slug}/customers`, label: "CRM & WhatsApp", icon: Users },
       { href: `/merchant/${slug}/finance`, label: "Financeiro Pro", icon: Wallet },
@@ -156,7 +142,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       BEAUTY: [
         { href: `/merchant/${slug}/appointments`, label: "Agenda Digital", icon: Calendar },
         { href: `/merchant/${slug}/staff`, label: "Equipe Elite", icon: Scissors },
-        { href: `/merchant/${slug}/catalog`, label: "Serviços & Itens", icon: List },
+        { href: `/merchant/${slug}/services`, label: "Serviços & Preços", icon: List },
       ],
       RESTAURANT: [
         { href: `/merchant/${slug}/orders`, label: "KDS & Pedidos", icon: Utensils },
@@ -168,34 +154,12 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         { href: `/merchant/${slug}/health/telemedicine`, label: "Telemedicina", icon: Video },
         { href: `/merchant/${slug}/appointments`, label: "Agenda Médica", icon: Calendar },
       ],
-      AUTO: [
-        { href: `/merchant/${slug}/auto/os`, label: "Ordens de Serviço", icon: ClipboardList },
-        { href: `/merchant/${slug}/inventory`, label: "Peças & Estoque", icon: Wrench },
-        { href: `/merchant/${slug}/logistics`, label: "Gestão de Pátio", icon: Car },
-      ],
-      PET: [
-        { href: `/merchant/${slug}/pet/clinic`, label: "Clínica Vet", icon: HeartPulse },
-        { href: `/merchant/${slug}/appointments`, label: "Banho & Tosa", icon: Dog },
-      ],
       EDUCATION: [
         { href: `/merchant/${slug}/education/academic`, label: "Acadêmico", icon: GraduationCap },
-        { href: `/merchant/${slug}/education/ava`, label: "Ambiente (AVA)", icon: Monitor },
+        { href: `/merchant/${slug}/education/ava`, label: "Academy (AVA)", icon: Monitor },
       ],
       FITNESS: [
-        { href: `/merchant/${slug}/fitness/checkins`, label: "Check-ins", icon: CheckCircle },
-        { href: `/merchant/${slug}/fitness/plans`, label: "Planos & Recorrência", icon: Ticket },
-      ],
-      RETAIL: [
-        { href: `/merchant/${slug}/pdv`, label: "PDV Cloud", icon: Monitor },
-        { href: `/merchant/${slug}/suppliers`, label: "Fornecedores", icon: Truck },
-      ],
-      PROFESSIONAL: [
-        { href: `/merchant/${slug}/appointments`, label: "Consultas", icon: Clock },
-        { href: `/merchant/${slug}/legal/cases`, label: "Processos/Casos", icon: Gavel },
-      ],
-      EVENTS: [
-        { href: `/merchant/${slug}/events/bookings`, label: "Datas Reservadas", icon: Calendar },
-        { href: `/merchant/${slug}/events/leads`, label: "Orçamentos", icon: ClipboardList },
+        { href: `/merchant/${slug}/fitness/plans`, label: "Planos & Assinaturas", icon: Ticket },
       ]
     };
 
@@ -208,8 +172,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             key={i}
             href={link.href} 
             className={cn(
-              "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-medium",
-              link.active ? "bg-primary/10 text-primary font-bold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
             )}
           >
             <link.icon className="h-5 w-5" /> {link.label}
@@ -293,7 +256,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                        <h2 className="text-2xl font-black italic uppercase tracking-tighter">Gestão Operacional {segment}</h2>
                     </div>
                     <p className="text-slate-400 text-sm italic font-medium leading-relaxed max-w-lg">
-                      Sua instância está configurada para operar no regime <b>{merchant?.legal?.regimeTributario || 'Simples Nacional'}</b>. Todos os relatórios financeiros já descontam automaticamente as taxas de <b>{merchant?.financial?.creditFee || 2.99}%</b> das maquininhas.
+                      Sua instância v3.2 está operando no regime <b>{merchant?.legal?.regimeTributario || 'Simples Nacional'}</b>. Todos os relatórios financeiros já descontam automaticamente as taxas de <b>{merchant?.financial?.creditFee || 2.99}%</b> das maquininhas.
                     </p>
                     <div className="flex gap-3">
                        <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl" asChild><Link href={`/merchant/${slug}/settings`}>EDITAR CONFIGURAÇÕES</Link></Button>
@@ -342,7 +305,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
            <div className="lg:col-span-4 space-y-6">
               <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white dark:bg-slate-900 space-y-6">
                  <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Sparkles className="h-3 w-3 text-primary" /> Operação Master</h3>
-                 
                  <div className="space-y-4">
                     <div className="space-y-2">
                        <div className="flex justify-between text-[10px] font-black uppercase">
@@ -359,19 +321,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                        <Progress value={95} className="h-1.5" />
                     </div>
                  </div>
-
                  <div className="pt-4 border-t dark:border-slate-800 space-y-4">
                     <Link href={`/merchant/${slug}/analytics`} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl group hover:bg-primary transition-all">
                        <div className="flex items-center gap-3">
                           <BarChart3 className="h-5 w-5 text-primary group-hover:text-white" />
-                          <span className="text-[10px] font-black uppercase text-slate-900 dark:text-white group-hover:text-white">Business Intelligence</span>
-                       </div>
-                       <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-white" />
-                    </Link>
-                    <Link href={`/merchant/${slug}/creative-studio`} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl group hover:bg-accent transition-all">
-                       <div className="flex items-center gap-3">
-                          <Video className="h-5 w-5 text-accent group-hover:text-white" />
-                          <span className="text-[10px] font-black uppercase text-slate-900 dark:text-white group-hover:text-white">Creative Studio IA</span>
+                          <span className="text-[10px] font-black uppercase text-slate-900 dark:text-white group-hover:text-white">Deep Intelligence</span>
                        </div>
                        <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-white" />
                     </Link>
