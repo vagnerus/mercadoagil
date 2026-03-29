@@ -206,7 +206,7 @@ export default function MerchantFinance({ params }: { params: Promise<{ slug: st
         </div>
 
         <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
-          <CardHeader className="p-8 border-b bg-slate-50/50">
+          <CardHeader className="p-8 border-b bg-slate-50/30">
             <CardTitle className="text-xl font-black italic">Conciliação Bancária & Digital</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
