@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const billingLogs = [
   { id: 'tx1', store: 'Barbearia do Zé', plan: 'Pro', status: 'Paid', value: 150.00, date: '2024-03-20' },

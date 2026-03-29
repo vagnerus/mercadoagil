@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { 
   Users, Clock, DollarSign, Calendar, 
   LayoutDashboard, FileText, Plus, Search, 
@@ -94,7 +95,7 @@ export default function MerchantHR({ params }: { params: Promise<{ slug: string 
                  <CardTitle className="text-xl font-black italic dark:text-white">Escala & Performance</CardTitle>
                  <div className="relative w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input placeholder="Buscar colaborador..." className="pl-10 h-10 rounded-xl bg-white dark:bg-slate-800 border-none shadow-sm" />
+                    <Input placeholder="Buscar colaborador..." className="pl-10 h-10 rounded-xl bg-white dark:bg-slate-800 border-none shadow-sm font-medium" />
                  </div>
               </CardHeader>
               <CardContent className="p-0">
