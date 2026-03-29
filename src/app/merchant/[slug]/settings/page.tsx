@@ -12,13 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   Store, Shield, Palette, QrCode, Globe, Key, 
-  LayoutDashboard, Settings, Smartphone, Zap, Code, MessageCircle, Loader2, CheckCircle2, Link as LinkIcon, RefreshCw
+  LayoutDashboard, Settings, Smartphone, Zap, Code, MessageCircle, Loader2, CheckCircle2, Link as LinkIcon, RefreshCw,
+  Menu, ShoppingBag, List, Users, Calendar, Scissors, Stethoscope, Video, ClipboardList, Wallet, BarChart3, LogOut
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useMemoFirebase, updateDocumentNonBlocking } from '@/firebase';
 import { collection, query, where, limit, doc } from 'firebase/firestore';
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export default function MerchantSettings({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -34,6 +36,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
   ), [db, slug]);
   const { data: merchantData, isLoading: loadingMerchant } = useCollection(merchantQuery);
   const merchant = merchantData?.[0];
+  const segment = merchant?.segment || 'RETAIL';
 
   const [settings, setSettings] = useState({
     name: "",
@@ -60,15 +63,17 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
     setLoading(true);
     
     const merchantRef = doc(db, 'merchants', merchant.id);
+    const updatedSettings = {
+      ...(merchant.settings || {}),
+      whatsapp: settings.whatsapp,
+      enableAutoNotify: settings.enableAutoNotify,
+      facebookPixel: settings.facebookPixel,
+      googleAnalytics: settings.googleAnalytics
+    };
+
     updateDocumentNonBlocking(merchantRef, {
       name: settings.name,
-      settings: {
-        ...merchant.settings,
-        whatsapp: settings.whatsapp,
-        enableAutoNotify: settings.enableAutoNotify,
-        facebookPixel: settings.facebookPixel,
-        googleAnalytics: settings.googleAnalytics
-      }
+      settings: updatedSettings
     });
 
     setTimeout(() => {
@@ -89,33 +94,92 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
     }, 2000);
   };
 
+  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
+    <div className={mobile ? "space-y-2" : "flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar"}>
+      <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium">
+        <LayoutDashboard className="h-5 w-5" /> Dashboard
+      </Link>
+      
+      {segment === 'BEAUTY' && (
+        <>
+          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
+          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe de Estilo</Link>
+          <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Scissors className="h-5 w-5" /> Procedimentos</Link>
+        </>
+      )}
+
+      {segment === 'HEALTH' && (
+        <>
+          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Consultas</Link>
+          <Link href={`/merchant/${slug}/health/pep`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><ClipboardList className="h-5 w-5" /> Prontuários (PEP)</Link>
+          <Link href={`/merchant/${slug}/health/telemedicine`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Video className="h-5 w-5" /> Telemedicina</Link>
+        </>
+      )}
+
+      <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
+      <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><Settings className="h-5 w-5" /> Configurações</Link>
+    </div>
+  );
+
   if (loadingMerchant) {
     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
   }
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-body">
-      <aside className="w-64 border-r bg-white hidden lg:flex flex-col">
+      <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
-          <Link href="/" className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">MERCADO ÁGIL</Link>
+          <Link href="/" className="flex items-center gap-2">
+            <div className="bg-primary p-1.5 rounded-lg shadow-sm">
+              <ShoppingBag className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-bold text-lg text-slate-800 tracking-tight italic uppercase">MERCADO ÁGIL</span>
+          </Link>
         </div>
-        <nav className="flex-1 px-4 space-y-2">
-          <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
-          <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><Settings className="h-5 w-5" /> Configurações</Link>
+        <nav className="flex-1 overflow-hidden">
+          <NavLinks />
         </nav>
+        <div className="p-4 border-t">
+          <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2" asChild><Link href="/login"><LogOut className="h-4 w-4" /> Sair</Link></Button>
+        </div>
       </aside>
 
-      <main className="flex-1 p-8 max-w-6xl">
-        <header className="mb-10 flex justify-between items-end">
-          <div><h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão Enterprise</h1><p className="text-slate-500 font-medium">Configurações técnicas e integrações de canais.</p></div>
-          <Badge className="bg-green-100 text-green-700 border-none px-4 py-2 font-black italic">ESTADO: ONLINE</Badge>
+      <main className="flex-1 p-4 lg:p-8 max-w-6xl">
+        <header className="mb-10 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="lg:hidden rounded-xl border-slate-200">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-0 border-none bg-white">
+                <SheetHeader className="p-6 border-b text-left">
+                  <SheetTitle className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">
+                    MERCADO ÁGIL
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="p-4 h-full flex flex-col">
+                  <NavLinks mobile />
+                  <div className="mt-auto pt-4 border-t">
+                    <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2" asChild><Link href="/login"><LogOut className="h-4 w-4" /> Sair</Link></Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão Enterprise</h1>
+              <p className="text-slate-500 font-medium text-xs lg:text-base">Configurações técnicas e integrações.</p>
+            </div>
+          </div>
+          <Badge className="bg-green-100 text-green-700 border-none px-4 py-2 font-black italic hidden sm:flex">ESTADO: ONLINE</Badge>
         </header>
 
         <Tabs defaultValue="store" className="space-y-8">
           <TabsList className="bg-white p-1 rounded-2xl shadow-sm border h-auto flex overflow-x-auto no-scrollbar">
-            <TabsTrigger value="store" className="rounded-xl py-3 px-6 font-black italic text-xs"><Store className="h-4 w-4 mr-2" /> Identidade & Unidade</TabsTrigger>
-            <TabsTrigger value="whatsapp" className="rounded-xl py-3 px-6 font-black italic text-xs"><MessageCircle className="h-4 w-4 mr-2" /> Integração WhatsApp</TabsTrigger>
-            <TabsTrigger value="integrations" className="rounded-xl py-3 px-6 font-black italic text-xs"><Code className="h-4 w-4 mr-2" /> Marketing & Pixel</TabsTrigger>
+            <TabsTrigger value="store" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Store className="h-4 w-4 mr-2" /> Identidade & Unidade</TabsTrigger>
+            <TabsTrigger value="whatsapp" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><MessageCircle className="h-4 w-4 mr-2" /> Integração WhatsApp</TabsTrigger>
+            <TabsTrigger value="integrations" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Code className="h-4 w-4 mr-2" /> Marketing & Pixel</TabsTrigger>
           </TabsList>
 
           <TabsContent value="store">
@@ -130,8 +194,8 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                       
                       <div className="space-y-2">
                          <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Subdomínio (Não editável)</Label>
-                         <div className="flex items-center gap-2 p-4 bg-slate-50 rounded-2xl text-slate-400 font-bold border border-slate-100">
-                            <Globe className="h-4 w-4" /> {slug}.agil.com
+                         <div className="flex items-center gap-2 p-4 bg-slate-50 rounded-2xl text-slate-400 font-bold border border-slate-100 overflow-hidden">
+                            <Globe className="h-4 w-4 shrink-0" /> <span className="truncate">{slug}.agil.com</span>
                          </div>
                       </div>
 
@@ -143,7 +207,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                    <div className="p-8 bg-primary/5 rounded-[40px] border border-primary/10 space-y-4">
                       <Zap className="h-10 w-10 text-primary" />
                       <h3 className="font-black italic text-slate-900 uppercase text-sm">Estrutura Enterprise</h3>
-                      <p className="text-xs text-slate-600 font-medium leading-relaxed">Sua loja opera em uma instância isolada com banco de dados próprio. Todas as alterações são replicadas em tempo real para a vitrine do cliente.</p>
+                      <p className="text-xs text-slate-600 font-medium leading-relaxed">Sua loja opera em uma instância isolada com banco de dados próprio. Todas as alterações são replicadas em tempo real.</p>
                    </div>
                 </div>
              </Card>
@@ -154,7 +218,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                 <Card className="md:col-span-2 border-none shadow-sm rounded-[40px] p-8 bg-white space-y-8">
                    <div>
                       <CardTitle className="text-2xl font-black italic">WhatsApp Business Connect</CardTitle>
-                      <p className="text-slate-400 text-sm font-medium mt-1">Conecte seu número para automatizar confirmações e marketing.</p>
+                      <p className="text-slate-400 text-sm font-medium mt-1">Conecte seu número para automatizar confirmações.</p>
                    </div>
 
                    <div className="space-y-6">
@@ -166,9 +230,9 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                          </div>
                       </div>
 
-                      <div className="p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-200 flex items-center justify-between">
-                         <div className="flex items-center gap-4">
-                            <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${settings.whatsapp ? 'bg-green-100 text-green-600' : 'bg-slate-200 text-slate-400'}`}>
+                      <div className="p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                         <div className="flex items-center gap-4 w-full">
+                            <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${settings.whatsapp ? 'bg-green-100 text-green-600' : 'bg-slate-200 text-slate-400'}`}>
                                <RefreshCw className={cn("h-6 w-6", isConnecting && "animate-spin")} />
                             </div>
                             <div>
@@ -176,7 +240,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{settings.whatsapp ? 'CONECTADO E PRONTO' : 'AGUARDANDO CONFIGURAÇÃO'}</p>
                             </div>
                          </div>
-                         <Button onClick={handleConnectWhatsApp} disabled={isConnecting} variant="outline" className="rounded-xl font-black italic text-xs border-slate-200 uppercase">
+                         <Button onClick={handleConnectWhatsApp} disabled={isConnecting} variant="outline" className="rounded-xl font-black italic text-xs border-slate-200 uppercase w-full sm:w-auto">
                             {isConnecting ? 'Conectando...' : 'Reconectar'}
                          </Button>
                       </div>
@@ -184,7 +248,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                       <div className="flex items-center justify-between p-6 bg-white rounded-3xl border border-slate-100">
                          <div className="space-y-1">
                             <p className="font-black text-slate-900 italic text-sm uppercase">Envio Automático</p>
-                            <p className="text-[10px] text-slate-400 font-medium">Disparar confirmações instantâneas ao agendar.</p>
+                            <p className="text-[10px] text-slate-400 font-medium">Disparar confirmações instantâneas.</p>
                          </div>
                          <Switch checked={settings.enableAutoNotify} onCheckedChange={v => setSettings({...settings, enableAutoNotify: v})} />
                       </div>
@@ -200,18 +264,13 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                       <div className="relative z-10 space-y-4">
                          <LinkIcon className="h-10 w-10 text-primary" />
                          <h3 className="font-black italic uppercase text-lg">Link do Chatbot</h3>
-                         <p className="text-xs text-slate-400 leading-relaxed">Use este link na sua bio do WhatsApp Business para permitir que clientes agendem sem precisar de um atendente humano.</p>
-                         <div className="bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-between">
-                            <code className="text-[10px] text-primary font-bold">agil.com/s/{slug}</code>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/20 text-white"><QrCode className="h-3 w-3" /></Button>
+                         <p className="text-xs text-slate-400 leading-relaxed">Use este link na sua bio para permitir agendamentos automáticos.</p>
+                         <div className="bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-between gap-2 overflow-hidden">
+                            <code className="text-[10px] text-primary font-bold truncate">agil.com/s/{slug}</code>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 hover:bg-white/20 text-white"><QrCode className="h-3 w-3" /></Button>
                          </div>
                       </div>
                    </Card>
-
-                   <div className="p-6 bg-white rounded-3xl border shadow-sm space-y-4">
-                      <h4 className="font-black italic uppercase text-xs text-slate-400">Dica de Conversão</h4>
-                      <p className="text-xs text-slate-600 font-medium leading-relaxed italic">"Lojistas que usam o disparo automático reduzem em 42% a taxa de não-comparecimento (no-show)."</p>
-                   </div>
                 </div>
              </div>
           </TabsContent>
@@ -229,12 +288,14 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                          <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-1">Google Analytics (G-ID)</Label>
                          <Input value={settings.googleAnalytics} onChange={e => setSettings({...settings, googleAnalytics: e.target.value})} placeholder="ex: G-XXXXXXX" className="h-14 rounded-2xl bg-slate-50 border-none font-mono" />
                       </div>
-                      <Button onClick={handleSave} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl text-white">Salvar Integrações</Button>
+                      <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl text-white">
+                        {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Salvar Integrações'}
+                      </Button>
                    </div>
                    <div className="p-8 bg-blue-50 rounded-[40px] border border-blue-100 space-y-4">
                       <Code className="h-10 w-10 text-primary" />
                       <h3 className="font-black italic text-slate-900 uppercase">Métricas de Conversão</h3>
-                      <p className="text-sm text-slate-600 font-medium leading-relaxed">Conectando seus Pixels, você pode criar campanhas de remarketing para clientes que visitaram sua vitrine mas não agendaram.</p>
+                      <p className="text-sm text-slate-600 font-medium leading-relaxed">Conectando seus Pixels, você pode criar campanhas de remarketing para clientes que visitaram sua vitrine.</p>
                    </div>
                 </div>
              </Card>
