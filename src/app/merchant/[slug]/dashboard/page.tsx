@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,17 +12,32 @@ import {
   Calendar, Scissors, Wallet, Globe, LogOut, ShieldCheck,
   ChevronRight, Loader2, Stethoscope, Wrench, Dog, GraduationCap,
   ClipboardList, HeartPulse, Truck, BarChart3, Video, HeartHandshake,
-  Menu
+  Menu, MousePointer2, CheckCircle2, HelpCircle
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 export default function MerchantDashboard({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const db = useFirestore();
+  const [uiMode, setUiMode] = useState<'advanced' | 'easy'>('advanced');
   
+  // Persistência do modo no localStorage
+  useEffect(() => {
+    const savedMode = localStorage.getItem('agil_ui_mode');
+    if (savedMode === 'easy' || savedMode === 'advanced') {
+      setUiMode(savedMode);
+    }
+  }, []);
+
+  const toggleMode = (mode: 'advanced' | 'easy') => {
+    setUiMode(mode);
+    localStorage.setItem('agil_ui_mode', mode);
+  };
+
   const merchantQuery = useMemoFirebase(() => query(
     collection(db, 'merchants'), 
     where('slug', '==', slug),
@@ -135,6 +151,30 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       </aside>
 
       <main className="flex-1 p-4 lg:p-8">
+        {/* Toggle Mode Buttons - Above the Title */}
+        <div className="flex gap-2 mb-6">
+          <Button 
+            onClick={() => toggleMode('easy')}
+            variant={uiMode === 'easy' ? 'default' : 'outline'}
+            className={cn(
+              "rounded-full px-6 font-black italic text-xs uppercase transition-all shadow-sm",
+              uiMode === 'easy' ? "bg-green-600 hover:bg-green-700 text-white" : "border-green-200 text-green-600 hover:bg-green-50"
+            )}
+          >
+            <MousePointer2 className="h-3.5 w-3.5 mr-2" /> Modo Fácil
+          </Button>
+          <Button 
+            onClick={() => toggleMode('advanced')}
+            variant={uiMode === 'advanced' ? 'default' : 'outline'}
+            className={cn(
+              "rounded-full px-6 font-black italic text-xs uppercase transition-all shadow-sm",
+              uiMode === 'advanced' ? "bg-slate-900 hover:bg-black text-white" : "border-slate-200 text-slate-600"
+            )}
+          >
+            <Zap className="h-3.5 w-3.5 mr-2" /> Modo Avançado
+          </Button>
+        </div>
+
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-4">
             {/* Menu Mobile Trigger */}
@@ -160,8 +200,12 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </Sheet>
 
             <div>
-              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 uppercase tracking-tighter italic leading-none">Console {segment}</h1>
-              <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">Bem-vindo, {merchant?.name}</p>
+              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 uppercase tracking-tighter italic leading-none">
+                {uiMode === 'easy' ? 'Meu Painel' : `Console ${segment}`}
+              </h1>
+              <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">
+                {uiMode === 'easy' ? `Olá, ${merchant?.name}! O que vamos fazer hoje?` : `Bem-vindo, ${merchant?.name}`}
+              </p>
             </div>
           </div>
           <div className="hidden md:flex gap-3">
@@ -174,63 +218,130 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           </div>
         </header>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
-          {stats.map((stat, i) => (
-            <Card key={i} className="border-none shadow-sm rounded-3xl overflow-hidden group hover:scale-[1.02] transition-transform">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className={`${stat.bg} p-3 rounded-2xl`}><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
-                  <div className="text-[10px] font-black uppercase text-slate-400">{stat.trend}</div>
-                </div>
-                <div className="mt-4">
-                  <p className="text-xs font-black text-slate-400 uppercase">{stat.title}</p>
-                  <p className="text-2xl font-black text-slate-900 mt-1 italic tracking-tight">{stat.value}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {uiMode === 'advanced' ? (
+          /* --- ADVANCED MODE (CURRENT UI) --- */
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
+              {stats.map((stat, i) => (
+                <Card key={i} className="border-none shadow-sm rounded-3xl overflow-hidden group hover:scale-[1.02] transition-transform">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className={`${stat.bg} p-3 rounded-2xl`}><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
+                      <div className="text-[10px] font-black uppercase text-slate-400">{stat.trend}</div>
+                    </div>
+                    <div className="mt-4">
+                      <p className="text-xs font-black text-slate-400 uppercase">{stat.title}</p>
+                      <p className="text-2xl font-black text-slate-900 mt-1 italic tracking-tight">{stat.value}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-           <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 text-white relative overflow-hidden">
-              <div className="relative z-10 space-y-6">
-                 <h2 className="text-2xl font-black italic uppercase tracking-tighter">Saúde do Ecossistema</h2>
-                 <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10">
-                    <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 animate-pulse shrink-0">
-                       <Activity className="h-6 w-6" />
-                    </div>
-                    <div>
-                       <p className="font-black italic text-lg uppercase leading-tight">Instância Saudável</p>
-                       <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Todas as APIs e integrações estão operacionais.</p>
-                    </div>
-                 </div>
-                 <Button className="w-full h-14 bg-white text-slate-900 font-black italic rounded-2xl hover:bg-slate-100">
-                    Abrir Monitoramento Pro
-                 </Button>
-              </div>
-              <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
-           </Card>
+            <div className="grid gap-8 lg:grid-cols-2">
+               <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 text-white relative overflow-hidden">
+                  <div className="relative z-10 space-y-6">
+                     <h2 className="text-2xl font-black italic uppercase tracking-tighter">Saúde do Ecossistema</h2>
+                     <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10">
+                        <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 animate-pulse shrink-0">
+                           <Activity className="h-6 w-6" />
+                        </div>
+                        <div>
+                           <p className="font-black italic text-lg uppercase leading-tight">Instância Saudável</p>
+                           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Todas as APIs e integrações estão operacionais.</p>
+                        </div>
+                     </div>
+                     <Button className="w-full h-14 bg-white text-slate-900 font-black italic rounded-2xl hover:bg-slate-100">
+                        Abrir Monitoramento Pro
+                     </Button>
+                  </div>
+                  <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
+               </Card>
 
-           <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-white">
-              <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-6">Ações Rápidas IA</h2>
-              <div className="space-y-4">
-                 <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
-                    <div className="flex items-center gap-3">
-                       <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4 text-white" /></Badge>
-                       <p className="text-sm font-bold text-slate-700">Otimizar Preços por Curva ABC</p>
+               <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-white">
+                  <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-6">Ações Rápidas IA</h2>
+                  <div className="space-y-4">
+                     <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                           <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4 text-white" /></Badge>
+                           <p className="text-sm font-bold text-slate-700">Otimizar Preços por Curva ABC</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                     </div>
+                     <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                           <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4 text-white" /></Badge>
+                           <p className="text-sm font-bold text-slate-700">Recuperar Carrinhos Abandonados</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                     </div>
+                  </div>
+               </Card>
+            </div>
+          </div>
+        ) : (
+          /* --- EASY MODE (ACCESSIBILITY UI) --- */
+          <div className="animate-in zoom-in-95 duration-500">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* Easy Action Cards */}
+              <Link href={`/merchant/${slug}/${segment === 'BEAUTY' || segment === 'HEALTH' ? 'appointments' : 'orders'}`} className="col-span-1">
+                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
+                  <div className="bg-blue-100 p-6 rounded-[30px] mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <Calendar className="h-12 w-12 text-blue-600 group-hover:text-white" />
+                  </div>
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900">
+                    {segment === 'BEAUTY' || segment === 'HEALTH' ? 'Minha Agenda' : 'Meus Pedidos'}
+                  </h3>
+                  <p className="text-slate-400 font-bold text-xs uppercase mt-2">Clique para ver seus horários</p>
+                </Card>
+              </Link>
+
+              <Link href={`/merchant/${slug}/finance`} className="col-span-1">
+                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
+                  <div className="bg-green-100 p-6 rounded-[30px] mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                    <DollarSign className="h-12 w-12 text-green-600 group-hover:text-white" />
+                  </div>
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900">Ver meu Dinheiro</h3>
+                  <p className="text-slate-400 font-bold text-xs uppercase mt-2">Clique para ver o que vendeu</p>
+                </Card>
+              </Link>
+
+              <Link href={`/merchant/${slug}/settings`} className="col-span-1">
+                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
+                  <div className="bg-purple-100 p-6 rounded-[30px] mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <Settings className="h-12 w-12 text-purple-600 group-hover:text-white" />
+                  </div>
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900">Configurações</h3>
+                  <p className="text-slate-400 font-bold text-xs uppercase mt-2">Arrumar informações da loja</p>
+                </Card>
+              </Link>
+
+              {/* Simple Stats for Easy Mode */}
+              <Card className="md:col-span-2 lg:col-span-3 border-none shadow-sm rounded-[40px] p-10 bg-slate-900 text-white relative overflow-hidden">
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+                  <div className="text-center md:text-left space-y-4">
+                    <h2 className="text-3xl font-black italic uppercase">Resumo de Hoje</h2>
+                    <div className="flex flex-wrap justify-center md:justify-start gap-8">
+                      <div>
+                        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Você Ganhou</p>
+                        <p className="text-4xl font-black italic text-green-400 mt-1">R$ 2.450</p>
+                      </div>
+                      <div className="h-12 w-px bg-white/10 hidden md:block"></div>
+                      <div>
+                        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Trabalhos Realizados</p>
+                        <p className="text-4xl font-black italic text-blue-400 mt-1">12</p>
+                      </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                 </div>
-                 <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
-                    <div className="flex items-center gap-3">
-                       <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4 text-white" /></Badge>
-                       <p className="text-sm font-bold text-slate-700">Recuperar Carrinhos Abandonados</p>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                 </div>
-              </div>
-           </Card>
-        </div>
+                  </div>
+                  <Button className="h-20 px-12 bg-primary hover:bg-primary/90 text-white rounded-[35px] font-black italic text-xl shadow-2xl gap-3">
+                    <HelpCircle className="h-8 w-8" /> PRECISO DE AJUDA
+                  </Button>
+                </div>
+                <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
+              </Card>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
