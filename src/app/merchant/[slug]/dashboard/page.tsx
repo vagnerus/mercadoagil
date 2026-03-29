@@ -15,7 +15,7 @@ import {
   Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone,
   Briefcase, Star, Target, ShieldAlert, Lock, ArrowUpRight, CheckSquare,
   AlertCircle, History, Info, Smartphone, Database, Landmark,
-  Bell, CheckCircle, Dumbbell, PartyPopper, Gavel
+  Bell, CheckCircle, Dumbbell, PartyPopper, Gavel, Car
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -139,6 +139,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "Horas Cobráveis", value: "142h", icon: History, color: "text-blue-600", bg: "bg-blue-100", trend: "Meta" },
           { title: "Honorários", value: "R$ 8.200", icon: Gavel, color: "text-slate-600", bg: "bg-slate-100", trend: "+12%" },
           { title: "Score NPS", value: "98", icon: Star, color: "text-yellow-600", bg: "bg-yellow-100", trend: "Elite" },
+        ];
+      case 'PET':
+        return [
+          { title: "Pets em Atendimento", value: "08", icon: Dog, color: "text-orange-600", bg: "bg-orange-100", trend: "Ativo" },
+          { title: "Banho & Tosa", value: "12", icon: Droplets, color: "text-blue-600", bg: "bg-blue-100", trend: "+4" },
+          { title: "Vacinas Pendentes", value: "05", icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100", trend: "Alerta" },
+          { title: "Faturamento Pet", value: "R$ 3.850", icon: Wallet, color: "text-green-600", bg: "bg-green-100", trend: "+10%" },
+        ];
+      case 'AUTO':
+        return [
+          { title: "Boxes Ocupados", value: "04 / 06", icon: Car, color: "text-slate-600", bg: "bg-slate-100", trend: "80%" },
+          { title: "O.S. em Aberto", value: "15", icon: ClipboardList, color: "text-orange-600", bg: "bg-orange-100", trend: "+2" },
+          { title: "Peças em Falta", value: "03", icon: AlertCircle, color: "text-red-600", bg: "bg-red-100", trend: "Urgente" },
+          { title: "Ticket Médio Mec.", value: "R$ 1.250", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+15%" },
         ];
       default:
         return [

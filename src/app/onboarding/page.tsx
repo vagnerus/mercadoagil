@@ -13,7 +13,7 @@ import {
   Briefcase, Utensils, Zap, Dog, GraduationCap, 
   HeartHandshake, Stethoscope, Wrench, ShieldCheck, 
   CheckCircle2, Building2, MapPin, Settings2, Wallet,
-  Dumbbell, PartyPopper, Gavel
+  Dumbbell, PartyPopper, Gavel, Car
 } from "lucide-react";
 import { useUser, useFirestore, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
@@ -26,7 +26,7 @@ const SEGMENTS: { value: MerchantSegment; label: string; icon: any }[] = [
   { value: 'RESTAURANT', label: 'Restaurante / Food', icon: Utensils },
   { value: 'RETAIL', label: 'Loja / Varejo', icon: ShoppingBag },
   { value: 'HEALTH', label: 'Saúde / Clínicas', icon: Stethoscope },
-  { value: 'AUTO', label: 'Automotivo / Oficina', icon: Zap },
+  { value: 'AUTO', label: 'Automotivo / Oficina', icon: Car },
   { value: 'PET', label: 'Pets / Veterinária', icon: Dog },
   { value: 'EDUCATION', label: 'Educação / Aulas', icon: GraduationCap },
   { value: 'FITNESS', label: 'Academias & Studios', icon: Dumbbell },

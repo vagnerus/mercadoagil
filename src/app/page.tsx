@@ -11,18 +11,23 @@ import {
   BarChart3, Star, CheckCircle2, Smartphone, Sparkles, 
   Terminal, Activity, Cpu, MousePointer2, Monitor, Loader2,
   Scissors, Stethoscope, Wrench, Dog, GraduationCap, HeartHandshake,
-  ShoppingBag, Car, Camera, Calendar, Wallet, Plus, Dumbbell, PartyPopper, Gavel
+  ShoppingBag, Car, Camera, Calendar, Wallet, Plus, Dumbbell, PartyPopper, Gavel,
+  Utensils
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const SEGMENTS = [
-  { id: 'BEAUTY', label: 'Barbearia & Estética', icon: Scissors, color: 'bg-pink-500', theme: 'primary' },
-  { id: 'RETAIL', label: 'Lojas & Varejo', icon: ShoppingBag, color: 'bg-blue-500', theme: 'accent' },
-  { id: 'HEALTH', label: 'Saúde & Clínicas', icon: Stethoscope, color: 'bg-emerald-500', theme: 'primary' },
-  { id: 'FITNESS', label: 'Academias & Studios', icon: Dumbbell, color: 'bg-orange-500', theme: 'accent' },
-  { id: 'EVENTS', label: 'Eventos & Festas', icon: PartyPopper, color: 'bg-purple-500', theme: 'primary' },
-  { id: 'PROFESSIONAL', label: 'Consultoria & Jurídico', icon: Gavel, color: 'bg-indigo-500', theme: 'accent' },
+  { id: 'BEAUTY', label: 'Barbearia & Estética', icon: Scissors, color: 'bg-pink-500' },
+  { id: 'RESTAURANT', label: 'Gastronomia & Food', icon: Utensils, color: 'bg-orange-600' },
+  { id: 'RETAIL', label: 'Lojas & Varejo', icon: ShoppingBag, color: 'bg-blue-500' },
+  { id: 'HEALTH', label: 'Saúde & Clínicas', icon: Stethoscope, color: 'bg-emerald-500' },
+  { id: 'FITNESS', label: 'Academias & Studios', icon: Dumbbell, color: 'bg-orange-500' },
+  { id: 'EVENTS', label: 'Eventos & Festas', icon: PartyPopper, color: 'bg-purple-500' },
+  { id: 'PROFESSIONAL', label: 'Consultoria & Jurídico', icon: Gavel, color: 'bg-indigo-500' },
+  { id: 'AUTO', label: 'Automotivo & Oficina', icon: Car, color: 'bg-slate-700' },
+  { id: 'PET', label: 'Pets & Veterinária', icon: Dog, color: 'bg-yellow-600' },
+  { id: 'EDUCATION', label: 'Escolas & Cursos', icon: GraduationCap, color: 'bg-blue-800' },
 ];
 
 export default function LandingPage() {
@@ -32,7 +37,6 @@ export default function LandingPage() {
   const [socialProof, setSocialProof] = useState<{name: string, segment: string} | null>(null);
   const [loading, setLoading] = useState(false);
   
-  const aiSectionRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function LandingPage() {
     }, 1500);
   };
 
-  const isService = selectedSegment.id !== 'RETAIL';
+  const isService = !['RETAIL', 'RESTAURANT'].includes(selectedSegment.id);
 
   return (
     <div className="flex flex-col min-h-screen font-body selection:bg-primary selection:text-white bg-white">
@@ -113,8 +117,8 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Segment Selector - Floating Bar */}
-        <section className="bg-slate-50 border-b py-4 overflow-x-auto no-scrollbar">
-           <div className="container mx-auto px-4 flex gap-4">
+        <section className="bg-slate-50 border-b py-4 overflow-x-auto no-scrollbar scroll-smooth">
+           <div className="container mx-auto px-4 flex gap-4 min-w-max">
               {SEGMENTS.map((seg) => (
                 <button
                   key={seg.id}
@@ -231,7 +235,7 @@ export default function LandingPage() {
         </section>
 
         {/* 50 Functions Grid */}
-        <section ref={aiSectionRef} className="py-24 bg-slate-900 text-white overflow-hidden scroll-mt-20">
+        <section className="py-24 bg-slate-900 text-white overflow-hidden scroll-mt-20">
            <div className="container px-4 md:px-6 mx-auto">
               <div className="text-center mb-20 space-y-4">
                  <h2 className="text-4xl md:text-7xl font-black italic tracking-tighter uppercase leading-none">
