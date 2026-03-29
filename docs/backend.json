@@ -5,97 +5,38 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "PlatformUser",
       "type": "object",
-      "description": "Represents a user of the platform, either a Super Admin managing the overall platform or a Merchant Admin/Staff managing a specific store. Passwords are handled by an external authentication system.",
+      "description": "Represents a user of the platform.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the PlatformUser entity."
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's email address, used for login and communication.",
-          "format": "email"
-        },
-        "firstName": {
-          "type": "string",
-          "description": "The first name of the user."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "The last name of the user."
-        },
-        "role": {
-          "type": "string",
-          "description": "The role of the user within the platform (e.g., 'SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_STAFF')."
-        },
-        "merchantId": {
-          "type": "string",
-          "description": "Reference to the Merchant this user is associated with."
-        },
-        "merchantSlug": {
-          "type": "string",
-          "description": "URL slug of the associated merchant."
-        },
-        "isActive": {
-          "type": "boolean",
-          "description": "Indicates if the user account is active."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "role": { "type": "string" },
+        "merchantId": { "type": "string" },
+        "merchantSlug": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "email",
-        "role",
-        "isActive"
-      ]
+      "required": ["id", "email", "role", "isActive"]
     },
     "Merchant": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Merchant",
       "type": "object",
-      "description": "Represents a single store or business ('lojista') operating on the e-commerce platform.",
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "slug": {
-          "type": "string"
-        },
-        "segment": {
-          "type": "string"
-        },
-        "status": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "segment": { "type": "string" },
+        "status": { "type": "string" },
+        "email": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "name",
-        "slug",
-        "segment"
-      ]
+      "required": ["id", "name", "slug", "segment"]
     },
     "SupportTicket": {
       "title": "SupportTicket",
       "type": "object",
-      "description": "Chamados de suporte abertos por lojistas via formulário para o Master Admin.",
       "properties": {
         "id": { "type": "string" },
         "merchantId": { "type": "string" },
@@ -103,19 +44,40 @@
         "userEmail": { "type": "string" },
         "subject": { "type": "string" },
         "reason": { "type": "string" },
-        "urgency": { "type": "string", "enum": ["normal", "moderate", "high"] },
-        "status": { "type": "string", "enum": ["open", "in_progress", "closed"] },
+        "urgency": { "type": "string" },
+        "status": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["merchantId", "merchantName", "userEmail", "status", "subject", "urgency"]
+    },
+    "CustomerReview": {
+      "title": "CustomerReview",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "merchantId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "sentiment": { "type": "string" },
+        "aiResponse": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "EmployeeShift": {
+      "title": "EmployeeShift",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "staffId": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "status": { "type": "string" }
+      }
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous",
-      "google.com"
-    ]
+    "providers": ["password", "anonymous", "google.com"]
   },
   "firestore": {
     "structure": [
@@ -124,7 +86,7 @@
         "definition": {
           "entityName": "PlatformUser",
           "schema": { "$ref": "#/backend/entities/PlatformUser" },
-          "description": "Perfis de usuários da plataforma."
+          "description": "Perfis de usuários."
         }
       },
       {
@@ -132,7 +94,7 @@
         "definition": {
           "entityName": "Merchant",
           "schema": { "$ref": "#/backend/entities/Merchant" },
-          "description": "Instâncias de lojas."
+          "description": "Lojas lojistas."
         }
       },
       {
@@ -140,7 +102,23 @@
         "definition": {
           "entityName": "SupportTicket",
           "schema": { "$ref": "#/backend/entities/SupportTicket" },
-          "description": "Tickets de suporte para o Master Admin."
+          "description": "Tickets de suporte."
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/reviews/{reviewId}",
+        "definition": {
+          "entityName": "CustomerReview",
+          "schema": { "$ref": "#/backend/entities/CustomerReview" },
+          "description": "Avaliações de clientes."
+        }
+      },
+      {
+        "path": "/merchants/{merchantId}/shifts/{shiftId}",
+        "definition": {
+          "entityName": "EmployeeShift",
+          "schema": { "$ref": "#/backend/entities/EmployeeShift" },
+          "description": "Escalas de trabalho."
         }
       }
     ]

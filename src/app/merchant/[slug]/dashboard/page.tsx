@@ -12,7 +12,8 @@ import {
   Calendar, Scissors, Wallet, Globe, LogOut, ShieldCheck,
   ChevronRight, Loader2, Stethoscope, Wrench, Dog, GraduationCap,
   ClipboardList, HeartPulse, Truck, BarChart3, Video, HeartHandshake,
-  Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone
+  Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone,
+  Briefcase, Star, Target
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -69,13 +70,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "Prontuários Ativos", value: "1.2k", icon: ClipboardList, color: "text-purple-600", bg: "bg-purple-100", trend: "+2%" },
           { title: "Repasse Médico", value: "R$ 8.450", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "On track" },
         ];
-      case 'RESTAURANT':
-        return [
-          { title: "Pedidos Hoje", value: "45", icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-100", trend: "+8" },
-          { title: "Tempo Médio KDS", value: "14 min", icon: Clock, color: "text-orange-600", bg: "bg-orange-100", trend: "Rápido" },
-          { title: "Mesas Ativas", value: "8", icon: LayoutDashboard, color: "text-purple-600", bg: "bg-purple-100", trend: "60%" },
-          { title: "Ticket Médio", value: "R$ 82,50", icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", trend: "+2%" },
-        ];
       default:
         return [
           { title: "Vendas Hoje", value: "R$ 4.850", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
@@ -92,8 +86,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         <LayoutDashboard className="h-5 w-5" /> Dashboard
       </Link>
       
+      <Link href={`/merchant/${slug}/hr`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
+        <Briefcase className="h-5 w-5" /> Enterprise RH
+      </Link>
+
+      <Link href={`/merchant/${slug}/feedback`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
+        <Star className="h-5 w-5" /> Sentiment AI
+      </Link>
+
+      <Link href={`/merchant/${slug}/analytics`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
+        <BarChart3 className="h-5 w-5" /> Analytics Pro
+      </Link>
+
       <Link href={`/merchant/${slug}/creative-studio`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
-        <Video className="h-5 w-5 text-primary" /> Creative Studio IA
+        <Video className="h-5 w-5 text-primary" /> Creative Studio
       </Link>
 
       <Link href={`/merchant/${slug}/marketing`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
@@ -107,22 +113,13 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       {segment === 'BEAUTY' && (
         <>
           <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
-          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe de Estilo</Link>
-          <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Scissors className="h-5 w-5" /> Procedimentos</Link>
-        </>
-      )}
-
-      {segment === 'HEALTH' && (
-        <>
-          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Consultas</Link>
-          <Link href={`/merchant/${slug}/health/pep`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><ClipboardList className="h-5 w-5" /> Prontuários (PEP)</Link>
-          <Link href={`/merchant/${slug}/health/telemedicine`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Video className="h-5 w-5" /> Telemedicina</Link>
-          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Stethoscope className="h-5 w-5" /> Equipe Médica</Link>
+          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe</Link>
         </>
       )}
 
       <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Monitor className="h-5 w-5" /> PDV Cloud</Link>
       <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
+      <Link href={`/merchant/${slug}/inventory`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Package className="h-5 w-5" /> Estoque</Link>
       <Link href={`/merchant/${slug}/suppliers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Truck className="h-5 w-5" /> Fornecedores</Link>
       <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Monitor className="h-5 w-5" /> Ágil Academy</Link>
       <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
@@ -249,11 +246,16 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 dark:bg-black text-white relative overflow-hidden">
                   <div className="relative z-10 flex flex-col md:flex-row justify-between gap-10">
                      <div className="space-y-6 flex-1">
-                        <h2 className="text-2xl font-black italic uppercase tracking-tighter">Engine Criativa IA</h2>
-                        <p className="text-slate-400 text-sm italic font-medium leading-relaxed">Use o poder do Veo 2 para gerar vídeos cinematográficos dos seus produtos e aumente seu alcance orgânico em 300%.</p>
-                        <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl gap-2" asChild>
-                           <Link href={`/merchant/${slug}/creative-studio`}>ABRIR CREATIVE STUDIO <Video className="h-5 w-5" /></Link>
-                        </Button>
+                        <h2 className="text-2xl font-black italic uppercase tracking-tighter">Enterprise HR Suite</h2>
+                        <p className="text-slate-400 text-sm italic font-medium leading-relaxed">Gerencie escalas de trabalho, produtividade e folha de pagamento da sua equipe em um único lugar.</p>
+                        <div className="flex gap-3">
+                           <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl gap-2" asChild>
+                              <Link href={`/merchant/${slug}/hr`}>ABRIR RH ENTERPRISE <Briefcase className="h-5 w-5" /></Link>
+                           </Button>
+                           <Button variant="outline" className="h-14 px-8 border-white/10 text-white font-black italic rounded-2xl gap-2 hover:bg-white/5" asChild>
+                              <Link href={`/merchant/${slug}/feedback`}>SENTIMENT AI <Target className="h-5 w-5" /></Link>
+                           </Button>
+                        </div>
                      </div>
                      <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10 shrink-0">
                         <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 animate-pulse">
@@ -273,17 +275,24 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                     <Sparkles className="h-5 w-5 text-primary" /> Ações Rápidas IA
                   </h2>
                   <div className="space-y-4">
-                     <Link href={`/merchant/${slug}/marketing`} className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
+                     <Link href={`/merchant/${slug}/hr`} className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
                         <div className="flex items-center gap-3">
-                           <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
-                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Otimizar Preços</p>
+                           <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Briefcase className="h-4 w-4" /></Badge>
+                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Gerenciar Equipe</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
                      </Link>
-                     <Link href={`/merchant/${slug}/loyalty`} className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
+                     <Link href={`/merchant/${slug}/feedback`} className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
                         <div className="flex items-center gap-3">
-                           <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4" /></Badge>
-                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Recuperar Clientes</p>
+                           <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Star className="h-4 w-4" /></Badge>
+                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Sentiment AI</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                     </Link>
+                     <Link href={`/merchant/${slug}/analytics`} className="p-4 bg-slate-100/50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center justify-between group cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <div className="flex items-center gap-3">
+                           <Badge className="bg-slate-900 text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><BarChart3 className="h-4 w-4" /></Badge>
+                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Analytics Pro</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
                      </Link>
@@ -316,13 +325,13 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                 </Card>
               </Link>
 
-              <Link href={`/merchant/${slug}/settings`} className="col-span-1">
+              <Link href={`/merchant/${slug}/hr`} className="col-span-1">
                 <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white dark:bg-slate-900 flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
                   <div className="bg-purple-100 dark:bg-purple-900 p-6 rounded-[30px] mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                    <Settings className="h-12 w-12 text-purple-600 dark:text-purple-400 group-hover:text-white" />
+                    <Briefcase className="h-12 w-12 text-purple-600 dark:text-purple-400 group-hover:text-white" />
                   </div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white">Configurações</h3>
-                  <p className="text-slate-400 font-bold text-xs uppercase mt-2">Arrumar informações da loja</p>
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white">Gerenciar Equipe</h3>
+                  <p className="text-slate-400 font-bold text-xs uppercase mt-2">Escalas e RH Simplificado</p>
                 </Card>
               </Link>
 

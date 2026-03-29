@@ -59,7 +59,10 @@ export const SYSTEM_PLANS: Plan[] = [
 
 export const MOCK_MERCHANTS: Merchant[] = [];
 export const MOCK_SERVICES: any[] = [];
-export const MOCK_PRODUCTS: any[] = [];
+export const MOCK_PRODUCTS: any[] = [
+  { id: 'p1', name: 'Hambúrguer Artesanal', price: 35.00, imageUrl: 'https://picsum.photos/seed/burger/200/200', category: 'Lanches', stock: 45 },
+  { id: 'p2', name: 'Pizza Italiana', price: 65.00, imageUrl: 'https://picsum.photos/seed/pizza/200/200', category: 'Massas', stock: 20 },
+];
 export const MOCK_STAFF: any[] = [];
 
 export type OrderStatus = 'new' | 'preparing' | 'delivering' | 'finished' | 'cancelled' | 'scheduled';
@@ -129,7 +132,6 @@ CAPÍTULO 5: PROTOCOLOS TÉCNICOS E BIOSSEGURANÇA
 
 const generateCourses = () => {
   const courses = [];
-  // Ciclo fixo de ratings e durações para evitar Hydration Error
   const FIXED_RATINGS = ["4.9", "4.8", "5.0", "4.7", "4.9", "4.6"];
   const FIXED_DURATIONS = ["12h", "15h", "20h", "10h", "18h", "24h"];
   
@@ -189,4 +191,9 @@ export const COURSE_LIBRARY = generateCourses();
 export const MOCK_COUPONS = [
   { id: 'c1', code: 'BEMVINDO10', discount: 10, type: 'percent' },
   { id: 'c2', code: 'PROMO20', discount: 20, type: 'fixed' },
+];
+
+export const MOCK_SERVICES = [
+  { id: 's1', name: 'Corte Degradê Master', price: 45.00, duration: 30 },
+  { id: 's2', name: 'Barboterapia Elite', price: 35.00, duration: 25 },
 ];
