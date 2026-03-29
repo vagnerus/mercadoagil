@@ -14,7 +14,7 @@ import {
   Store, Shield, Palette, QrCode, Globe, Key, 
   LayoutDashboard, Settings, Smartphone, Zap, Code, MessageCircle, Loader2, CheckCircle2, Link as LinkIcon, RefreshCw,
   Menu, ShoppingBag, List, Users, Calendar, Scissors, Stethoscope, Video, ClipboardList, Wallet, BarChart3, LogOut,
-  Building2, Landmark, MapPin, ReceiptText, ShieldAlert
+  Building2, Landmark, MapPin, ReceiptText, ShieldAlert, Save
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
