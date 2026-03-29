@@ -21,6 +21,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { cn } from "@/lib/utils";
 import { AiAssistantChat } from "@/components/merchant/ai-assistant-chat";
 import { AiBusinessHub } from "@/components/merchant/ai-business-hub";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function MerchantDashboard({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -93,30 +94,30 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       
       {segment === 'BEAUTY' && (
         <>
-          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
-          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe de Estilo</Link>
-          <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Scissors className="h-5 w-5" /> Procedimentos</Link>
+          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
+          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe de Estilo</Link>
+          <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Scissors className="h-5 w-5" /> Procedimentos</Link>
         </>
       )}
 
       {segment === 'HEALTH' && (
         <>
-          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Consultas</Link>
-          <Link href={`/merchant/${slug}/health/pep`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><ClipboardList className="h-5 w-5" /> Prontuários (PEP)</Link>
-          <Link href={`/merchant/${slug}/health/telemedicine`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Video className="h-5 w-5" /> Telemedicina</Link>
-          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Stethoscope className="h-5 w-5" /> Equipe Médica</Link>
+          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Consultas</Link>
+          <Link href={`/merchant/${slug}/health/pep`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><ClipboardList className="h-5 w-5" /> Prontuários (PEP)</Link>
+          <Link href={`/merchant/${slug}/health/telemedicine`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Video className="h-5 w-5" /> Telemedicina</Link>
+          <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Stethoscope className="h-5 w-5" /> Equipe Médica</Link>
         </>
       )}
 
-      <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
-      <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Monitor className="h-5 w-5" /> Ágil Academy</Link>
-      <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
+      <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
+      <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Monitor className="h-5 w-5" /> Ágil Academy</Link>
+      <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
     </div>
   );
 
   if (loadingMerchant) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 space-y-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="font-black italic text-slate-400 uppercase tracking-widest">Sincronizando Painel {segment}...</p>
       </div>
@@ -126,65 +127,68 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const stats = getSegmentStats();
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-body relative">
-      <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-body relative">
+      <aside className="w-64 border-r dark:border-slate-800 bg-white dark:bg-slate-900 hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-primary p-1.5 rounded-lg shadow-sm">
               <ShoppingBag className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-slate-800 tracking-tight italic uppercase">MERCADO ÁGIL</span>
+            <span className="font-bold text-lg text-slate-800 dark:text-white tracking-tight italic uppercase">MERCADO ÁGIL</span>
           </Link>
         </div>
         <nav className="flex-1 overflow-hidden">
           <NavLinks />
         </nav>
-        <div className="p-4 border-t">
+        <div className="p-4 border-t dark:border-slate-800">
           <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2" asChild><Link href="/login"><LogOut className="h-4 w-4" /> Sair</Link></Button>
         </div>
       </aside>
 
       <main className="flex-1 p-4 lg:p-8">
-        <div className="flex gap-2 mb-8 bg-white p-2 rounded-full w-fit shadow-sm border">
-          <Button 
-            onClick={() => toggleMode('easy')}
-            variant={uiMode === 'easy' ? 'default' : 'ghost'}
-            className={cn(
-              "rounded-full px-6 font-black italic text-xs uppercase transition-all",
-              uiMode === 'easy' ? "bg-green-600 text-white shadow-lg" : "text-slate-400 hover:text-green-600"
-            )}
-          >
-            <MousePointer2 className="h-3.5 w-3.5 mr-2" /> Modo Fácil
-          </Button>
-          <Button 
-            onClick={() => toggleMode('advanced')}
-            variant={uiMode === 'advanced' ? 'default' : 'ghost'}
-            className={cn(
-              "rounded-full px-6 font-black italic text-xs uppercase transition-all",
-              uiMode === 'advanced' ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-900"
-            )}
-          >
-            <Zap className="h-3.5 w-3.5 mr-2" /> Modo Avançado
-          </Button>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div className="flex gap-2 bg-white dark:bg-slate-900 p-2 rounded-full w-fit shadow-sm border dark:border-slate-800">
+            <Button 
+              onClick={() => toggleMode('easy')}
+              variant={uiMode === 'easy' ? 'default' : 'ghost'}
+              className={cn(
+                "rounded-full px-6 font-black italic text-xs uppercase transition-all",
+                uiMode === 'easy' ? "bg-green-600 text-white shadow-lg" : "text-slate-400 hover:text-green-600"
+              )}
+            >
+              <MousePointer2 className="h-3.5 w-3.5 mr-2" /> Modo Fácil
+            </Button>
+            <Button 
+              onClick={() => toggleMode('advanced')}
+              variant={uiMode === 'advanced' ? 'default' : 'ghost'}
+              className={cn(
+                "rounded-full px-6 font-black italic text-xs uppercase transition-all",
+                uiMode === 'advanced' ? "bg-slate-900 dark:bg-white dark:text-slate-900 text-white shadow-lg" : "text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              )}
+            >
+              <Zap className="h-3.5 w-3.5 mr-2" /> Modo Avançado
+            </Button>
+          </div>
+          <ModeToggle />
         </div>
 
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-4">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden rounded-xl border-slate-200">
+                <Button variant="outline" size="icon" className="lg:hidden rounded-xl border-slate-200 dark:border-slate-800">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0 border-none bg-white">
-                <SheetHeader className="p-6 border-b text-left">
+              <SheetContent side="left" className="w-72 p-0 border-none bg-white dark:bg-slate-900">
+                <SheetHeader className="p-6 border-b dark:border-slate-800 text-left">
                   <SheetTitle className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">
                     MERCADO ÁGIL
                   </SheetTitle>
                 </SheetHeader>
                 <div className="p-4 h-full flex flex-col">
                   <NavLinks mobile />
-                  <div className="mt-auto pt-4 border-t">
+                  <div className="mt-auto pt-4 border-t dark:border-slate-800">
                     <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2" asChild><Link href="/login"><LogOut className="h-4 w-4" /> Sair</Link></Button>
                   </div>
                 </div>
@@ -192,7 +196,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </Sheet>
 
             <div>
-              <h1 className="text-2xl lg:text-4xl font-black text-slate-900 uppercase tracking-tighter italic leading-none">
+              <h1 className="text-2xl lg:text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">
                 {uiMode === 'easy' ? 'Meu Painel' : `Console ${segment}`}
               </h1>
               <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">
@@ -201,7 +205,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </div>
           </div>
           <div className="hidden md:flex gap-3">
-            <Button variant="outline" className="rounded-xl h-12 gap-2" asChild>
+            <Button variant="outline" className="rounded-xl h-12 gap-2 dark:border-slate-800" asChild>
               <Link href={`/store/${slug}`} target="_blank"><Globe className="h-4 w-4" /> Ver Vitrine</Link>
             </Button>
             <AiBusinessHub merchantName={merchant?.name || slug} />
@@ -212,15 +216,15 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
               {stats.map((stat, i) => (
-                <Card key={i} className="border-none shadow-sm rounded-3xl overflow-hidden group hover:scale-[1.02] transition-transform">
+                <Card key={i} className="border-none shadow-sm rounded-3xl overflow-hidden group hover:scale-[1.02] transition-transform dark:bg-slate-900">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
-                      <div className={`${stat.bg} p-3 rounded-2xl`}><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
+                      <div className={`${stat.bg} dark:bg-slate-800 p-3 rounded-2xl`}><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
                       <div className="text-[10px] font-black uppercase text-slate-400">{stat.trend}</div>
                     </div>
                     <div className="mt-4">
                       <p className="text-xs font-black text-slate-400 uppercase">{stat.title}</p>
-                      <p className="text-2xl font-black text-slate-900 mt-1 italic tracking-tight">{stat.value}</p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white mt-1 italic tracking-tight">{stat.value}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -228,7 +232,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </div>
 
             <div className="grid gap-8 lg:grid-cols-2">
-               <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 text-white relative overflow-hidden">
+               <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 dark:bg-black text-white relative overflow-hidden">
                   <div className="relative z-10 space-y-6">
                      <h2 className="text-2xl font-black italic uppercase tracking-tighter">Saúde do Ecossistema</h2>
                      <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10">
@@ -247,20 +251,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                   <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
                </Card>
 
-               <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-white">
-                  <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-6">Ações Rápidas IA</h2>
+               <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-white dark:bg-slate-900">
+                  <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-6 dark:text-white">Ações Rápidas IA</h2>
                   <div className="space-y-4">
                      <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
                         <div className="flex items-center gap-3">
                            <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4 text-white" /></Badge>
-                           <p className="text-sm font-bold text-slate-700">Otimizar Preços por Curva ABC</p>
+                           <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Otimizar Preços por Curva ABC</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
                      </div>
                      <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
                         <div className="flex items-center gap-3">
                            <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4 text-white" /></Badge>
-                           <p className="text-sm font-bold text-slate-700">Recuperar Carrinhos Abandonados</p>
+                           <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Recuperar Carrinhos Abandonados</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
                      </div>
@@ -272,11 +276,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           <div className="animate-in zoom-in-95 duration-500">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Link href={`/merchant/${slug}/${segment === 'BEAUTY' || segment === 'HEALTH' ? 'appointments' : 'orders'}`} className="col-span-1">
-                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
-                  <div className="bg-blue-100 p-6 rounded-[30px] mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <Calendar className="h-12 w-12 text-blue-600 group-hover:text-white" />
+                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white dark:bg-slate-900 flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
+                  <div className="bg-blue-100 dark:bg-blue-900 p-6 rounded-[30px] mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <Calendar className="h-12 w-12 text-blue-600 dark:text-blue-400 group-hover:text-white" />
                   </div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900">
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white">
                     {segment === 'BEAUTY' || segment === 'HEALTH' ? 'Minha Agenda' : 'Meus Pedidos'}
                   </h3>
                   <p className="text-slate-400 font-bold text-xs uppercase mt-2">Clique para ver seus horários</p>
@@ -284,26 +288,26 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
               </Link>
 
               <Link href={`/merchant/${slug}/finance`} className="col-span-1">
-                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
-                  <div className="bg-green-100 p-6 rounded-[30px] mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
-                    <DollarSign className="h-12 w-12 text-green-600 group-hover:text-white" />
+                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white dark:bg-slate-900 flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
+                  <div className="bg-green-100 dark:bg-green-900 p-6 rounded-[30px] mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                    <DollarSign className="h-12 w-12 text-green-600 dark:text-green-400 group-hover:text-white" />
                   </div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900">Ver meu Dinheiro</h3>
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white">Ver meu Dinheiro</h3>
                   <p className="text-slate-400 font-bold text-xs uppercase mt-2">Clique para ver o que vendeu</p>
                 </Card>
               </Link>
 
               <Link href={`/merchant/${slug}/settings`} className="col-span-1">
-                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
-                  <div className="bg-purple-100 p-6 rounded-[30px] mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                    <Settings className="h-12 w-12 text-purple-600 group-hover:text-white" />
+                <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white dark:bg-slate-900 flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
+                  <div className="bg-purple-100 dark:bg-purple-900 p-6 rounded-[30px] mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <Settings className="h-12 w-12 text-purple-600 dark:text-purple-400 group-hover:text-white" />
                   </div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900">Configurações</h3>
+                  <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white">Configurações</h3>
                   <p className="text-slate-400 font-bold text-xs uppercase mt-2">Arrumar informações da loja</p>
                 </Card>
               </Link>
 
-              <Card className="md:col-span-2 lg:col-span-3 border-none shadow-sm rounded-[40px] p-10 bg-slate-900 text-white relative overflow-hidden">
+              <Card className="md:col-span-2 lg:col-span-3 border-none shadow-sm rounded-[40px] p-10 bg-slate-900 dark:bg-black text-white relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                   <div className="text-center md:text-left space-y-4">
                     <h2 className="text-3xl font-black italic uppercase">Resumo de Hoje</h2>
