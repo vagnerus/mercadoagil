@@ -16,10 +16,6 @@
           "description": "The user's email address, used for login and communication.",
           "format": "email"
         },
-        "passwordHash": {
-          "type": "string",
-          "description": "Hashed password for authentication. Raw passwords are not stored."
-        },
         "firstName": {
           "type": "string",
           "description": "The first name of the user."
@@ -34,7 +30,11 @@
         },
         "merchantId": {
           "type": "string",
-          "description": "Reference to the Merchant this user is associated with. (Relationship: Merchant 1:N PlatformUser) This is null for 'SUPER_ADMIN' role."
+          "description": "Reference to the Merchant this user is associated with."
+        },
+        "merchantSlug": {
+          "type": "string",
+          "description": "URL slug of the associated merchant."
         },
         "isActive": {
           "type": "boolean",
@@ -42,90 +42,17 @@
         },
         "createdAt": {
           "type": "string",
-          "description": "Timestamp when the user account was created.",
           "format": "date-time"
         },
         "updatedAt": {
           "type": "string",
-          "description": "Timestamp when the user account was last updated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
         "email",
-        "passwordHash",
-        "firstName",
-        "lastName",
         "role",
-        "isActive",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
-    "Plan": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Plan",
-      "type": "object",
-      "description": "Defines the subscription tiers available for merchants on the platform, outlining features and pricing.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Plan entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the plan (e.g., 'Free', 'Basic', 'Pro', 'Pro II')."
-        },
-        "description": {
-          "type": "string",
-          "description": "A detailed description of the plan's offerings and benefits."
-        },
-        "price": {
-          "type": "number",
-          "description": "The monthly price of the plan in local currency (e.g., BRL). Set to 0 for 'Free' plans."
-        },
-        "durationDays": {
-          "type": "number",
-          "description": "The duration in days for which the plan is active, primarily for 'Free' plans. Null for paid plans that renew monthly/annually."
-        },
-        "maxProducts": {
-          "type": "number",
-          "description": "The maximum number of products a merchant can create under this plan. Null for unlimited."
-        },
-        "hasCustomDomain": {
-          "type": "boolean",
-          "description": "Indicates if the plan allows merchants to use a custom domain for their storefront."
-        },
-        "hasReports": {
-          "type": "boolean",
-          "description": "Indicates if the plan includes access to advanced sales and business reports."
-        },
-        "hasAiProductDescriptionGenerator": {
-          "type": "boolean",
-          "description": "Indicates if the plan includes the AI product description generator feature."
-        },
-        "availableSystemVersions": {
-          "type": "array",
-          "description": "A list of system access versions available with this plan (e.g., 'WEB_PWA', 'DESKTOP_APP', 'MOBILE_APP').",
-          "items": {
-            "type": "string"
-          }
-        },
-        "isActive": {
-          "type": "boolean",
-          "description": "Indicates if the plan is currently active and available for new subscriptions."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "description",
-        "price",
-        "hasCustomDomain",
-        "hasReports",
-        "hasAiProductDescriptionGenerator",
-        "availableSystemVersions",
         "isActive"
       ]
     },
@@ -136,261 +63,49 @@
       "description": "Represents a single store or business ('lojista') operating on the e-commerce platform.",
       "properties": {
         "id": {
-          "type": "string",
-          "description": "Unique identifier for the Merchant entity."
-        },
-        "platformUserId": {
-          "type": "string",
-          "description": "Reference to the PlatformUser who is the primary administrator/owner of this merchant account. (Relationship: PlatformUser 1:N Merchant)"
-        },
-        "planId": {
-          "type": "string",
-          "description": "Reference to the subscription Plan the merchant is currently on. (Relationship: Plan 1:N Merchant)"
+          "type": "string"
         },
         "name": {
-          "type": "string",
-          "description": "The official name of the merchant's store."
+          "type": "string"
         },
         "slug": {
-          "type": "string",
-          "description": "A unique, URL-friendly identifier for the merchant's public storefront (e.g., 'loja-do-ze'). Used for generating subdomains or unique links."
+          "type": "string"
         },
         "segment": {
-          "type": "string",
-          "description": "The business niche (e.g., 'RESTAURANT', 'RETAIL', 'SERVICE', 'GROCERY', 'PHARMACY').",
-          "enum": ["RESTAURANT", "RETAIL", "SERVICE", "GROCERY", "PHARMACY"]
-        },
-        "logoUrl": {
-          "type": "string",
-          "description": "URL to the merchant's store logo image.",
-          "format": "uri"
-        },
-        "bannerUrl": {
-          "type": "string",
-          "description": "URL to the merchant's store banner image.",
-          "format": "uri"
-        },
-        "themeColorPrimary": {
-          "type": "string",
-          "description": "Hexadecimal code for the primary theme color of the merchant's storefront."
-        },
-        "themeColorSecondary": {
-          "type": "string",
-          "description": "Hexadecimal code for the secondary theme color of the merchant's storefront."
-        },
-        "themeColorAccent": {
-          "type": "string",
-          "description": "Hexadecimal code for the accent theme color of the merchant's storefront."
-        },
-        "minimumOrderValue": {
-          "type": "number",
-          "description": "The minimum total value required for an order from this merchant."
+          "type": "string"
         },
         "status": {
-          "type": "string",
-          "description": "The current operational status of the merchant (e.g., 'ACTIVE', 'BLOCKED', 'PENDING_SETUP', 'FREE_EXPIRED')."
+          "type": "string"
         },
-        "subscriptionEndDate": {
-          "type": "string",
-          "description": "The date and time when the merchant's current subscription (especially 'Free' plans) is set to expire. Null for perpetually active paid plans.",
-          "format": "date-time"
+        "email": {
+          "type": "string"
         },
         "createdAt": {
           "type": "string",
-          "description": "Timestamp when the merchant account was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the merchant account was last updated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
-        "platformUserId",
-        "planId",
         "name",
         "slug",
-        "segment",
-        "status",
-        "createdAt",
-        "updatedAt"
+        "segment"
       ]
     },
-    "MerchantOperatingHour": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MerchantOperatingHour",
+    "SupportTicket": {
+      "title": "SupportTicket",
       "type": "object",
-      "description": "Specifies the opening and closing times for a merchant's store on a particular day of the week.",
+      "description": "Chamados de suporte abertos por lojistas via chat para o Master Admin.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the MerchantOperatingHour entity."
-        },
-        "merchantId": {
-          "type": "string",
-          "description": "Reference to the Merchant this operating hour belongs to. (Relationship: Merchant 1:N MerchantOperatingHour)"
-        },
-        "dayOfWeek": {
-          "type": "string",
-          "description": "The day of the week (e.g., 'MONDAY', 'TUESDAY', ..., 'SUNDAY')."
-        },
-        "openingTime": {
-          "type": "string",
-          "description": "The time the store opens for business on this day (e.g., '09:00')."
-        },
-        "closingTime": {
-          "type": "string",
-          "description": "The time the store closes for business on this day (e.g., '18:00')."
-        }
+        "id": { "type": "string" },
+        "merchantId": { "type": "string" },
+        "merchantName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "in_progress", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "merchantId",
-        "dayOfWeek",
-        "openingTime",
-        "closingTime"
-      ]
-    },
-    "MerchantPaymentMethod": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MerchantPaymentMethod",
-      "type": "object",
-      "description": "Defines the payment methods accepted by a specific merchant.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the MerchantPaymentMethod entity."
-        },
-        "merchantId": {
-          "type": "string",
-          "description": "Reference to the Merchant who accepts this payment method. (Relationship: Merchant 1:N MerchantPaymentMethod)"
-        },
-        "type": {
-          "type": "string",
-          "description": "The type of payment method (e.g., 'PIX', 'CREDIT_CARD', 'DEBIT_CARD', 'CASH', 'BANK_TRANSFER')."
-        },
-        "details": {
-          "type": "string",
-          "description": "Additional details or configuration for the payment method (e.g., PIX key for a specific merchant)."
-        },
-        "instructions": {
-          "type": "string",
-          "description": "Human-readable instructions for the customer regarding this payment method (e.g., 'Pay with cash upon delivery')."
-        },
-        "isActive": {
-          "type": "boolean",
-          "description": "Indicates if this payment method is currently active and available for use by the merchant's customers."
-        }
-      },
-      "required": [
-        "id",
-        "merchantId",
-        "type",
-        "isActive"
-      ]
-    },
-    "ProductCategory": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ProductCategory",
-      "type": "object",
-      "description": "Organizes products into logical categories within a merchant's catalog.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the ProductCategory entity."
-        },
-        "merchantId": {
-          "type": "string",
-          "description": "Reference to the Merchant this category belongs to. (Relationship: Merchant 1:N ProductCategory)"
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the product category (e.g., 'Bebidas', 'Lanches')."
-        },
-        "description": {
-          "type": "string",
-          "description": "A brief description of the product category."
-        },
-        "displayOrder": {
-          "type": "number",
-          "description": "The order in which the category should be displayed in the storefront."
-        },
-        "isActive": {
-          "type": "boolean",
-          "description": "Indicates if the category is currently active and visible in the storefront."
-        }
-      },
-      "required": [
-        "id",
-        "merchantId",
-        "name",
-        "displayOrder",
-        "isActive"
-      ]
-    },
-    "Product": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Product",
-      "type": "object",
-      "description": "Represents an individual item or service offered by a merchant in their catalog.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Product entity."
-        },
-        "merchantId": {
-          "type": "string",
-          "description": "Reference to the Merchant who owns this product. (Relationship: Merchant 1:N Product)"
-        },
-        "productCategoryId": {
-          "type": "string",
-          "description": "Reference to the ProductCategory this product belongs to. (Relationship: ProductCategory 1:N Product)"
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the product."
-        },
-        "description": {
-          "type": "string",
-          "description": "A detailed description of the product."
-        },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL to the product's image.",
-          "format": "uri"
-        },
-        "price": {
-          "type": "number",
-          "description": "The base price of the product."
-        },
-        "isAvailable": {
-          "type": "boolean",
-          "description": "Indicates if the product is currently available for purchase."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the product was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the product was last updated.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "merchantId",
-        "productCategoryId",
-        "name",
-        "description",
-        "price",
-        "isAvailable",
-        "createdAt",
-        "updatedAt"
-      ]
+      "required": ["merchantId", "merchantName", "userEmail", "status"]
     }
   },
   "auth": {
@@ -406,72 +121,24 @@
         "path": "/platformUsers/{platformUserId}",
         "definition": {
           "entityName": "PlatformUser",
-          "schema": {
-            "$ref": "#/backend/entities/PlatformUser"
-          },
-          "description": "Stores individual platform user profiles.",
-          "params": [
-            {
-              "name": "platformUserId",
-              "description": "Unique ID of the platform user."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/PlatformUser" },
+          "description": "Perfis de usuários da plataforma."
         }
       },
       {
         "path": "/merchants/{merchantId}",
         "definition": {
           "entityName": "Merchant",
-          "schema": {
-            "$ref": "#/backend/entities/Merchant"
-          },
-          "description": "Represents a single store or business.",
-          "params": [
-            {
-              "name": "merchantId",
-              "description": "Unique ID of the merchant (store)."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Merchant" },
+          "description": "Instâncias de lojas."
         }
       },
       {
-        "path": "/merchants/{merchantId}/orders/{orderId}",
+        "path": "/supportTickets/{ticketId}",
         "definition": {
-          "entityName": "Order",
-          "schema": {
-            "$ref": "#/backend/entities/Order"
-          },
-          "description": "Orders placed with a specific merchant.",
-          "params": [
-            {
-              "name": "merchantId",
-              "description": "Unique ID of the parent merchant."
-            },
-            {
-              "name": "orderId",
-              "description": "Unique ID of the order."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/merchants/{merchantId}/paymentMethods/{paymentMethodId}",
-        "definition": {
-          "entityName": "MerchantPaymentMethod",
-          "schema": {
-            "$ref": "#/backend/entities/MerchantPaymentMethod"
-          },
-          "description": "Payment methods accepted by a specific merchant.",
-          "params": [
-            {
-              "name": "merchantId",
-              "description": "Unique ID of the parent merchant."
-            },
-            {
-              "name": "paymentMethodId",
-              "description": "Unique ID of the payment method."
-            }
-          ]
+          "entityName": "SupportTicket",
+          "schema": { "$ref": "#/backend/entities/SupportTicket" },
+          "description": "Tickets de suporte para o Master Admin."
         }
       }
     ]

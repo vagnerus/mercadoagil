@@ -5,9 +5,12 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Sparkles, Loader2, User, Bot, HelpCircle } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, Loader2, User, Bot, HelpCircle, Headphones } from "lucide-react";
 import { askAiAssistant } from "@/ai/flows/ai-assistant-flow";
 import { cn } from "@/lib/utils";
+import { useFirestore, addDocumentNonBlocking, useUser } from '@/firebase';
+import { collection, serverTimestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -30,8 +33,10 @@ export function AiAssistantChat({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const db = useFirestore();
+  const { user } = useUser();
+  const { toast } = useToast();
 
-  // Inicializar mensagens apenas uma vez
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
@@ -63,6 +68,29 @@ export function AiAssistantChat({
     setInput("");
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
+
+    // Detectar solicitação de atendimento humano
+    const needsHuman = userMsg.toLowerCase().match(/(atendimento|suporte|humano|falar com alguém|especialista)/);
+
+    if (needsHuman && !isAdmin && user) {
+      // Criar Ticket no Firestore para o Master Admin
+      addDocumentNonBlocking(collection(db, 'supportTickets'), {
+        merchantName: merchantName || 'Desconhecido',
+        userEmail: user.email,
+        userId: user.uid,
+        lastMessage: userMsg,
+        status: 'open',
+        createdAt: new Date().toISOString(),
+        timestamp: serverTimestamp()
+      });
+
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: "Entendi perfeitamente. Acabei de encaminhar sua solicitação para um especialista humano no nosso Centro de Comando Master. Eles entrarão em contato via e-mail ou diretamente por este canal em breve." 
+      }]);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const result = await askAiAssistant({

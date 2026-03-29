@@ -14,7 +14,7 @@ import {
   Store, ShieldCheck, LogOut, LayoutDashboard, LayoutGrid, 
   Server, Plus, Loader2, Scissors, Stethoscope, 
   Wrench, Dog, GraduationCap, HeartHandshake, ShoppingBag, 
-  Briefcase, Zap, ArrowUpRight, Copy, ExternalLink, Link as LinkIcon
+  Briefcase, Zap, ArrowUpRight, Copy, ExternalLink, Link as LinkIcon, Headphones
 } from "lucide-react";
 import Link from 'next/link';
 import { MerchantSegment } from "@/lib/mock-data";
@@ -58,7 +58,6 @@ export default function AdminTenants() {
     
     const merchantId = `m_${Math.random().toString(36).substring(7)}`;
     
-    // Configurações padrão por segmento
     const initialSettings = {
       enableWallet: true,
       enableCashback: true,
@@ -100,10 +99,7 @@ export default function AdminTenants() {
 
     setIsCreateOpen(false);
     setLoading(false);
-    toast({ 
-      title: "Vertical Ativada!", 
-      description: `Instância para ${formData.name} criada com sucesso.` 
-    });
+    toast({ title: "Vertical Ativada!", description: `Instância para ${formData.name} criada com sucesso.` });
   };
 
   const copyStoreLink = (slug: string) => {
@@ -113,22 +109,23 @@ export default function AdminTenants() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-body">
-      <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-body">
+      <aside className="w-64 border-r dark:border-slate-800 bg-white dark:bg-slate-900 hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-primary p-1.5 rounded-lg shadow-sm">
               <ShieldCheck className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-xl text-slate-800 tracking-tight">Master Admin</span>
+            <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">Master Admin</span>
           </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">
-          <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><LayoutDashboard className="h-5 w-5" /> Global</Link>
-          <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><LayoutGrid className="h-5 w-5" /> Tenants</Link>
-          <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"><Server className="h-5 w-5" /> Infra</Link>
+          <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><LayoutDashboard className="h-5 w-5" /> Dashboard</Link>
+          <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold"><LayoutGrid className="h-5 w-5" /> Multi-Tenancy</Link>
+          <Link href="/admin/support" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Headphones className="h-5 w-5" /> Suporte Global</Link>
+          <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Server className="h-5 w-5" /> Infraestrutura</Link>
         </nav>
-        <div className="p-4 border-t">
+        <div className="p-4 border-t dark:border-slate-800">
           <Button variant="ghost" className="w-full justify-start text-slate-500 gap-2 hover:text-red-500" asChild>
             <Link href="/"><LogOut className="h-4 w-4" /> Sair</Link>
           </Button>
@@ -138,14 +135,14 @@ export default function AdminTenants() {
       <main className="flex-1 p-8">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Provisionamento SaaS</h1>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase">Provisionamento SaaS</h1>
             <p className="text-slate-500 font-medium">Criação de instâncias isoladas por segmento.</p>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-slate-900 rounded-2xl h-12 gap-2 font-black italic px-6 shadow-xl"><Plus className="h-5 w-5" /> Nova Loja</Button>
+              <Button className="bg-slate-900 dark:bg-primary rounded-2xl h-12 gap-2 font-black italic px-6 shadow-xl text-white"><Plus className="h-5 w-5" /> Nova Loja</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl rounded-[40px] p-0 overflow-hidden border-none shadow-2xl">
+            <DialogContent className="sm:max-w-xl rounded-[40px] p-0 overflow-hidden border-none shadow-2xl bg-white dark:bg-slate-900">
               <div className="bg-primary p-8 text-white">
                 <DialogTitle className="text-2xl font-black italic uppercase">Escolha a Vertical</DialogTitle>
                 <p className="text-white/70 text-xs font-bold mt-1">O sistema será configurado conforme o nicho.</p>
@@ -154,12 +151,12 @@ export default function AdminTenants() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase text-slate-400">Nome do Negócio</Label>
-                    <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                    <Input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-none font-bold" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase text-slate-400">Segmento</Label>
                     <Select value={formData.segment} onValueChange={v => setFormData({...formData, segment: v as MerchantSegment})}>
-                      <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none font-bold">
+                      <SelectTrigger className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-none font-bold">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl border-none shadow-xl">
@@ -174,17 +171,17 @@ export default function AdminTenants() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-slate-400">Nome do Proprietário</Label>
-                  <Input required value={formData.ownerName} onChange={e => setFormData({...formData, ownerName: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                  <Input required value={formData.ownerName} onChange={e => setFormData({...formData, ownerName: e.target.value})} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-none font-bold" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-slate-400">E-mail do Proprietário</Label>
-                  <Input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="h-12 rounded-xl bg-slate-50 border-none font-bold" />
+                  <Input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-none font-bold" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-slate-400">Subdomínio (Ex: barbearia-do-ze)</Label>
-                  <Input required value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} className="h-12 rounded-xl bg-slate-50 border-none font-bold text-primary" />
+                  <Input required value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-none font-bold text-primary" />
                 </div>
-                <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg">
+                <Button type="submit" disabled={loading} className="w-full h-16 bg-slate-900 dark:bg-primary rounded-[30px] font-black italic text-lg text-white">
                   {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'ATIVAR INSTÂNCIA'}
                 </Button>
               </form>
@@ -198,11 +195,11 @@ export default function AdminTenants() {
             <p className="font-black italic text-slate-400 uppercase tracking-widest">Carregando Instâncias...</p>
           </div>
         ) : (
-          <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white">
+          <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white dark:bg-slate-900">
             <CardContent className="p-0">
               <Table>
-                <TableHeader className="bg-slate-50/50">
-                  <TableRow>
+                <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
+                  <TableRow className="dark:border-slate-800">
                     <TableHead className="px-8 h-16 font-black uppercase text-[10px]">Loja / Vertical</TableHead>
                     <TableHead className="h-16 font-black uppercase text-[10px]">Proprietário</TableHead>
                     <TableHead className="h-16 font-black uppercase text-[10px]">Plano</TableHead>
@@ -211,14 +208,14 @@ export default function AdminTenants() {
                 </TableHeader>
                 <TableBody>
                   {merchants?.map((m: any) => (
-                    <TableRow key={m.id} className="hover:bg-slate-50 transition-colors">
+                    <TableRow key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors dark:border-slate-800">
                       <TableCell className="px-8 py-6">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                          <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                             <Store className="h-5 w-5 text-slate-400" />
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-black text-slate-900 italic uppercase">{m.name}</span>
+                            <span className="font-black text-slate-900 dark:text-white italic uppercase">{m.name}</span>
                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{m.segment} • {m.slug}.agil.com</span>
                           </div>
                         </div>
@@ -227,10 +224,10 @@ export default function AdminTenants() {
                       <TableCell><Badge className="bg-primary/10 text-primary border-none font-black italic uppercase text-[9px]">{m.planName || 'Pro'}</Badge></TableCell>
                       <TableCell className="text-right px-8">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => copyStoreLink(m.slug)} className="rounded-xl font-bold h-9 gap-2">
+                          <Button variant="outline" size="sm" onClick={() => copyStoreLink(m.slug)} className="rounded-xl font-bold h-9 gap-2 border-slate-200 dark:border-slate-800">
                             <Copy className="h-3.5 w-3.5" /> Copiar Link
                           </Button>
-                          <Button size="sm" asChild className="rounded-xl font-black italic h-9 gap-2 bg-primary hover:bg-primary/90">
+                          <Button size="sm" asChild className="rounded-xl font-black italic h-9 gap-2 bg-primary hover:bg-primary/90 text-white">
                             <Link href={`/merchant/${m.slug}/dashboard`}>
                               ACESSAR PAINEL <ArrowUpRight className="h-4 w-4" />
                             </Link>

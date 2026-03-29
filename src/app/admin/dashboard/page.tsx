@@ -11,7 +11,7 @@ import {
   TrendingUp, AlertTriangle, Search, Wallet, Landmark, 
   ArrowUpRight, Map, Heart, Zap, PieChart as PieChartIcon, 
   ChevronRight, Bell, ShieldAlert, Cpu, Network, Globe2, Loader2,
-  Menu
+  Menu, Headphones
 } from "lucide-react";
 import Link from 'next/link';
 import { 
@@ -58,6 +58,9 @@ export default function AdminDashboard() {
       </Link>
       <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
         <LayoutGrid className="h-5 w-5" /> Multi-Tenancy
+      </Link>
+      <Link href="/admin/support" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
+        <Headphones className="h-5 w-5" /> Suporte Global
       </Link>
       <Link href="/admin/infra" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
         <Server className="h-5 w-5" /> Infraestrutura Cloud
