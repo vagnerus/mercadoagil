@@ -16,6 +16,7 @@ import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/mode-toggle";
+import { cn } from "@/lib/utils";
 
 export default function AdminSupport() {
   const db = useFirestore();

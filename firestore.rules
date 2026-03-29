@@ -49,6 +49,13 @@ service cloud.firestore {
       }
     }
 
+    match /supportTickets/{ticketId} {
+      // Lojistas logados podem criar tickets
+      allow create: if isSignedIn();
+      // Apenas Master Admin pode listar, ler, atualizar ou deletar tickets
+      allow read, update, delete: if isMasterAdmin();
+    }
+
     match /plans/{planId} {
       allow get, list: if true;
       allow write: if isSuperAdmin();
