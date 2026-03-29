@@ -12,7 +12,7 @@ import {
   Calendar, Scissors, Wallet, Globe, LogOut, ShieldCheck,
   ChevronRight, Loader2, Stethoscope, Wrench, Dog, GraduationCap,
   ClipboardList, HeartPulse, Truck, BarChart3, Video, HeartHandshake,
-  Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles
+  Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -96,6 +96,14 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         <Video className="h-5 w-5 text-primary" /> Creative Studio IA
       </Link>
 
+      <Link href={`/merchant/${slug}/marketing`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
+        <Megaphone className="h-5 w-5" /> Growth IA
+      </Link>
+
+      <Link href={`/merchant/${slug}/loyalty`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
+        <Crown className="h-5 w-5" /> Fidelidade
+      </Link>
+
       {segment === 'BEAUTY' && (
         <>
           <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
@@ -115,6 +123,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
       <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Monitor className="h-5 w-5" /> PDV Cloud</Link>
       <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
+      <Link href={`/merchant/${slug}/suppliers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Truck className="h-5 w-5" /> Fornecedores</Link>
       <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Monitor className="h-5 w-5" /> Ágil Academy</Link>
       <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
     </div>
@@ -264,19 +273,23 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                     <Sparkles className="h-5 w-5 text-primary" /> Ações Rápidas IA
                   </h2>
                   <div className="space-y-4">
-                     <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
-                        <div className="flex items-center gap-3">
-                           <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
-                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Otimizar Preços</p>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                     <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors" asChild>
+                        <Link href={`/merchant/${slug}/marketing`}>
+                          <div className="flex items-center gap-3">
+                             <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
+                             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Otimizar Preços</p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                        </Link>
                      </div>
-                     <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
-                        <div className="flex items-center gap-3">
-                           <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4" /></Badge>
-                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Recuperar Clientes</p>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                     <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors" asChild>
+                        <Link href={`/merchant/${slug}/loyalty`}>
+                          <div className="flex items-center gap-3">
+                             <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4" /></Badge>
+                             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Recuperar Clientes</p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                        </Link>
                      </div>
                   </div>
                </Card>
@@ -299,7 +312,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
               <Link href={`/merchant/${slug}/finance`} className="col-span-1">
                 <Card className="h-64 border-none shadow-lg rounded-[40px] bg-white dark:bg-slate-900 flex flex-col items-center justify-center p-8 hover:scale-105 transition-all group">
-                  <div className="bg-green-100 dark:bg-green-900 p-6 rounded-[30px] mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                  <div className="bg-green-100 dark:bg-blue-900 p-6 rounded-[30px] mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
                     <DollarSign className="h-12 w-12 text-green-600 dark:text-green-400 group-hover:text-white" />
                   </div>
                   <h3 className="text-xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white">Ver meu Dinheiro</h3>

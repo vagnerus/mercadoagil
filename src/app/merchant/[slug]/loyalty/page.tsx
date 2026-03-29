@@ -42,7 +42,7 @@ export default function MerchantLoyalty({ params }: { params: Promise<{ slug: st
             <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Engine de Recompensas</h1>
             <p className="text-slate-500 font-medium">Gamificação e retenção ativa de clientes recorrentes.</p>
           </div>
-          <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic shadow-xl shadow-primary/20 px-8">
+          <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic shadow-xl shadow-primary/20 px-8 text-white">
             <Sparkles className="h-5 w-5" /> Ativar Booster de Vendas
           </Button>
         </header>

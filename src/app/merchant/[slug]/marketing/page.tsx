@@ -92,7 +92,7 @@ export default function MerchantMarketing({ params }: { params: Promise<{ slug: 
                     <div className="p-6 bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200 relative">
                        <Badge className="absolute -top-3 left-8 bg-primary text-white font-black italic border-none px-4">Recuperação de Carrinho</Badge>
                        <p className="text-sm font-bold text-slate-600 leading-relaxed mb-6 italic pt-2">
-                         "Oi [NOME]! Notamos que você deixou algo especial no seu carrinho no Burger King do Zé. Use o cupom VOLTEI10 para garantir 10% de desconto e frete grátis nos próximos 30 minutos! 🍔🔥"
+                         "Oi [NOME]! Notamos que você deixou algo especial no seu carrinho. Use o cupom VOLTEI10 para garantir 10% de desconto e frete grátis nos próximos 30 minutos! 🍔🔥"
                        </p>
                        <div className="flex justify-end">
                           <Button 
@@ -109,7 +109,7 @@ export default function MerchantMarketing({ params }: { params: Promise<{ slug: 
                     <div className="p-6 bg-slate-50 rounded-[35px] border-2 border-dashed border-slate-200 relative">
                        <Badge className="absolute -top-3 left-8 bg-accent text-white font-black italic border-none px-4">Post Instagram (Legenda)</Badge>
                        <p className="text-sm font-bold text-slate-600 leading-relaxed mb-6 italic pt-2">
-                         "Sextou com S de SUCULÊNCIA! 🤤 O nosso X-Tudo Monstro está esperando por você. O verdadeiro sabor artesanal que derrete na boca. Peça agora pelo link na bio e receba em casa com embalagem térmica! #MercadoAgil #BurgerGourmet #Sextou"
+                         "Sextou com S de SUCULÊNCIA! 🤤 O nosso prato especial está esperando por você. O verdadeiro sabor artesanal que derrete na boca. Peça agora pelo link na bio e receba em casa! #MercadoAgil #Gourmet #Sextou"
                        </p>
                        <div className="flex justify-end">
                           <Button 

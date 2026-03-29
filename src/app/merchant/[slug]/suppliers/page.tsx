@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Truck, Building2, Phone, Mail, Plus, Search, 
   Settings, ShoppingBag, List, LayoutDashboard, 
-  ArrowUpCircle, ExternalLink, MessageCircle
+  ArrowUpCircle, ExternalLink, MessageSquare
 } from "lucide-react";
 import Link from 'next/link';
 
@@ -26,7 +26,7 @@ export default function MerchantSuppliers({ params }: { params: Promise<{ slug: 
     <div className="flex min-h-screen bg-slate-50 font-body">
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
-          <Link href="/" className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary">
+          <Link href="/" className="flex items-center gap-2 font-black text-xl italic tracking-tighter text-primary uppercase">
             MERCADO ÁGIL
           </Link>
         </div>
@@ -49,7 +49,7 @@ export default function MerchantSuppliers({ params }: { params: Promise<{ slug: 
             <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Vendor Management CRM</h1>
             <p className="text-slate-500 font-medium">Gestão de compras, reposição automática e auditoria de parceiros.</p>
           </div>
-          <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic shadow-xl shadow-primary/20 px-8">
+          <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic shadow-xl shadow-primary/20 px-8 text-white">
             <Plus className="h-5 w-5" /> Novo Parceiro
           </Button>
         </header>
@@ -93,7 +93,7 @@ export default function MerchantSuppliers({ params }: { params: Promise<{ slug: 
                              <Building2 className="h-6 w-6 text-slate-400" />
                           </div>
                           <div className="flex flex-col">
-                             <span className="font-black text-slate-900 text-base">{v.name}</span>
+                             <span className="font-black text-slate-900 text-base italic uppercase">{v.name}</span>
                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{v.contact}</span>
                           </div>
                        </div>
