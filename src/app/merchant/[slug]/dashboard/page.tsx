@@ -104,6 +104,13 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "Telemedicina Live", value: "02", icon: Video, color: "text-purple-600", bg: "bg-purple-100", trend: "Active" },
           { title: "Faturamento Convênio", value: "R$ 8.420", icon: Wallet, color: "text-green-600", bg: "bg-green-100", trend: "+8%" },
         ];
+      case 'PET':
+        return [
+          { title: "Banho & Tosa Hoje", value: "18", icon: Dog, color: "text-yellow-600", bg: "bg-yellow-100", trend: "+4" },
+          { title: "Internações Ativas", value: "03", icon: HeartPulse, color: "text-red-600", bg: "bg-red-100", trend: "Monitorado" },
+          { title: "Vacinas Pendentes", value: "12", icon: ShieldAlert, color: "text-orange-600", bg: "bg-orange-100", trend: "Alert" },
+          { title: "Faturamento Clínica", value: "R$ 3.840", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+15%" },
+        ];
       case 'RESTAURANT':
         return [
           { title: "Pedidos no KDS", value: "12", icon: Utensils, color: "text-orange-600", bg: "bg-orange-100", trend: "Flow" },
@@ -153,6 +160,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         { href: `/merchant/${slug}/health/pep`, label: "Prontuários (PEP)", icon: ClipboardList },
         { href: `/merchant/${slug}/health/telemedicine`, label: "Telemedicina", icon: Video },
         { href: `/merchant/${slug}/appointments`, label: "Agenda Médica", icon: Calendar },
+      ],
+      PET: [
+        { href: `/merchant/${slug}/pet/clinic`, label: "Clínica Vet", icon: HeartPulse },
+        { href: `/merchant/${slug}/appointments`, label: "Banho & Tosa", icon: Dog },
+        { href: `/merchant/${slug}/inventory`, label: "Rações & Medicamentos", icon: Package },
       ],
       EDUCATION: [
         { href: `/merchant/${slug}/education/academic`, label: "Acadêmico", icon: GraduationCap },
