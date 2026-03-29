@@ -15,7 +15,8 @@ import {
   Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone,
   Briefcase, Star, Target, ShieldAlert, Lock, ArrowUpRight, CheckSquare,
   AlertCircle, History, Info, Smartphone, Database, Landmark,
-  Bell, CheckCircle, Dumbbell, PartyPopper, Gavel, Car, Droplets
+  Bell, CheckCircle, Dumbbell, PartyPopper, Gavel, Car, Droplets,
+  Utensils, Ticket
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -76,7 +77,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
   if (!merchant && !loadingMerchant && mounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
+      <div className="min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 flex">
         <div className="text-center space-y-4">
           <HelpCircle className="h-16 w-16 text-slate-300 mx-auto" />
           <h1 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900 dark:text-white">Instância não encontrada</h1>
@@ -151,7 +152,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       { href: `/merchant/${slug}/settings`, label: "Configurações", icon: Settings },
     ];
 
-    const segmentSpecificLinks = {
+    const segmentSpecificLinks: Record<string, any[]> = {
       BEAUTY: [
         { href: `/merchant/${slug}/appointments`, label: "Agenda Digital", icon: Calendar },
         { href: `/merchant/${slug}/staff`, label: "Equipe Elite", icon: Scissors },
@@ -198,7 +199,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       ]
     };
 
-    const links = [...commonLinks, ...(segmentSpecificLinks[segment as keyof typeof segmentSpecificLinks] || [])];
+    const links = [...commonLinks, ...(segmentSpecificLinks[segment] || [])];
 
     return (
       <div className={mobile ? "space-y-2" : "flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar"}>
