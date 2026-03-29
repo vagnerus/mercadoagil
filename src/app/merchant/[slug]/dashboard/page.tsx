@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -19,6 +20,7 @@ import { collection, query, where, limit } from 'firebase/firestore';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { AiAssistantChat } from "@/components/merchant/ai-assistant-chat";
+import { AiBusinessHub } from "@/components/merchant/ai-business-hub";
 
 export default function MerchantDashboard({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -26,13 +28,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
   const [uiMode, setUiMode] = useState<'advanced' | 'easy'>('advanced');
   const [showAi, setShowAi] = useState(false);
   
-  // Persistência do modo no localStorage
   useEffect(() => {
     const savedMode = localStorage.getItem('agil_ui_mode');
     if (savedMode === 'easy' || savedMode === 'advanced') {
       setUiMode(savedMode);
     }
-    // Delay para o balão de IA aparecer sutilmente
     setTimeout(() => setShowAi(true), 1500);
   }, []);
 
@@ -127,7 +127,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-body relative">
-      {/* Sidebar Desktop */}
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
@@ -146,7 +145,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       </aside>
 
       <main className="flex-1 p-4 lg:p-8">
-        {/* Toggle Mode Buttons - PERSISTENT & VISIBLE */}
         <div className="flex gap-2 mb-8 bg-white p-2 rounded-full w-fit shadow-sm border">
           <Button 
             onClick={() => toggleMode('easy')}
@@ -172,7 +170,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-4">
-            {/* Menu Mobile Trigger */}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="lg:hidden rounded-xl border-slate-200">
@@ -207,14 +204,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             <Button variant="outline" className="rounded-xl h-12 gap-2" asChild>
               <Link href={`/store/${slug}`} target="_blank"><Globe className="h-4 w-4" /> Ver Vitrine</Link>
             </Button>
-            <Button className="bg-primary rounded-2xl h-12 gap-2 shadow-xl shadow-primary/20 font-black italic px-8 text-white">
-              <BrainCircuit className="h-5 w-5" /> IA Negotiator
-            </Button>
+            <AiBusinessHub merchantName={merchant?.name || slug} />
           </div>
         </header>
 
         {uiMode === 'advanced' ? (
-          /* --- ADVANCED MODE --- */
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
               {stats.map((stat, i) => (
@@ -275,7 +269,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </div>
           </div>
         ) : (
-          /* --- EASY MODE --- */
           <div className="animate-in zoom-in-95 duration-500">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Link href={`/merchant/${slug}/${segment === 'BEAUTY' || segment === 'HEALTH' ? 'appointments' : 'orders'}`} className="col-span-1">
@@ -326,7 +319,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                       </div>
                     </div>
                   </div>
-                  {/* Assistant Button In Easy Mode */}
                   <Button onClick={() => setShowAi(true)} className="h-20 px-12 bg-primary hover:bg-primary/90 text-white rounded-[35px] font-black italic text-xl shadow-2xl gap-3">
                     <HelpCircle className="h-8 w-8" /> PRECISO DE AJUDA
                   </Button>
@@ -338,7 +330,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         )}
       </main>
 
-      {/* Floating AI Assistant Chat Balloon */}
       {showAi && (
         <AiAssistantChat 
           merchantName={merchant?.name} 

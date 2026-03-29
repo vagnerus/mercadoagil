@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, limit } from 'firebase/firestore';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { AiAssistantChat } from "@/components/merchant/ai-assistant-chat";
 
 const planData = [
   { name: 'Free', value: 45, color: '#94a3b8' },
@@ -65,7 +66,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar Desktop */}
       <aside className="w-64 border-r bg-white hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
@@ -86,7 +86,6 @@ export default function AdminDashboard() {
       <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div className="flex items-center gap-4">
-            {/* Menu Mobile */}
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="lg:hidden rounded-xl border-slate-200">
@@ -329,6 +328,8 @@ export default function AdminDashboard() {
            </Card>
         </div>
       </main>
+
+      <AiAssistantChat isAdmin={true} />
     </div>
   );
 }

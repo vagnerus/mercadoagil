@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -16,25 +17,44 @@ interface Message {
 export function AiAssistantChat({ 
   merchantName, 
   segment, 
-  uiMode = 'advanced' 
+  uiMode = 'advanced',
+  isAdmin = false
 }: { 
   merchantName?: string, 
   segment?: string, 
-  uiMode?: 'easy' | 'advanced' 
+  uiMode?: 'easy' | 'advanced',
+  isAdmin?: boolean
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: `Olá! Eu sou o Ágil Assist. Sou especialista na plataforma Mercado Ágil. Como posso ajudar na gestão da sua unidade ${merchantName || ''} hoje?` }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Inicializar mensagens apenas uma vez
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        { 
+          role: 'assistant', 
+          content: isAdmin 
+            ? "Olá, Master Admin! Sou o suporte técnico da infraestrutura Ágil. Como posso ajudar com a gestão dos clusters, tenants ou faturamento global hoje?" 
+            : `Olá! Eu sou o Ágil Assist. Sou especialista na plataforma Mercado Ágil. Como posso ajudar na gestão da sua unidade ${merchantName || ''} hoje?` 
+        }
+      ]);
+    }
+  }, [isAdmin, merchantName, messages.length]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsOpen(false);
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -46,7 +66,7 @@ export function AiAssistantChat({
 
     try {
       const result = await askAiAssistant({
-        message: userMsg,
+        message: isAdmin ? `[CONTEXTO MASTER ADMIN] ${userMsg}` : userMsg,
         merchantName,
         segment,
         uiMode
@@ -70,11 +90,18 @@ export function AiAssistantChat({
               </div>
               <div>
                 <h3 className="font-black italic text-lg leading-none">Ágil Assist</h3>
-                <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-1">Especialista de Suporte</p>
+                <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-1">
+                  {isAdmin ? 'Suporte Master Infra' : 'Especialista de Suporte'}
+                </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-white hover:bg-white/10 rounded-full">
-              <X className="h-5 w-5" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleClose} 
+              className="text-white hover:bg-white/10 rounded-full h-10 w-10 z-20"
+            >
+              <X className="h-6 w-6" />
             </Button>
             <Sparkles className="absolute -bottom-4 -right-4 h-24 w-24 opacity-10" />
           </div>
@@ -103,7 +130,7 @@ export function AiAssistantChat({
                 </div>
                 <div className="p-4 bg-primary/10 rounded-2xl flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  <span className="text-xs font-bold text-primary italic">Consultando manuais...</span>
+                  <span className="text-xs font-bold text-primary italic">Consultando conhecimento...</span>
                 </div>
               </div>
             )}
@@ -127,7 +154,7 @@ export function AiAssistantChat({
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-[8px] text-center text-slate-400 mt-3 font-bold uppercase tracking-widest italic">Mercado Ágil Intelligence v3.2</p>
+            <p className="text-[8px] text-center text-slate-400 mt-3 font-bold uppercase tracking-widest italic">Suporte Mercado Ágil v3.2</p>
           </div>
         </Card>
       ) : (
@@ -140,7 +167,7 @@ export function AiAssistantChat({
             <div className="h-2 w-2 bg-white rounded-full animate-ping"></div>
           </div>
           <span className="absolute right-20 bg-slate-900 text-white text-[10px] font-black px-4 py-2 rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest pointer-events-none italic shadow-2xl">
-            PRECISO DE AJUDA
+            SUPORTE ÁGIL
           </span>
         </button>
       )}
