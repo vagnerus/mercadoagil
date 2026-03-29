@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, X, Send, Sparkles, Loader2, User, Bot, HelpCircle, Headphones } from "lucide-react";
 import { askAiAssistant } from "@/ai/flows/ai-assistant-flow";
 import { cn } from "@/lib/utils";
-import { useFirestore, addDocumentNonBlocking, useUser } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, addDocumentNonBlocking, useUser, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp, query, where, limit } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 interface Message {
@@ -37,6 +37,14 @@ export function AiAssistantChat({
   const { user } = useUser();
   const { toast } = useToast();
 
+  // Buscar perfil do usuário para obter o merchantId real
+  const userProfileQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return query(collection(db, 'platformUsers'), where('email', '==', user.email), limit(1));
+  }, [db, user]);
+  const { data: userProfiles } = useCollection(userProfileQuery);
+  const merchantId = userProfiles?.[0]?.merchantId || 'unknown';
+
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([
@@ -57,6 +65,7 @@ export function AiAssistantChat({
   }, [messages]);
 
   const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsOpen(false);
   };
@@ -70,12 +79,13 @@ export function AiAssistantChat({
     setIsLoading(true);
 
     // Detectar solicitação de atendimento humano
-    const needsHuman = userMsg.toLowerCase().match(/(atendimento|suporte|humano|falar com alguém|especialista)/);
+    const needsHuman = userMsg.toLowerCase().match(/(atendimento|suporte|humano|falar com alguém|especialista|ajuda humana)/);
 
     if (needsHuman && !isAdmin && user) {
       // Criar Ticket no Firestore para o Master Admin
       addDocumentNonBlocking(collection(db, 'supportTickets'), {
-        merchantName: merchantName || 'Desconhecido',
+        merchantId: merchantId,
+        merchantName: merchantName || 'Instância sem Nome',
         userEmail: user.email,
         userId: user.uid,
         lastMessage: userMsg,
@@ -127,7 +137,7 @@ export function AiAssistantChat({
               variant="ghost" 
               size="icon" 
               onClick={handleClose} 
-              className="text-white hover:bg-white/10 rounded-full h-10 w-10 z-20"
+              className="text-white hover:bg-white/10 rounded-full h-10 w-10 z-[110]"
             >
               <X className="h-6 w-6" />
             </Button>

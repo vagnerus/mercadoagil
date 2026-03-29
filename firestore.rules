@@ -50,7 +50,7 @@ service cloud.firestore {
     }
 
     match /supportTickets/{ticketId} {
-      // Lojistas logados podem criar tickets
+      // Lojistas logados podem criar tickets de suporte
       allow create: if isSignedIn();
       // Apenas Master Admin pode listar, ler, atualizar ou deletar tickets
       allow read, update, delete: if isMasterAdmin();
