@@ -14,7 +14,8 @@ import {
   ClipboardList, HeartPulse, Truck, BarChart3, Video, HeartHandshake,
   Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone,
   Briefcase, Star, Target, ShieldAlert, Lock, ArrowUpRight, CheckSquare,
-  AlertCircle, History, Info
+  AlertCircle, History, Info, Smartphone, Database, Landmark,
+  Bell, CheckCircle
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -116,14 +117,14 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "Agendamentos Hoje", value: "14", icon: Calendar, color: "text-blue-600", bg: "bg-blue-100", trend: "+2" },
           { title: "Cadeiras Ocupadas", value: "4/6", icon: Scissors, color: "text-orange-600", bg: "bg-orange-100", trend: "Normal" },
           { title: "Retention IA", value: "84%", icon: Users, color: "text-purple-600", bg: "bg-purple-100", trend: "+5%" },
-          { title: "Net Daily Rev", value: "R$ 2.450", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
+          { title: "Faturamento Líquido", value: "R$ 2.450", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
         ];
       default:
         return [
           { title: "Vendas Brutas", value: "R$ 4.850", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
           { title: "Pedidos KDS", value: "08", icon: Package, color: "text-blue-600", bg: "bg-blue-100", trend: "Flowing" },
-          { title: "Ruptura Estoque", value: "02 itens", icon: Activity, color: "text-red-600", bg: "bg-red-100", trend: "Alert" },
-          { title: "Sessões Ativas", value: "142", icon: Globe, color: "text-purple-600", bg: "bg-purple-100", trend: "Live" },
+          { title: "Saúde Estoque", value: "Normal", icon: Database, color: "text-purple-600", bg: "bg-purple-100", trend: "Sync" },
+          { title: "Sessões Ativas", value: "142", icon: Globe, color: "text-orange-600", bg: "bg-orange-100", trend: "Live" },
         ];
     }
   };
@@ -212,14 +213,14 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                  <div className="relative z-10 space-y-6">
                     <div className="flex items-center gap-3">
                        <ShieldCheck className="h-6 w-6 text-primary" />
-                       <h2 className="text-2xl font-black italic uppercase tracking-tighter">Conformidade SaaS v3.2</h2>
+                       <h2 className="text-2xl font-black italic uppercase tracking-tighter">Configurações Enterprise</h2>
                     </div>
                     <p className="text-slate-400 text-sm italic font-medium leading-relaxed max-w-lg">
-                      Sua unidade está operando no Regime <b>{merchant?.legal?.regimeTributario || 'Simples Nacional'}</b>. O faturamento líquido estimado considera a taxa de <b>{merchant?.financial?.creditFee || '2.99'}%</b> sobre transações de crédito.
+                      Sua unidade está operando no Regime <b>{merchant?.legal?.regimeTributario || 'Simples Nacional'}</b> com CNPJ auditado. Utilize o módulo financeiro para acompanhar o faturamento líquido descontando taxas.
                     </p>
                     <div className="flex gap-3">
-                       <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl" asChild><Link href={`/merchant/${slug}/settings`}>REGRAS DE NEGÓCIO</Link></Button>
-                       <Button variant="outline" className="h-14 px-8 border-white/10 text-white font-black italic rounded-2xl hover:bg-white/5" asChild><Link href={`/merchant/${slug}/finance`}>AUDITORIA FISCAL</Link></Button>
+                       <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl" asChild><Link href={`/merchant/${slug}/settings`}>EDITAR REGRAS DE NEGÓCIO</Link></Button>
+                       <Button variant="outline" className="h-14 px-8 border-white/10 text-white font-black italic rounded-2xl hover:bg-white/5" asChild><Link href={`/merchant/${slug}/finance`}>RELATÓRIOS DRE</Link></Button>
                     </div>
                  </div>
                  <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />

@@ -25,6 +25,7 @@ import { collection, query, orderBy, limit } from 'firebase/firestore';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AiAssistantChat } from "@/components/merchant/ai-assistant-chat";
 import { ModeToggle } from "@/components/mode-toggle";
+import { cn } from "@/lib/utils";
 
 const planData = [
   { name: 'Free', value: 45, color: '#94a3b8' },
@@ -81,7 +82,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-body">
       <aside className="w-64 border-r dark:border-slate-800 bg-white dark:bg-slate-900 hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
@@ -146,7 +147,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className={`${stat.bg} dark:bg-slate-800 p-3 rounded-2xl group-hover:bg-white/20 transition-colors`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color} group-hover:text-white`} />
+                    <stat.icon className={cn(`h-6 w-6 ${stat.color} group-hover:text-white`)} />
                   </div>
                   <span className="text-[10px] font-black text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-2 py-0.5 rounded-full group-hover:bg-white/20 group-hover:text-white">{stat.trend}</span>
                 </div>

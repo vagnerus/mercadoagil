@@ -14,7 +14,7 @@ import {
   Store, Loader2, Star, MessageSquare, Sparkles, Clock, Calendar,
   ArrowRight, Heart, Gift, ShoppingCart, Scissors, Ticket, Bot, 
   ShieldCheck, CheckCircle2, Facebook, Instagram, Twitter, Info,
-  ArrowUpRight, Award, ThumbsUp
+  ArrowUpRight, Award, ThumbsUp, Flame, LayoutGrid, Filter
 } from "lucide-react";
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit } from 'firebase/firestore';
@@ -28,6 +28,7 @@ export default function StoreFront() {
   const db = useFirestore();
   const [searchTerm, setSearchTerm] = useState("");
   const [showAiConcierge, setShowAiConcierge] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("Todos");
 
   const merchantQuery = useMemoFirebase(() => query(
     collection(db, 'merchants'), 
@@ -53,9 +54,17 @@ export default function StoreFront() {
     );
   }
 
+  const categories = ["Todos", "Cortes", "Barba", "Combos", "Estética", "Produtos"];
+
   return (
     <div className="min-h-screen bg-[#050505] text-white font-body selection:bg-primary overflow-x-hidden">
-      {/* Navbar Premium */}
+      {/* Top Banner de Oferta */}
+      <div className="bg-primary text-white py-2 text-center" style={{ backgroundColor: primaryColor }}>
+         <p className="text-[10px] font-black uppercase tracking-[0.2em] italic flex items-center justify-center gap-2">
+            <Flame className="h-3 w-3 fill-white" /> Use o cupom BEMVINDO10 e ganhe 10% OFF hoje! <Flame className="h-3 w-3 fill-white" />
+         </p>
+      </div>
+
       <header className="px-6 h-20 flex items-center border-b border-white/5 sticky top-0 z-[60] bg-black/80 backdrop-blur-2xl">
         <div className="container max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-10">
@@ -64,10 +73,10 @@ export default function StoreFront() {
                 <span className="font-black italic tracking-tighter text-2xl text-white uppercase">Mercado<span style={{ color: primaryColor }}>Facil</span></span>
              </Link>
              <nav className="hidden lg:flex items-center gap-8">
-                <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white border-b-2 pb-1" style={{ borderColor: primaryColor }}>Home</Link>
-                <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">Serviços</Link>
-                <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">Produtos</Link>
-                <Link href={`/store/${slug}/profile`} className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">Fidelidade</Link>
+                <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white border-b-2 pb-1" style={{ borderColor: primaryColor }}>Início</Link>
+                <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">Agendamentos</Link>
+                <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">Vitrine de Produtos</Link>
+                <Link href={`/store/${slug}/profile`} className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors">Fidelidade & Clube</Link>
              </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -76,14 +85,14 @@ export default function StoreFront() {
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full text-[8px] flex items-center justify-center font-black" style={{ backgroundColor: primaryColor }}>0</span>
              </Button>
              <Button className="rounded-2xl h-11 px-6 font-black italic text-xs uppercase shadow-xl" style={{ backgroundColor: primaryColor }} asChild>
-                <Link href="/login">ENTRAR / CRIAR CONTA</Link>
+                <Link href="/login">ÁREA DO MEMBRO</Link>
              </Button>
           </div>
         </div>
       </header>
 
       <main className="container max-w-6xl mx-auto px-6 pt-12 pb-32 space-y-32">
-        {/* Hero Section Ultra Premium */}
+        {/* Hero Section */}
         <section className="grid lg:grid-cols-2 gap-16 items-center">
            <div className="space-y-10 animate-in fade-in slide-in-from-left-10 duration-1000">
               <div className="space-y-4">
@@ -122,7 +131,6 @@ export default function StoreFront() {
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                  
-                 {/* Floating Info Card */}
                  <div className="absolute top-10 right-10 bg-black/60 backdrop-blur-xl p-6 rounded-[35px] border border-white/10 space-y-4 animate-bounce-slow">
                     <div className="flex items-center gap-3">
                        <div className="h-10 w-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
@@ -150,16 +158,26 @@ export default function StoreFront() {
            </div>
         </section>
 
-        {/* Busca Inteligente IA */}
+        {/* Busca & Filtros */}
         <section className="space-y-10 pt-12">
            <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/5 pb-8">
               <div className="space-y-2">
-                 <h3 className="text-[10px] font-black uppercase text-primary tracking-[0.4em] italic" style={{ color: primaryColor }}>Explorar Experiências</h3>
+                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] italic" style={{ color: primaryColor }}>Explorar Experiências</h3>
                  <h2 className="text-4xl font-black italic uppercase tracking-tighter">O que vamos <span className="text-white/40">fazer hoje?</span></h2>
               </div>
-              <div className="flex gap-3">
-                 <Button variant="ghost" className="rounded-2xl bg-white/5 border border-white/5 font-black italic text-[10px] uppercase h-12 px-6">Todos</Button>
-                 <Button variant="ghost" className="rounded-2xl border border-white/5 font-black italic text-[10px] uppercase h-12 px-6">Em Destaque</Button>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 w-full md:w-auto">
+                 {categories.map(cat => (
+                   <button 
+                    key={cat} 
+                    onClick={() => setActiveCategory(cat)}
+                    className={cn(
+                      "rounded-2xl border font-black italic text-[10px] uppercase h-12 px-6 transition-all whitespace-nowrap",
+                      activeCategory === cat ? "bg-white text-black border-white" : "bg-white/5 border-white/5 text-slate-500 hover:text-white"
+                    )}
+                   >
+                     {cat}
+                   </button>
+                 ))}
               </div>
            </div>
 
@@ -177,10 +195,10 @@ export default function StoreFront() {
            </div>
         </section>
 
-        {/* Nossos Profissionais */}
+        {/* Artistas / Profissionais */}
         <section className="space-y-12">
            <div className="text-center">
-              <h3 className="text-[10px] font-black uppercase text-primary tracking-[0.4em] italic mb-2" style={{ color: primaryColor }}>Equipe de Elite</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] italic mb-2" style={{ color: primaryColor }}>Equipe de Elite</h3>
               <h2 className="text-4xl font-black italic uppercase tracking-tighter">Artistas do <span className="text-white/40">Visagismo</span></h2>
            </div>
            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -196,7 +214,7 @@ export default function StoreFront() {
            </div>
         </section>
 
-        {/* Club Membership Section */}
+        {/* Fidelity Club */}
         <section>
            <Card className="bg-slate-900 border-none rounded-[60px] p-12 md:p-24 relative overflow-hidden text-center md:text-left">
               <div className="grid md:grid-cols-2 gap-16 items-center relative z-10">
@@ -226,17 +244,17 @@ export default function StoreFront() {
                        <div className="space-y-10">
                           <div className="flex justify-between items-center">
                              <Ticket className="h-10 w-10 text-primary" style={{ color: primaryColor }} />
-                             <span className="font-black italic text-slate-500">MERCADOFACIL GOLD</span>
+                             <span className="font-black italic text-slate-500 uppercase tracking-widest text-[10px]">GOLD MEMBER</span>
                           </div>
                           <div className="space-y-4">
-                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Saldo na Carteira</p>
+                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Saldo Disponível</p>
                              <p className="text-6xl font-black italic tracking-tighter">R$ 124,50</p>
                           </div>
                           <div className="pt-10 border-t border-white/5 space-y-6">
-                             <p className="text-xs font-bold text-slate-400">ÚLTIMO USO: HÁ 2 DIAS</p>
+                             <p className="text-xs font-bold text-slate-400 uppercase">Último uso: há 2 dias</p>
                              <div className="flex items-center gap-4 bg-black/40 p-4 rounded-3xl">
                                 <Zap className="h-6 w-6 text-primary" style={{ color: primaryColor }} />
-                                <p className="text-[10px] font-black italic">VOCÊ ESTÁ NO TOP 5% DE CLIENTES</p>
+                                <p className="text-[10px] font-black italic uppercase">Top 5% da Unidade</p>
                              </div>
                           </div>
                        </div>
@@ -248,7 +266,7 @@ export default function StoreFront() {
            </Card>
         </section>
 
-        {/* Depoimentos & FAQ */}
+        {/* Depoimentos & Reviews */}
         <section className="grid lg:grid-cols-2 gap-24">
            <div className="space-y-12">
               <h2 className="text-4xl font-black italic uppercase tracking-tighter">O que dizem os <br/><span className="text-white/40">nossos membros.</span></h2>
@@ -256,10 +274,14 @@ export default function StoreFront() {
                  {[1,2].map(i => (
                    <Card key={i} className="bg-white/5 border-white/5 rounded-[35px] p-8 space-y-4">
                       <div className="flex items-center gap-4">
-                         <div className="h-12 w-12 rounded-2xl bg-slate-800 overflow-hidden"><img src={`https://picsum.photos/seed/rev${i}/100/100`} /></div>
+                         <div className="h-12 w-12 rounded-2xl bg-slate-800 overflow-hidden">
+                            <img src={`https://picsum.photos/seed/rev${i}/100/100`} className="w-full h-full object-cover" />
+                         </div>
                          <div>
-                            <p className="font-black italic uppercase">Carlos Eduardo</p>
-                            <div className="flex gap-1"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /></div>
+                            <p className="font-black italic uppercase">Membro Verificado</p>
+                            <div className="flex gap-1">
+                               {[...Array(5)].map((_, j) => <Star key={j} className="h-3 w-3 fill-yellow-400 text-yellow-400" />)}
+                            </div>
                          </div>
                       </div>
                       <p className="text-slate-400 italic font-medium leading-relaxed">"Melhor atendimento da região. O sistema de agendamento online facilitou muito a minha vida, além do cashback que sempre uso!"</p>
