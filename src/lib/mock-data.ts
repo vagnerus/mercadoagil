@@ -1,5 +1,5 @@
 
-export type PlanType = 'Free' | 'Pro' | 'Pro II';
+export type PlanType = 'Free' | 'Pro' | 'Pro II' | 'Enterprise' | 'Ultra';
 export type UserRole = 'SUPER_ADMIN' | 'MERCHANT_ADMIN' | 'MERCHANT_STAFF';
 export type MerchantSegment = 'RESTAURANT' | 'RETAIL' | 'SERVICE' | 'GROCERY' | 'PHARMACY' | 'BEAUTY' | 'HEALTH' | 'AUTO' | 'PET' | 'EDUCATION' | 'MAINTENANCE';
 
@@ -16,10 +16,12 @@ export interface PlatformUser {
 
 export interface Plan {
   id: string;
-  name: PlanType;
+  name: string;
   price: number;
   durationDays?: number;
   features: string[];
+  maxStaff: number;
+  billing: 'anual' | 'mensal';
 }
 
 export interface Merchant {
@@ -30,8 +32,8 @@ export interface Merchant {
   logoUrl: string;
   bannerUrl: string;
   planId: string;
-  planName: PlanType;
-  status: 'active' | 'blocked' | 'expired';
+  planName: string;
+  status: 'active' | 'blocked' | 'expired' | 'pending_approval';
   createdAt: string;
   mrr: number;
   royaltiesPaid: number;
@@ -52,9 +54,11 @@ export interface Merchant {
 }
 
 export const SYSTEM_PLANS: Plan[] = [
-  { id: 'p_free', name: 'Free', price: 0, durationDays: 30, features: ['Vitrine Web', 'Até 20 produtos'] },
-  { id: 'p_pro', name: 'Pro', price: 150, features: ['IA Gerativa', 'Produtos Ilimitados', 'App Mobile'] },
-  { id: 'p_pro2', name: 'Pro II', price: 300, features: ['Multi-unidades', 'Custom Domain', 'Consultoria IA'] }
+  { id: 'p_free', name: 'Free (Verificado)', price: 0, durationDays: 30, features: ['Acesso Básico', '1 Profissional', 'Verificação Obrigatória'], maxStaff: 1, billing: 'mensal' },
+  { id: 'p_1prof', name: 'Elite 1 Profissional', price: 55.90, features: ['Anual - 30% OFF', 'IA Gerativa', 'Recibos PDF'], maxStaff: 1, billing: 'anual' },
+  { id: 'p_5prof', name: 'Premium 2-5 Prof.', price: 76.90, features: ['Anual - 30% OFF', 'Gestão de Comissões', 'Marketing IA'], maxStaff: 5, billing: 'anual' },
+  { id: 'p_15prof', name: 'Enterprise 6-15 Prof.', price: 115.15, features: ['Anual - 30% OFF', 'Multi-unidades', 'Suporte VIP 1h'], maxStaff: 15, billing: 'anual' },
+  { id: 'p_ultra', name: 'Ultra +15 Prof.', price: 153.90, features: ['Anual - 30% OFF', 'White Label', 'Consultoria BI'], maxStaff: 100, billing: 'anual' }
 ];
 
 export const MOCK_MERCHANTS: Merchant[] = [];
