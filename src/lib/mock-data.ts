@@ -58,7 +58,10 @@ export const SYSTEM_PLANS: Plan[] = [
 ];
 
 export const MOCK_MERCHANTS: Merchant[] = [];
-export const MOCK_SERVICES: any[] = [];
+export const MOCK_SERVICES = [
+  { id: 's1', name: 'Corte Degradê Master', price: 45.00, duration: 30 },
+  { id: 's2', name: 'Barboterapia Elite', price: 35.00, duration: 25 },
+];
 export const MOCK_PRODUCTS: any[] = [
   { id: 'p1', name: 'Hambúrguer Artesanal', price: 35.00, imageUrl: 'https://picsum.photos/seed/burger/200/200', category: 'Lanches', stock: 45 },
   { id: 'p2', name: 'Pizza Italiana', price: 65.00, imageUrl: 'https://picsum.photos/seed/pizza/200/200', category: 'Massas', stock: 20 },
@@ -80,6 +83,22 @@ export interface Order {
   scheduledTime?: string;
   scheduledProfessional?: string;
   items: any[];
+}
+
+export interface Service {
+  id: string;
+  name: string;
+  price: number;
+  duration: number;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  stock: number;
 }
 
 const VIDEO_SAMPLES = [
@@ -191,9 +210,4 @@ export const COURSE_LIBRARY = generateCourses();
 export const MOCK_COUPONS = [
   { id: 'c1', code: 'BEMVINDO10', discount: 10, type: 'percent' },
   { id: 'c2', code: 'PROMO20', discount: 20, type: 'fixed' },
-];
-
-export const MOCK_SERVICES = [
-  { id: 's1', name: 'Corte Degradê Master', price: 45.00, duration: 30 },
-  { id: 's2', name: 'Barboterapia Elite', price: 35.00, duration: 25 },
 ];
