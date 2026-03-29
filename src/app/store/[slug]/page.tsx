@@ -9,14 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { 
-  Search, ShoppingCart, User, Clock, 
-  Star, MapPin, Plus, Scissors, ShoppingBag, 
-  Calendar, Timer, Bot, Sparkles, Filter, 
-  Menu, Info, ChevronRight, Globe, Zap, SearchIcon,
+  Search, User, MapPin, 
+  ChevronRight, Globe, Zap, SearchIcon,
   Store, Loader2
 } from "lucide-react";
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, limit, orderBy } from 'firebase/firestore';
+import { collection, query, where, limit } from 'firebase/firestore';
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 
@@ -35,12 +33,6 @@ export default function StoreFront() {
   const { data: merchantData, isLoading } = useCollection(merchantQuery);
   const merchant = merchantData?.[0];
 
-  const servicesQuery = useMemoFirebase(() => {
-    if (!merchant?.id) return null;
-    return query(collection(db, 'merchants', merchant.id, 'services'), orderBy('createdAt', 'desc'));
-  }, [db, merchant?.id]);
-  const { data: services } = useCollection(servicesQuery);
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -55,20 +47,20 @@ export default function StoreFront() {
       <header className="px-6 h-20 flex items-center border-b border-white/5 sticky top-0 z-50 bg-black/80 backdrop-blur-xl">
         <div className="container max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-10">
-             <Link href="#" className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white font-black italic text-xs">A</div>
-                <span className="font-black italic tracking-tighter text-xl text-white uppercase">AppBarber</span>
+             <Link href={`/store/${slug}`} className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white font-black italic text-xs">M</div>
+                <span className="font-black italic tracking-tighter text-xl text-white uppercase">MercadoFacil</span>
              </Link>
              <nav className="hidden md:flex items-center gap-8">
                 <Link href="#" className="text-sm font-bold text-white uppercase tracking-tighter">Início</Link>
                 <Link href="#" className="text-sm font-bold text-primary uppercase tracking-tighter border-b-2 border-primary pb-1">Procurar</Link>
-                <Link href="#" className="text-sm font-bold text-white/60 hover:text-white uppercase tracking-tighter transition-colors">Os Meus Agendamentos</Link>
+                <Link href={`/store/${slug}/profile`} className="text-sm font-bold text-white/60 hover:text-white uppercase tracking-tighter transition-colors">Os Meus Agendamentos</Link>
              </nav>
           </div>
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-2 text-white/60">
                 <Zap className="h-4 w-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">PT-PT</span>
+                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">PT-BR</span>
              </div>
              <Button variant="ghost" className="rounded-full bg-white/5 hover:bg-white/10 h-10 px-6 gap-2 border border-white/10" asChild>
                 <Link href="/login"><User className="h-4 w-4" /> <span className="font-bold text-xs uppercase">Entrar</span></Link>
@@ -120,7 +112,7 @@ export default function StoreFront() {
         </div>
 
         {/* Resultados */}
-        {!searchTerm ? (
+        {(!searchTerm && !merchant) ? (
           <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
              <div className="h-40 w-40 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center animate-pulse">
                 <Search className="h-16 w-16 text-slate-700" />
@@ -133,25 +125,27 @@ export default function StoreFront() {
         ) : (
           <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4">
              <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-[0.3em]">Resultados Encontrados</h3>
-             <Card className="bg-white/5 border-white/10 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all cursor-pointer group">
-                <div className="flex flex-col md:flex-row items-center">
-                   <div className="h-48 w-full md:w-72 overflow-hidden shrink-0">
-                      <img src={merchant?.bannerUrl || `https://picsum.photos/seed/${slug}/600/400`} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                   </div>
-                   <div className="p-10 flex-1 flex flex-col md:flex-row justify-between items-center gap-8">
-                      <div className="text-center md:text-left space-y-2">
-                         <Badge className="bg-primary text-white border-none font-black italic uppercase text-[8px] tracking-widest">VERIFICADO</Badge>
-                         <h4 className="text-3xl font-black italic uppercase tracking-tighter leading-none">{merchant?.name}</h4>
-                         <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest flex items-center gap-2 justify-center md:justify-start">
-                            <MapPin className="h-3 w-3" /> {merchant?.contact?.address || 'Localização não definida'}
-                         </p>
-                      </div>
-                      <Button className="h-16 px-12 bg-primary text-white rounded-3xl font-black italic text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform" asChild>
-                         <Link href={`/store/${slug}/book`}>RESERVAR AGORA <ChevronRight className="ml-2 h-5 w-5" /></Link>
-                      </Button>
-                   </div>
-                </div>
-             </Card>
+             {merchant && (
+               <Card className="bg-white/5 border-white/10 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all cursor-pointer group">
+                  <div className="flex flex-col md:flex-row items-center">
+                     <div className="h-48 w-full md:w-72 overflow-hidden shrink-0">
+                        <img src={merchant?.bannerUrl || `https://picsum.photos/seed/${slug}/600/400`} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                     </div>
+                     <div className="p-10 flex-1 flex flex-col md:flex-row justify-between items-center gap-8">
+                        <div className="text-center md:text-left space-y-2">
+                           <Badge className="bg-primary text-white border-none font-black italic uppercase text-[8px] tracking-widest">VERIFICADO</Badge>
+                           <h4 className="text-3xl font-black italic uppercase tracking-tighter leading-none">{merchant?.name}</h4>
+                           <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest flex items-center gap-2 justify-center md:justify-start">
+                              <MapPin className="h-3 w-3" /> {merchant?.contact?.address || 'Localização não definida'}
+                           </p>
+                        </div>
+                        <Button className="h-16 px-12 bg-primary text-white rounded-3xl font-black italic text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform" asChild>
+                           <Link href={`/store/${slug}/book`}>RESERVAR AGORA <ChevronRight className="ml-2 h-5 w-5" /></Link>
+                        </Button>
+                     </div>
+                  </div>
+               </Card>
+             )}
           </div>
         )}
       </main>
@@ -159,7 +153,7 @@ export default function StoreFront() {
       <footer className="mt-32 border-t border-white/5 py-20 px-6">
          <div className="container max-w-6xl mx-auto grid md:grid-cols-4 gap-16">
             <div className="space-y-6">
-               <h4 className="font-black italic text-xl uppercase tracking-tighter">AppBarber</h4>
+               <h4 className="font-black italic text-xl uppercase tracking-tighter">MercadoFacil</h4>
                <p className="text-slate-500 text-sm leading-relaxed font-medium">A plataforma definitiva para agendamentos de elite. Performance, segurança e exclusividade.</p>
             </div>
             <div className="md:col-span-3 flex justify-end items-end">
