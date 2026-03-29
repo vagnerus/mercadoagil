@@ -140,10 +140,18 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
       <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold">
         <LayoutDashboard className="h-5 w-5" /> Dashboard
       </Link>
+      <Link href={`/merchant/${slug}/analytics`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
+        <BarChart3 className="h-5 w-5" /> Analytics Pro
+      </Link>
       <Link href={`/merchant/${slug}/hr`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Briefcase className="h-5 w-5" /> Gestão de Equipe</Link>
+      <Link href={`/merchant/${slug}/inventory`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Database className="h-5 w-5" /> Estoque & Lotes</Link>
+      <Link href={`/merchant/${slug}/logistics`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Truck className="h-5 w-5" /> Logística & Frota</Link>
+      <Link href={`/merchant/${slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Users className="h-5 w-5" /> CRM & WhatsApp</Link>
+      <Link href={`/merchant/${slug}/loyalty`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Crown className="h-5 w-5" /> Fidelidade & Cashback</Link>
       <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
       <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Monitor className="h-5 w-5" /> PDV Cloud</Link>
       <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
+      <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><GraduationCap className="h-5 w-5" /> Ágil Academy</Link>
       <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
     </div>
   );

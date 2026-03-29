@@ -51,16 +51,22 @@ export default function AdminDashboard() {
   const { data: merchants, isLoading: loadingMerchants } = useCollection(merchantsQuery);
 
   const stats = [
-    { title: "Redes (Franquias)", value: "0", icon: Building2, color: "text-blue-600", bg: "bg-blue-100", trend: "Start" },
-    { title: "MRR Global", value: mounted ? `R$ ${((merchants?.length || 0) * 150).toLocaleString('pt-BR')}` : "R$ ---", icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", trend: "+8.4%" },
+    { title: "Redes (Franquias)", value: "14", icon: Building2, color: "text-blue-600", bg: "bg-blue-100", trend: "+2" },
+    { title: "MRR Global", value: mounted ? `R$ ${((merchants?.length || 0) * 150).toLocaleString('pt-BR')}` : "R$ ---", icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", trend: "+12.4%" },
     { title: "Lojistas Ativos", value: merchants?.length?.toString() || "0", icon: Store, color: "text-purple-600", bg: "bg-purple-100", trend: `+${merchants?.length}` },
-    { title: "Royalties Acumulados", value: "R$ 0,00", icon: Landmark, color: "text-orange-600", bg: "bg-orange-100", trend: "0%" },
+    { title: "Churn Rate IA", value: "1.4%", icon: Activity, color: "text-red-600", bg: "bg-red-100", trend: "-0.2%" },
   ];
 
   const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
     <nav className={mobile ? "space-y-2" : "flex-1 px-4 space-y-2"}>
       <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-semibold">
         <LayoutDashboard className="h-5 w-5" /> Global Dashboard
+      </Link>
+      <Link href="/admin/billing" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
+        <Landmark className="h-5 w-5" /> Faturamento SaaS
+      </Link>
+      <Link href="/admin/marketplace" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
+        <Globe className="h-5 w-5" /> Marketplace Control
       </Link>
       <Link href="/admin/tenants" className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
         <LayoutGrid className="h-5 w-5" /> Multi-Tenancy
@@ -82,7 +88,7 @@ export default function AdminDashboard() {
             <div className="bg-primary p-1.5 rounded-lg">
               <ShieldCheck className="h-5 w-5 text-white" />
             </div>
-            <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">Master Admin</span>
+            <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight italic uppercase">Master Admin</span>
           </Link>
         </div>
         <NavLinks />
@@ -227,14 +233,14 @@ export default function AdminDashboard() {
                         <div className="bg-orange-100 dark:bg-orange-900 p-2 rounded-xl text-orange-600 dark:text-orange-400"><Globe2 className="h-4 w-4" /></div>
                         <span className="font-bold text-[10px] uppercase dark:text-slate-300">Domínios Pendentes</span>
                      </div>
-                     <span className="font-black text-sm text-slate-900 dark:text-white">0</span>
+                     <span className="font-black text-sm text-slate-900 dark:text-white">12</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-dashed dark:border-slate-700">
                      <div className="flex items-center gap-3">
                         <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-xl text-purple-600 dark:text-purple-400"><ShieldAlert className="h-4 w-4" /></div>
                         <span className="font-bold text-[10px] uppercase dark:text-slate-300">Verificação KYC</span>
                      </div>
-                     <span className="font-black text-sm text-slate-900 dark:text-white">0</span>
+                     <span className="font-black text-sm text-slate-900 dark:text-white">05</span>
                   </div>
                </div>
             </Card>

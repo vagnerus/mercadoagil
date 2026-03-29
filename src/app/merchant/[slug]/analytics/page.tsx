@@ -65,8 +65,8 @@ export default function MerchantAnalytics({ params }: { params: Promise<{ slug: 
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="rounded-2xl h-12 gap-2 font-bold dark:border-slate-800"><Calendar className="h-4 w-4" /> Últimos 30 dias</Button>
-            <Button className="bg-primary rounded-2xl h-12 gap-2 font-black italic shadow-xl shadow-primary/20 px-6 text-white">
-              <Download className="h-4 w-4" /> Relatório Completo
+            <Button className="bg-primary rounded-2xl h-12 font-black italic shadow-xl shadow-primary/20 px-6 text-white">
+              <Download className="h-4 w-4 mr-2" /> Relatório Completo
             </Button>
           </div>
         </header>
