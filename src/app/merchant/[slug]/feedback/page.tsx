@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 import { 
   Star, MessageSquare, BrainCircuit, TrendingUp, 
   LayoutDashboard, Users, Target, ArrowUpRight, 
