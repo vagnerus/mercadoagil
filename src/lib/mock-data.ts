@@ -88,13 +88,13 @@ export const SYSTEM_PLANS: Plan[] = [
 
 export const MOCK_MERCHANTS: Merchant[] = [];
 export const MOCK_SERVICES = [
-  { id: 's1', name: 'Corte Degradê Master', price: 45.00, duration: 30, category: 'Cabelo' },
-  { id: 's2', name: 'Barboterapia Elite', price: 35.00, duration: 25, category: 'Barba' },
-  { id: 's3', name: 'Corte + Barba Combo', price: 70.00, duration: 50, category: 'Pacotes' },
+  { id: 's1', name: 'Serviço Master', price: 45.00, duration: 30, category: 'Principal' },
+  { id: 's2', name: 'Atendimento Premium', price: 35.00, duration: 25, category: 'Extra' },
+  { id: 's3', name: 'Combo Fidelidade', price: 70.00, duration: 50, category: 'Pacotes' },
 ];
 export const MOCK_PRODUCTS: any[] = [
-  { id: 'p1', name: 'Pomada Modeladora Matte', price: 45.00, imageUrl: 'https://picsum.photos/seed/wax/200/200', category: 'Finalizadores', stock: 45 },
-  { id: 'p2', name: 'Óleo para Barba Premium', price: 35.00, imageUrl: 'https://picsum.photos/seed/oil/200/200', category: 'Cuidados', stock: 20 },
+  { id: 'p1', name: 'Produto de Venda A', price: 45.00, imageUrl: 'https://picsum.photos/seed/wax/200/200', category: 'Balcão', stock: 45 },
+  { id: 'p2', name: 'Item de Consumo B', price: 35.00, imageUrl: 'https://picsum.photos/seed/oil/200/200', category: 'Uso Interno', stock: 20 },
 ];
 export const MOCK_STAFF: any[] = [];
 
@@ -140,23 +140,23 @@ export const MOCK_COUPONS = [
 export const COURSE_LIBRARY: any[] = [
   {
     id: 'c1',
-    title: 'Mestre da Barboterapia',
-    category: 'Beleza',
+    title: 'Expert em Atendimento Elite',
+    category: 'Gestão',
     thumb: 'https://picsum.photos/seed/course1/800/450',
     lessons: 12,
     duration: '4h 20m',
     rating: 4.9,
-    description: 'Aprenda as técnicas mais avançadas de toalha quente, massagem facial e hidratação de barba com ozônio.',
+    description: 'Aprenda as técnicas mais avançadas de hospitalidade corporativa e vendas consultivas.',
     modules: [
       {
         title: 'Introdução e Teoria',
         lessons: [
-          { id: 'l1', title: 'Fundamentos da Barboterapia', duration: '15:00', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', content: 'A barboterapia é uma técnica que une o barbear tradicional com tratamentos de relaxamento...' }
+          { id: 'l1', title: 'Fundamentos do SaaS Ágil', duration: '15:00', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', content: 'A base para uma operação de sucesso começa na padronização...' }
         ]
       }
     ],
     materials: [
-      { title: 'Manual Técnico de Barboterapia v3.2', type: 'PDF', size: '12MB', content: 'Este manual contém todas as diretrizes para a execução perfeita do serviço...' }
+      { title: 'Manual Técnico de Operação v3.2', type: 'PDF', size: '12MB', content: 'Este manual contém todas as diretrizes para a execução perfeita do serviço...' }
     ]
   }
 ];

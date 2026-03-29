@@ -106,7 +106,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         ];
       case 'RESTAURANT':
         return [
-          { title: "Pedidos no KDS", value: "12", icon: Package, color: "text-orange-600", bg: "bg-orange-100", trend: "Flow" },
+          { title: "Pedidos no KDS", value: "12", icon: Utensils, color: "text-orange-600", bg: "bg-orange-100", trend: "Flow" },
           { title: "Mesas Ocupadas", value: "8/15", icon: Landmark, color: "text-blue-600", bg: "bg-blue-100", trend: "53%" },
           { title: "Ticket Médio", value: "R$ 85,90", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
           { title: "Tempo Médio Prep.", value: "18 min", icon: Clock, color: "text-red-600", bg: "bg-red-100", trend: "-2 min" },

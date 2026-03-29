@@ -46,12 +46,6 @@ export default function AdminTenants() {
     setEditingMerchant(null);
   };
 
-  const copyStoreLink = (slug: string) => {
-    const url = `${window.location.origin}/store/${slug}`;
-    navigator.clipboard.writeText(url);
-    toast({ title: "Link Copiado!", description: "URL da vitrine na área de transferência." });
-  };
-
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-body">
       <aside className="w-64 border-r dark:border-slate-800 bg-white dark:bg-slate-900 hidden lg:flex flex-col sticky top-0 h-screen">
