@@ -10,11 +10,13 @@ import {
   User, Calendar, ShoppingBag, Wallet, 
   Star, ChevronRight, ArrowLeft, Clock,
   History, Settings, LogOut, Package, Scissors,
-  Share2, Trophy, Gift, ArrowUpRight, Copy, Check, Zap
+  Share2, Trophy, Gift, ArrowUpRight, Copy, Check, Zap,
+  Bell, Heart, CreditCard
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function ClientPanel() {
   const params = useParams();
@@ -63,6 +65,20 @@ export default function ClientPanel() {
            <Wallet className="absolute -bottom-10 -right-10 h-48 w-48 opacity-10 rotate-12" />
         </div>
 
+        {/* Notificações e Lembretes */}
+        <div className="p-6 bg-blue-600 rounded-[35px] text-white flex items-center justify-between shadow-lg shadow-blue-200">
+           <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                 <Bell className="h-6 w-6 animate-swing" />
+              </div>
+              <div>
+                 <p className="font-black italic text-sm uppercase">Lembrete Ativo</p>
+                 <p className="text-[10px] font-bold opacity-80 uppercase">Corte hoje às 14:00</p>
+              </div>
+           </div>
+           <Badge className="bg-white text-blue-600 border-none font-black italic">CONFIRMADO</Badge>
+        </div>
+
         {/* Grid de Ações Rápidas */}
         <div className="grid grid-cols-2 gap-4">
            <Card className="border-none shadow-sm rounded-[35px] p-6 bg-white hover:shadow-xl transition-all cursor-pointer group border-b-4 border-primary/20">
@@ -74,6 +90,23 @@ export default function ClientPanel() {
               <ShoppingBag className="h-8 w-8 text-accent mb-4 group-hover:scale-110 transition-transform" />
               <p className="font-black text-sm uppercase italic text-slate-900 leading-tight">Meus Pedidos</p>
               <p className="text-[10px] font-bold text-slate-400 uppercase mt-2">Histórico Completo</p>
+           </Card>
+        </div>
+
+        {/* Seção de Pacotes Ativos */}
+        <div className="space-y-4">
+           <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Meus Pacotes & Sessões</h3>
+           <Card className="border-none shadow-sm rounded-[35px] p-6 bg-white flex items-center justify-between border-l-4 border-green-500">
+              <div className="flex items-center gap-4">
+                 <div className="h-12 w-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-600">
+                    <History className="h-6 w-6" />
+                 </div>
+                 <div>
+                    <p className="font-black text-slate-900 italic text-sm uppercase">Combo Barba & Cabelo</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Restam 03 sessões</p>
+                 </div>
+              </div>
+              <Button size="sm" className="rounded-xl font-black italic bg-slate-900 text-white text-[8px] h-8 px-3">USAR AGORA</Button>
            </Card>
         </div>
 
@@ -148,7 +181,7 @@ export default function ClientPanel() {
          <Link href={`/store/${slug}/profile`} className="p-4 text-primary bg-primary/10 rounded-3xl scale-110 shadow-inner">
             <User className="h-7 w-7" />
          </Link>
-         <Link href={`/store/${slug}/track/last`} className="p-4 text-slate-400 hover:text-primary transition-colors">
+         <Link href={`/store/${slug}/profile`} className="p-4 text-slate-400 hover:text-primary transition-colors">
             <Clock className="h-7 w-7" />
          </Link>
       </div>
