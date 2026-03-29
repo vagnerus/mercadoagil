@@ -14,7 +14,7 @@ import {
   Store, Shield, Palette, QrCode, Globe, Key, 
   LayoutDashboard, Settings, Smartphone, Zap, Code, MessageCircle, Loader2, CheckCircle2, Link as LinkIcon, RefreshCw,
   Menu, ShoppingBag, List, Users, Calendar, Scissors, Stethoscope, Video, ClipboardList, Wallet, BarChart3, LogOut,
-  Building2, Landmark, MapPin, ReceiptText, ShieldAlert, Save
+  Building2, Landmark, MapPin, ReceiptText, ShieldAlert, Save, Image as ImageIcon, Sparkles
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +45,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
     enableAutoNotify: true,
     facebookPixel: "",
     googleAnalytics: "",
+    primaryColor: "#3b82f6",
     legal: {
       razaoSocial: "",
       cnpj: "",
@@ -74,6 +75,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
         enableAutoNotify: merchant.settings?.enableAutoNotify ?? true,
         facebookPixel: merchant.settings?.facebookPixel || "",
         googleAnalytics: merchant.settings?.googleAnalytics || "",
+        primaryColor: merchant.settings?.primaryColor || "#3b82f6",
         legal: {
           razaoSocial: merchant.legal?.razaoSocial || "",
           cnpj: merchant.legal?.cnpj || "",
@@ -117,7 +119,8 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
         whatsapp: settings.whatsapp,
         enableAutoNotify: settings.enableAutoNotify,
         facebookPixel: settings.facebookPixel,
-        googleAnalytics: settings.googleAnalytics
+        googleAnalytics: settings.googleAnalytics,
+        primaryColor: settings.primaryColor
       }
     });
 
@@ -206,7 +209,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
             </Sheet>
             <div>
               <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão da Instância</h1>
-              <p className="text-slate-500 font-medium text-xs lg:text-base">Conformidade, operação e integrações extraordinárias.</p>
+              <p className="text-slate-500 font-medium text-xs lg:text-base">Conformidade, operação e branding extraordinário.</p>
             </div>
           </div>
           <Badge className="bg-green-100 text-green-700 border-none px-4 py-2 font-black italic hidden sm:flex">UNIDADE: {merchant?.status?.toUpperCase()}</Badge>
@@ -214,9 +217,10 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
 
         <Tabs defaultValue="legal" className="space-y-8">
           <TabsList className="bg-white p-1 rounded-2xl shadow-sm border h-auto flex overflow-x-auto no-scrollbar">
-            <TabsTrigger value="legal" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Building2 className="h-4 w-4 mr-2" /> Dados Legais & Operação</TabsTrigger>
-            <TabsTrigger value="whatsapp" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><MessageCircle className="h-4 w-4 mr-2" /> Integração WhatsApp</TabsTrigger>
-            <TabsTrigger value="integrations" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Code className="h-4 w-4 mr-2" /> Marketing & Pixel</TabsTrigger>
+            <TabsTrigger value="legal" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Building2 className="h-4 w-4 mr-2" /> Dados Legais</TabsTrigger>
+            <TabsTrigger value="branding" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Palette className="h-4 w-4 mr-2" /> Branding Vitrine</TabsTrigger>
+            <TabsTrigger value="whatsapp" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><MessageCircle className="h-4 w-4 mr-2" /> WhatsApp</TabsTrigger>
+            <TabsTrigger value="integrations" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Code className="h-4 w-4 mr-2" /> Marketing & SEO</TabsTrigger>
           </TabsList>
 
           <TabsContent value="legal">
@@ -275,23 +279,69 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                       <div className="relative z-10 space-y-4">
                          <ShieldAlert className="h-10 w-10 text-primary" />
                          <h3 className="font-black italic uppercase text-lg leading-tight">Auditoria SaaS</h3>
-                         <p className="text-xs text-slate-400 leading-relaxed font-medium">Sua instância foi auditada e aprovada pelo Master Admin em conformidade com o CNPJ informado. Alterações críticas podem exigir nova validação.</p>
+                         <p className="text-xs text-slate-400 leading-relaxed font-medium">Sua instância foi auditada e aprovada pelo Master Admin em conformidade com o CNPJ informado.</p>
                          <div className="pt-4">
                             <Badge className="bg-primary/20 text-primary border-none font-black italic">TRUSTED TENANT</Badge>
                          </div>
                       </div>
                    </Card>
-
-                   <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white space-y-4">
-                      <h4 className="text-[10px] font-black uppercase text-slate-400">Dados Financeiros</h4>
-                      <div className="space-y-2">
-                         <Label className="text-[10px] font-black uppercase text-slate-400">Chave PIX Ativa</Label>
-                         <Input value={settings.financial.pixKey} onChange={e => setSettings({...settings, financial: {...settings.financial, pixKey: e.target.value}})} className="rounded-xl h-10 bg-slate-50 border-none font-bold text-xs" />
-                      </div>
-                      <p className="text-[8px] text-slate-400 font-bold uppercase leading-relaxed">Esta chave é utilizada para pagamentos diretos via PDV Cloud e Reserva Online.</p>
-                   </Card>
                 </div>
              </div>
+          </TabsContent>
+
+          <TabsContent value="branding">
+             <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white space-y-8">
+                <div>
+                   <CardTitle className="text-2xl font-black italic">Identidade Visual da Vitrine</CardTitle>
+                   <p className="text-slate-400 text-sm font-medium mt-1">Personalize como os clientes enxergam sua marca online.</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-12">
+                   <div className="space-y-8">
+                      <div className="space-y-4">
+                         <Label className="text-[10px] font-black uppercase text-slate-400">Logotipo da Unidade</Label>
+                         <div className="h-32 w-32 rounded-[30px] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-primary transition-colors">
+                            <ImageIcon className="h-8 w-8 mb-2" />
+                            <span className="text-[8px] font-black uppercase">Alterar Logo</span>
+                         </div>
+                      </div>
+
+                      <div className="space-y-4">
+                         <Label className="text-[10px] font-black uppercase text-slate-400">Cor Principal (Brand Color)</Label>
+                         <div className="flex items-center gap-4">
+                            <input 
+                              type="color" 
+                              value={settings.primaryColor}
+                              onChange={e => setSettings({...settings, primaryColor: e.target.value})}
+                              className="h-14 w-14 rounded-xl border-none p-0 cursor-pointer"
+                            />
+                            <Input value={settings.primaryColor} onChange={e => setSettings({...settings, primaryColor: e.target.value})} className="rounded-xl h-12 bg-slate-50 border-none font-mono" />
+                         </div>
+                      </div>
+
+                      <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-primary hover:bg-primary/90 text-white rounded-[30px] font-black italic shadow-xl">
+                         ATUALIZAR MARCA
+                      </Button>
+                   </div>
+
+                   <div className="bg-slate-900 rounded-[45px] p-8 text-white space-y-6">
+                      <h4 className="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2">
+                         <Sparkles className="h-3 w-3" /> Preview do Branding
+                      </h4>
+                      <div className="space-y-4">
+                         <div className="h-10 w-40 rounded-lg" style={{ backgroundColor: settings.primaryColor }}></div>
+                         <div className="space-y-2">
+                            <div className="h-4 w-full bg-white/10 rounded-full"></div>
+                            <div className="h-4 w-[80%] bg-white/10 rounded-full"></div>
+                         </div>
+                         <Button className="w-full rounded-2xl h-12 font-black italic" style={{ backgroundColor: settings.primaryColor }}>
+                            BOTÃO CUSTOMIZADO
+                         </Button>
+                      </div>
+                      <p className="text-[8px] text-slate-500 font-bold uppercase leading-relaxed text-center">As cores serão aplicadas no link público da sua loja.</p>
+                   </div>
+                </div>
+             </Card>
           </TabsContent>
 
           <TabsContent value="whatsapp">
@@ -358,7 +408,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
 
           <TabsContent value="integrations">
              <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
-                <CardTitle className="text-2xl font-black italic mb-8">Tráfego & Rastreamento</CardTitle>
+                <CardTitle className="text-2xl font-black italic mb-8">Tráfego & Rastreamento (SEO)</CardTitle>
                 <div className="grid md:grid-cols-2 gap-8">
                    <div className="space-y-6">
                       <div className="space-y-2">
@@ -370,7 +420,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                          <Input value={settings.googleAnalytics} onChange={e => setSettings({...settings, googleAnalytics: e.target.value})} placeholder="ex: G-XXXXXXX" className="h-14 rounded-2xl bg-slate-50 border-none font-mono" />
                       </div>
                       <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl text-white">
-                        {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Salvar Integrações'}
+                        {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Salvar Configurações de Growth'}
                       </Button>
                    </div>
                    <div className="p-8 bg-blue-50 rounded-[40px] border border-blue-100 space-y-4">

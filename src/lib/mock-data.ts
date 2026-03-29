@@ -74,11 +74,12 @@ export interface Merchant {
     enableAutoNotify?: boolean;
     facebookPixel?: string;
     googleAnalytics?: string;
+    primaryColor?: string;
   }
 }
 
 export const SYSTEM_PLANS: Plan[] = [
-  { id: 'p_free', name: 'Free (Limitado)', price: 0, features: ['Acesso Básico', '1 Profissional', 'Verificação Obrigatória'], maxStaff: 1, billing: 'mensal' },
+  { id: 'p_free', name: 'Free (Verificado)', price: 0, features: ['Acesso Básico', '1 Profissional', 'Auditoria Master Obrigatória'], maxStaff: 1, billing: 'mensal' },
   { id: 'p_1prof', name: 'Elite 1 Profissional', price: 59.90, features: ['Suporte Standard', 'IA Gerativa', 'Recibos PDF'], maxStaff: 1, billing: 'mensal' },
   { id: 'p_5prof', name: 'Premium 5 Prof.', price: 99.90, features: ['Gestão de Comissões', 'Marketing IA', 'Relatórios Pro'], maxStaff: 5, billing: 'mensal' },
   { id: 'p_15prof', name: 'Enterprise 15 Prof.', price: 189.90, features: ['Multi-unidades', 'Suporte VIP 1h', 'API Privada'], maxStaff: 15, billing: 'mensal' },
@@ -136,4 +137,26 @@ export const MOCK_COUPONS = [
   { id: 'c2', code: 'PROMO20', discount: 20, type: 'fixed' },
 ];
 
-export const COURSE_LIBRARY: any[] = []; // Removido para brevidade no diff, mas assuma o anterior
+export const COURSE_LIBRARY: any[] = [
+  {
+    id: 'c1',
+    title: 'Mestre da Barboterapia',
+    category: 'Beleza',
+    thumb: 'https://picsum.photos/seed/course1/800/450',
+    lessons: 12,
+    duration: '4h 20m',
+    rating: 4.9,
+    description: 'Aprenda as técnicas mais avançadas de toalha quente, massagem facial e hidratação de barba com ozônio.',
+    modules: [
+      {
+        title: 'Introdução e Teoria',
+        lessons: [
+          { id: 'l1', title: 'Fundamentos da Barboterapia', duration: '15:00', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', content: 'A barboterapia é uma técnica que une o barbear tradicional com tratamentos de relaxamento...' }
+        ]
+      }
+    ],
+    materials: [
+      { title: 'Manual Técnico de Barboterapia v3.2', type: 'PDF', size: '12MB', content: 'Este manual contém todas as diretrizes para a execução perfeita do serviço...' }
+    ]
+  }
+];
