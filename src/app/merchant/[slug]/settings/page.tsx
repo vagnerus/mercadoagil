@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Store, Shield, Palette, QrCode, Globe, Key, 
   LayoutDashboard, Settings, Smartphone, Zap, Code, MessageCircle, Loader2, CheckCircle2, Link as LinkIcon, RefreshCw,
-  Menu, ShoppingBag, List, Users, Calendar, Scissors, Stethoscope, Video, ClipboardList, Wallet, BarChart3, LogOut
+  Menu, ShoppingBag, List, Users, Calendar, Scissors, Stethoscope, Video, ClipboardList, Wallet, BarChart3, LogOut,
+  Building2, Landmark, MapPin, ReceiptText, ShieldAlert
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
@@ -43,17 +44,55 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
     whatsapp: "",
     enableAutoNotify: true,
     facebookPixel: "",
-    googleAnalytics: ""
+    googleAnalytics: "",
+    legal: {
+      razaoSocial: "",
+      cnpj: "",
+      regimeTributario: "MEI"
+    },
+    financial: {
+      pixKey: "",
+      creditFee: 2.99,
+      bankAccount: ""
+    },
+    operation: {
+      chairs: 1,
+      delayTolerance: 15,
+      cancellationPolicy: ""
+    },
+    contact: {
+      address: "",
+      email: ""
+    }
   });
 
   useEffect(() => {
     if (merchant) {
       setSettings({
         name: merchant.name || "",
-        whatsapp: merchant.settings?.whatsapp || "",
+        whatsapp: merchant.settings?.whatsapp || merchant.contact?.whatsapp || "",
         enableAutoNotify: merchant.settings?.enableAutoNotify ?? true,
         facebookPixel: merchant.settings?.facebookPixel || "",
-        googleAnalytics: merchant.settings?.googleAnalytics || ""
+        googleAnalytics: merchant.settings?.googleAnalytics || "",
+        legal: {
+          razaoSocial: merchant.legal?.razaoSocial || "",
+          cnpj: merchant.legal?.cnpj || "",
+          regimeTributario: merchant.legal?.regimeTributario || "MEI"
+        },
+        financial: {
+          pixKey: merchant.financial?.pixKey || "",
+          creditFee: merchant.financial?.creditFee || 2.99,
+          bankAccount: merchant.financial?.bankAccount || ""
+        },
+        operation: {
+          chairs: merchant.operation?.chairs || 1,
+          delayTolerance: merchant.operation?.delayTolerance || 15,
+          cancellationPolicy: merchant.operation?.cancellationPolicy || ""
+        },
+        contact: {
+          address: merchant.contact?.address || "",
+          email: merchant.contact?.email || ""
+        }
       });
     }
   }, [merchant]);
@@ -63,22 +102,28 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
     setLoading(true);
     
     const merchantRef = doc(db, 'merchants', merchant.id);
-    const updatedSettings = {
-      ...(merchant.settings || {}),
-      whatsapp: settings.whatsapp,
-      enableAutoNotify: settings.enableAutoNotify,
-      facebookPixel: settings.facebookPixel,
-      googleAnalytics: settings.googleAnalytics
-    };
-
+    
     updateDocumentNonBlocking(merchantRef, {
       name: settings.name,
-      settings: updatedSettings
+      legal: settings.legal,
+      financial: settings.financial,
+      operation: settings.operation,
+      contact: {
+        ...settings.contact,
+        whatsapp: settings.whatsapp
+      },
+      settings: {
+        ...(merchant.settings || {}),
+        whatsapp: settings.whatsapp,
+        enableAutoNotify: settings.enableAutoNotify,
+        facebookPixel: settings.facebookPixel,
+        googleAnalytics: settings.googleAnalytics
+      }
     });
 
     setTimeout(() => {
       setLoading(false);
-      toast({ title: "Configurações Salvas", description: "As informações da sua loja foram atualizadas." });
+      toast({ title: "Configurações Salvas", description: "As informações da sua instância foram atualizadas." });
     }, 800);
   };
 
@@ -105,14 +150,6 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
           <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
           <Link href={`/merchant/${slug}/staff`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Users className="h-5 w-5" /> Equipe de Estilo</Link>
           <Link href={`/merchant/${slug}/services`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Scissors className="h-5 w-5" /> Procedimentos</Link>
-        </>
-      )}
-
-      {segment === 'HEALTH' && (
-        <>
-          <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Consultas</Link>
-          <Link href={`/merchant/${slug}/health/pep`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><ClipboardList className="h-5 w-5" /> Prontuários (PEP)</Link>
-          <Link href={`/merchant/${slug}/health/telemedicine`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium"><Video className="h-5 w-5" /> Telemedicina</Link>
         </>
       )}
 
@@ -168,49 +205,93 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
               </SheetContent>
             </Sheet>
             <div>
-              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão Enterprise</h1>
-              <p className="text-slate-500 font-medium text-xs lg:text-base">Configurações técnicas e integrações.</p>
+              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão da Instância</h1>
+              <p className="text-slate-500 font-medium text-xs lg:text-base">Conformidade, operação e integrações extraordinárias.</p>
             </div>
           </div>
-          <Badge className="bg-green-100 text-green-700 border-none px-4 py-2 font-black italic hidden sm:flex">ESTADO: ONLINE</Badge>
+          <Badge className="bg-green-100 text-green-700 border-none px-4 py-2 font-black italic hidden sm:flex">UNIDADE: {merchant?.status?.toUpperCase()}</Badge>
         </header>
 
-        <Tabs defaultValue="store" className="space-y-8">
+        <Tabs defaultValue="legal" className="space-y-8">
           <TabsList className="bg-white p-1 rounded-2xl shadow-sm border h-auto flex overflow-x-auto no-scrollbar">
-            <TabsTrigger value="store" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Store className="h-4 w-4 mr-2" /> Identidade & Unidade</TabsTrigger>
+            <TabsTrigger value="legal" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Building2 className="h-4 w-4 mr-2" /> Dados Legais & Operação</TabsTrigger>
             <TabsTrigger value="whatsapp" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><MessageCircle className="h-4 w-4 mr-2" /> Integração WhatsApp</TabsTrigger>
             <TabsTrigger value="integrations" className="rounded-xl py-3 px-6 font-black italic text-xs whitespace-nowrap"><Code className="h-4 w-4 mr-2" /> Marketing & Pixel</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="store">
-             <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
-                <CardTitle className="text-2xl font-black italic mb-8">Informações do Negócio</CardTitle>
-                <div className="grid md:grid-cols-2 gap-8">
+          <TabsContent value="legal">
+             <div className="grid md:grid-cols-12 gap-8">
+                <Card className="md:col-span-8 border-none shadow-sm rounded-[40px] p-8 bg-white space-y-8">
                    <div className="space-y-6">
-                      <div className="space-y-2">
-                         <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Nome da Instância</Label>
-                         <Input value={settings.name} onChange={e => setSettings({...settings, name: e.target.value})} className="rounded-2xl h-14 bg-slate-50 border-none font-bold" />
+                      <div className="flex items-center gap-3 border-b pb-4">
+                         <ReceiptText className="h-5 w-5 text-primary" />
+                         <h3 className="font-black italic uppercase text-lg">Informações Cadastrais</h3>
                       </div>
-                      
+                      <div className="grid md:grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Razão Social</Label>
+                            <Input value={settings.legal.razaoSocial} onChange={e => setSettings({...settings, legal: {...settings.legal, razaoSocial: e.target.value}})} className="rounded-2xl h-12 bg-slate-50 border-none font-bold" />
+                         </div>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 px-1">CNPJ</Label>
+                            <Input value={settings.legal.cnpj} onChange={e => setSettings({...settings, legal: {...settings.legal, cnpj: e.target.value}})} className="rounded-2xl h-12 bg-slate-50 border-none font-bold" />
+                         </div>
+                      </div>
                       <div className="space-y-2">
-                         <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Subdomínio (Não editável)</Label>
-                         <div className="flex items-center gap-2 p-4 bg-slate-50 rounded-2xl text-slate-400 font-bold border border-slate-100 overflow-hidden">
-                            <Globe className="h-4 w-4 shrink-0" /> <span className="truncate">{slug}.agil.com</span>
+                         <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Endereço Completo</Label>
+                         <div className="relative">
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Input value={settings.contact.address} onChange={e => setSettings({...settings, contact: {...settings.contact, address: e.target.value}})} className="rounded-2xl h-12 bg-slate-50 border-none font-bold pl-12" />
                          </div>
                       </div>
 
-                      <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl text-white">
-                        {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Salvar Alterações'}
+                      <div className="flex items-center gap-3 border-b pb-4 pt-4">
+                         <Zap className="h-5 w-5 text-primary" />
+                         <h3 className="font-black italic uppercase text-lg">Parâmetros de Operação</h3>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-6">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Cadeiras/Boxes</Label>
+                            <Input type="number" value={settings.operation.chairs} onChange={e => setSettings({...settings, operation: {...settings.operation, chairs: Number(e.target.value)}})} className="rounded-2xl h-12 bg-slate-50 border-none font-bold" />
+                         </div>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Tolerância (min)</Label>
+                            <Input type="number" value={settings.operation.delayTolerance} onChange={e => setSettings({...settings, operation: {...settings.operation, delayTolerance: Number(e.target.value)}})} className="rounded-2xl h-12 bg-slate-50 border-none font-bold" />
+                         </div>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Taxa Crédito (%)</Label>
+                            <Input type="number" step="0.01" value={settings.financial.creditFee} onChange={e => setSettings({...settings, financial: {...settings.financial, creditFee: Number(e.target.value)}})} className="rounded-2xl h-12 bg-slate-50 border-none font-bold" />
+                         </div>
+                      </div>
+
+                      <Button onClick={handleSave} disabled={loading} className="w-full h-16 bg-slate-900 rounded-[30px] font-black italic text-lg shadow-2xl text-white gap-2">
+                        {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <><Save className="h-5 w-5" /> Salvar Alterações Corporativas</>}
                       </Button>
                    </div>
-                   
-                   <div className="p-8 bg-primary/5 rounded-[40px] border border-primary/10 space-y-4">
-                      <Zap className="h-10 w-10 text-primary" />
-                      <h3 className="font-black italic text-slate-900 uppercase text-sm">Estrutura Enterprise</h3>
-                      <p className="text-xs text-slate-600 font-medium leading-relaxed">Sua loja opera em uma instância isolada com banco de dados próprio. Todas as alterações são replicadas em tempo real.</p>
-                   </div>
+                </Card>
+
+                <div className="md:col-span-4 space-y-6">
+                   <Card className="border-none shadow-sm rounded-[40px] p-8 bg-slate-900 text-white relative overflow-hidden">
+                      <div className="relative z-10 space-y-4">
+                         <ShieldAlert className="h-10 w-10 text-primary" />
+                         <h3 className="font-black italic uppercase text-lg leading-tight">Auditoria SaaS</h3>
+                         <p className="text-xs text-slate-400 leading-relaxed font-medium">Sua instância foi auditada e aprovada pelo Master Admin em conformidade com o CNPJ informado. Alterações críticas podem exigir nova validação.</p>
+                         <div className="pt-4">
+                            <Badge className="bg-primary/20 text-primary border-none font-black italic">TRUSTED TENANT</Badge>
+                         </div>
+                      </div>
+                   </Card>
+
+                   <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white space-y-4">
+                      <h4 className="text-[10px] font-black uppercase text-slate-400">Dados Financeiros</h4>
+                      <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase text-slate-400">Chave PIX Ativa</Label>
+                         <Input value={settings.financial.pixKey} onChange={e => setSettings({...settings, financial: {...settings.financial, pixKey: e.target.value}})} className="rounded-xl h-10 bg-slate-50 border-none font-bold text-xs" />
+                      </div>
+                      <p className="text-[8px] text-slate-400 font-bold uppercase leading-relaxed">Esta chave é utilizada para pagamentos diretos via PDV Cloud e Reserva Online.</p>
+                   </Card>
                 </div>
-             </Card>
+             </div>
           </TabsContent>
 
           <TabsContent value="whatsapp">
@@ -218,7 +299,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                 <Card className="md:col-span-2 border-none shadow-sm rounded-[40px] p-8 bg-white space-y-8">
                    <div>
                       <CardTitle className="text-2xl font-black italic">WhatsApp Business Connect</CardTitle>
-                      <p className="text-slate-400 text-sm font-medium mt-1">Conecte seu número para automatizar confirmações.</p>
+                      <p className="text-slate-400 text-sm font-medium mt-1">Conecte seu número para automatizar confirmações e retornos.</p>
                    </div>
 
                    <div className="space-y-6">
@@ -236,19 +317,19 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                                <RefreshCw className={cn("h-6 w-6", isConnecting && "animate-spin")} />
                             </div>
                             <div>
-                               <p className="font-black text-slate-900 italic uppercase text-sm">Status da Instância</p>
-                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{settings.whatsapp ? 'CONECTADO E PRONTO' : 'AGUARDANDO CONFIGURAÇÃO'}</p>
+                               <p className="font-black text-slate-900 italic uppercase text-sm">Status da Conexão</p>
+                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{settings.whatsapp ? 'INSTÂNCIA ATIVA' : 'AGUARDANDO QR CODE'}</p>
                             </div>
                          </div>
-                         <Button onClick={handleConnectWhatsApp} disabled={isConnecting} variant="outline" className="rounded-xl font-black italic text-xs border-slate-200 uppercase w-full sm:w-auto">
-                            {isConnecting ? 'Conectando...' : 'Reconectar'}
+                         <Button onClick={handleConnectWhatsApp} disabled={isConnecting} variant="outline" className="rounded-xl font-black italic text-xs border-slate-200 uppercase w-full sm:w-auto shadow-sm">
+                            {isConnecting ? 'Autenticando...' : 'Atualizar Link'}
                          </Button>
                       </div>
 
-                      <div className="flex items-center justify-between p-6 bg-white rounded-3xl border border-slate-100">
+                      <div className="flex items-center justify-between p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
                          <div className="space-y-1">
-                            <p className="font-black text-slate-900 italic text-sm uppercase">Envio Automático</p>
-                            <p className="text-[10px] text-slate-400 font-medium">Disparar confirmações instantâneas.</p>
+                            <p className="font-black text-slate-900 italic text-sm uppercase">Envio de Lembretes IA</p>
+                            <p className="text-[10px] text-slate-400 font-medium">Disparar lembretes 1h antes do agendamento.</p>
                          </div>
                          <Switch checked={settings.enableAutoNotify} onCheckedChange={v => setSettings({...settings, enableAutoNotify: v})} />
                       </div>
@@ -263,10 +344,10 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                    <Card className="border-none shadow-sm rounded-[40px] p-8 bg-slate-900 text-white relative overflow-hidden">
                       <div className="relative z-10 space-y-4">
                          <LinkIcon className="h-10 w-10 text-primary" />
-                         <h3 className="font-black italic uppercase text-lg">Link do Chatbot</h3>
-                         <p className="text-xs text-slate-400 leading-relaxed">Use este link na sua bio para permitir agendamentos automáticos.</p>
+                         <h3 className="font-black italic uppercase text-lg">Seu Link de Chatbot</h3>
+                         <p className="text-xs text-slate-400 leading-relaxed italic">Clientes podem agendar conversando diretamente com a nossa IA no WhatsApp.</p>
                          <div className="bg-white/10 p-3 rounded-xl border border-white/10 flex items-center justify-between gap-2 overflow-hidden">
-                            <code className="text-[10px] text-primary font-bold truncate">agil.com/s/{slug}</code>
+                            <code className="text-[10px] text-primary font-bold truncate">agil.com/wa/{slug}</code>
                             <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 hover:bg-white/20 text-white"><QrCode className="h-3 w-3" /></Button>
                          </div>
                       </div>
@@ -277,7 +358,7 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
 
           <TabsContent value="integrations">
              <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white">
-                <CardTitle className="text-2xl font-black italic mb-8">Tráfego Pago & Rastreamento</CardTitle>
+                <CardTitle className="text-2xl font-black italic mb-8">Tráfego & Rastreamento</CardTitle>
                 <div className="grid md:grid-cols-2 gap-8">
                    <div className="space-y-6">
                       <div className="space-y-2">
@@ -294,8 +375,8 @@ export default function MerchantSettings({ params }: { params: Promise<{ slug: s
                    </div>
                    <div className="p-8 bg-blue-50 rounded-[40px] border border-blue-100 space-y-4">
                       <Code className="h-10 w-10 text-primary" />
-                      <h3 className="font-black italic text-slate-900 uppercase">Métricas de Conversão</h3>
-                      <p className="text-sm text-slate-600 font-medium leading-relaxed">Conectando seus Pixels, você pode criar campanhas de remarketing para clientes que visitaram sua vitrine.</p>
+                      <h3 className="font-black italic text-slate-900 uppercase">Métricas de Growth</h3>
+                      <p className="text-sm text-slate-600 font-medium leading-relaxed italic">Conectando seus Pixels, você pode criar campanhas de remarketing para clientes que visitaram sua vitrine, aumentando sua taxa de retorno.</p>
                    </div>
                 </div>
              </Card>

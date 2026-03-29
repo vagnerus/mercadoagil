@@ -9,24 +9,40 @@ import { Button } from "@/components/ui/button";
 import { 
   Store, ShieldCheck, LogOut, LayoutDashboard, LayoutGrid, 
   Server, Plus, Loader2, Search, Copy, CheckCircle2, XCircle, 
-  Building2, Globe, ArrowUpRight, Headphones
+  Building2, Globe, ArrowUpRight, Headphones, Settings2,
+  Save, Landmark, MapPin, Clock, Smartphone
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AdminTenants() {
   const { toast } = useToast();
   const db = useFirestore();
+  const [editingMerchant, setEditingMerchant] = useState<any>(null);
   
   const merchantsQuery = useMemoFirebase(() => query(collection(db, 'merchants'), orderBy('createdAt', 'desc')), [db]);
   const { data: merchants, isLoading: loadingMerchants } = useCollection(merchantsQuery);
 
   const handleUpdateStatus = (id: string, newStatus: string) => {
     updateDocumentNonBlocking(doc(db, 'merchants', id), { status: newStatus });
-    toast({ title: newStatus === 'active' ? "Instância Aprovada!" : "Instância Bloqueada" });
+    toast({ 
+      title: newStatus === 'active' ? "Instância Ativada!" : "Instância Bloqueada",
+      description: `O status foi alterado para ${newStatus.toUpperCase()}.`
+    });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingMerchant) return;
+    updateDocumentNonBlocking(doc(db, 'merchants', editingMerchant.id), editingMerchant);
+    toast({ title: "Dados Atualizados", description: "As informações da unidade foram salvas pelo Master Admin." });
+    setEditingMerchant(null);
   };
 
   const copyStoreLink = (slug: string) => {
@@ -40,7 +56,7 @@ export default function AdminTenants() {
       <aside className="w-64 border-r dark:border-slate-800 bg-white dark:bg-slate-900 hidden lg:flex flex-col sticky top-0 h-screen">
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-primary p-1.5 rounded-lg">
+            <div className="bg-primary p-1.5 rounded-lg shadow-sm">
               <ShieldCheck className="h-5 w-5 text-white" />
             </div>
             <span className="font-bold text-xl dark:text-white tracking-tight italic uppercase">Master Admin</span>
@@ -60,7 +76,7 @@ export default function AdminTenants() {
         <header className="flex justify-between items-center mb-10">
           <div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase">Gestão de Instâncias</h1>
-            <p className="text-slate-500 font-medium">Controle de ativação, auditoria e bloqueios.</p>
+            <p className="text-slate-500 font-medium">Controle de ativação, auditoria e edição master.</p>
           </div>
         </header>
 
@@ -100,20 +116,97 @@ export default function AdminTenants() {
                           m.status === 'active' ? "bg-green-100 text-green-600" : 
                           m.status === 'pending_approval' ? "bg-orange-100 text-orange-600 animate-pulse" : "bg-red-100 text-red-600"
                         )}>
-                          {m.status === 'pending_approval' ? 'AGUARDANDO AUDITORIA' : m.status.toUpperCase()}
+                          {m.status === 'pending_approval' ? 'AGUARDANDO AUDITORIA' : m.status === 'blocked' ? 'BLOQUEADO' : m.status.toUpperCase()}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right px-8">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => copyStoreLink(m.slug)} className="rounded-xl font-bold h-9 border-slate-200 dark:border-slate-800"><Globe className="h-3.5 w-3.5 mr-2" /> Link</Button>
+                          <Button variant="outline" size="sm" onClick={() => copyStoreLink(m.slug)} className="rounded-xl font-bold h-9 border-slate-200 dark:border-slate-800 shadow-sm"><Globe className="h-3.5 w-3.5 mr-2" /> Link</Button>
+                          
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" onClick={() => setEditingMerchant(m)} className="rounded-xl font-bold h-9 border-slate-200 dark:border-slate-800 shadow-sm"><Settings2 className="h-3.5 w-3.5 mr-2" /> Gerenciar</Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-3xl rounded-[40px] p-0 overflow-hidden border-none shadow-2xl font-body">
+                               <div className="bg-primary p-8 text-white">
+                                  <DialogTitle className="text-2xl font-black italic uppercase">Master Edit: {m.name}</DialogTitle>
+                                  <p className="text-white/70 text-xs font-bold mt-1">Alteração direta de parâmetros da instância SaaS.</p>
+                               </div>
+                               <div className="p-8">
+                                  <Tabs defaultValue="legal" className="space-y-6">
+                                     <TabsList className="bg-slate-50 p-1 rounded-xl w-fit">
+                                        <TabsTrigger value="legal" className="rounded-lg font-black italic text-[10px] uppercase">Jurídico</TabsTrigger>
+                                        <TabsTrigger value="operation" className="rounded-lg font-black italic text-[10px] uppercase">Operação</TabsTrigger>
+                                        <TabsTrigger value="financial" className="rounded-lg font-black italic text-[10px] uppercase">Financeiro</TabsTrigger>
+                                     </TabsList>
+
+                                     <TabsContent value="legal" className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                           <div className="space-y-2">
+                                              <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Razão Social</Label>
+                                              <Input value={editingMerchant?.legal?.razaoSocial || ""} onChange={e => setEditingMerchant({...editingMerchant, legal: {...editingMerchant.legal, razaoSocial: e.target.value}})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                           </div>
+                                           <div className="space-y-2">
+                                              <Label className="text-[10px] font-black uppercase text-slate-400 px-1">CNPJ</Label>
+                                              <Input value={editingMerchant?.legal?.cnpj || ""} onChange={e => setEditingMerchant({...editingMerchant, legal: {...editingMerchant.legal, cnpj: e.target.value}})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                           </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                           <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Endereço Unidade</Label>
+                                           <Input value={editingMerchant?.contact?.address || ""} onChange={e => setEditingMerchant({...editingMerchant, contact: {...editingMerchant.contact, address: e.target.value}})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                        </div>
+                                     </TabsContent>
+
+                                     <TabsContent value="operation" className="space-y-4">
+                                        <div className="grid grid-cols-3 gap-4">
+                                           <div className="space-y-2">
+                                              <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Qtd Cadeiras</Label>
+                                              <Input type="number" value={editingMerchant?.operation?.chairs || 1} onChange={e => setEditingMerchant({...editingMerchant, operation: {...editingMerchant.operation, chairs: Number(e.target.value)}})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                           </div>
+                                           <div className="space-y-2">
+                                              <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Tolerância (min)</Label>
+                                              <Input type="number" value={editingMerchant?.operation?.delayTolerance || 15} onChange={e => setEditingMerchant({...editingMerchant, operation: {...editingMerchant.operation, delayTolerance: Number(e.target.value)}})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                           </div>
+                                           <div className="space-y-2">
+                                              <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Plano SaaS</Label>
+                                              <Input value={editingMerchant?.planName || "Pro"} onChange={e => setEditingMerchant({...editingMerchant, planName: e.target.value})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                           </div>
+                                        </div>
+                                     </TabsContent>
+
+                                     <TabsContent value="financial" className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                           <div className="space-y-2">
+                                              <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Taxa Crédito (%)</Label>
+                                              <Input type="number" step="0.01" value={editingMerchant?.financial?.creditFee || 2.99} onChange={e => setEditingMerchant({...editingMerchant, financial: {...editingMerchant.financial, creditFee: Number(e.target.value)}})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                           </div>
+                                           <div className="space-y-2">
+                                              <Label className="text-[10px] font-black uppercase text-slate-400 px-1">Chave PIX</Label>
+                                              <Input value={editingMerchant?.financial?.pixKey || ""} onChange={e => setEditingMerchant({...editingMerchant, financial: {...editingMerchant.financial, pixKey: e.target.value}})} className="rounded-xl bg-slate-50 border-none font-bold" />
+                                           </div>
+                                        </div>
+                                     </TabsContent>
+                                  </Tabs>
+                                  <Button onClick={handleSaveEdit} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black italic mt-8 gap-2">
+                                     <Save className="h-4 w-4" /> SALVAR ALTERAÇÕES MASTER
+                                  </Button>
+                               </div>
+                            </DialogContent>
+                          </Dialog>
+
                           {m.status === 'pending_approval' && (
-                            <Button onClick={() => handleUpdateStatus(m.id, 'active')} size="sm" className="bg-green-600 hover:bg-green-700 rounded-xl h-9 px-4 font-black italic text-[10px] text-white gap-2">
+                            <Button onClick={() => handleUpdateStatus(m.id, 'active')} size="sm" className="bg-green-600 hover:bg-green-700 rounded-xl h-9 px-4 font-black italic text-[10px] text-white gap-2 shadow-sm">
                                <CheckCircle2 className="h-3.5 w-3.5" /> APROVAR
                             </Button>
                           )}
                           {m.status === 'active' && (
-                            <Button onClick={() => handleUpdateStatus(m.id, 'blocked')} size="sm" variant="destructive" className="rounded-xl h-9 px-4 font-black italic text-[10px] gap-2">
+                            <Button onClick={() => handleUpdateStatus(m.id, 'blocked')} size="sm" variant="destructive" className="rounded-xl h-9 px-4 font-black italic text-[10px] gap-2 shadow-sm">
                                <XCircle className="h-3.5 w-3.5" /> BLOQUEAR
+                            </Button>
+                          )}
+                          {m.status === 'blocked' && (
+                            <Button onClick={() => handleUpdateStatus(m.id, 'active')} size="sm" className="bg-blue-600 hover:bg-blue-700 rounded-xl h-9 px-4 font-black italic text-[10px] text-white gap-2 shadow-sm">
+                               <CheckCircle2 className="h-3.5 w-3.5" /> DESBLOQUEAR
                             </Button>
                           )}
                         </div>
