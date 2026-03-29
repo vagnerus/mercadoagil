@@ -15,7 +15,7 @@ import {
   Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles, Crown, Megaphone,
   Briefcase, Star, Target, ShieldAlert, Lock, ArrowUpRight, CheckSquare,
   AlertCircle, History, Info, Smartphone, Database, Landmark,
-  Bell, CheckCircle, Dumbbell, PartyPopper, Gavel, Car
+  Bell, CheckCircle, Dumbbell, PartyPopper, Gavel, Car, Droplets
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -87,29 +87,6 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
     );
   }
 
-  if (merchant?.status === 'pending_approval') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6 font-body">
-         <div className="max-w-md w-full text-center space-y-8 animate-in zoom-in-95 duration-500">
-            <div className="h-24 w-24 bg-primary/10 rounded-[40px] flex items-center justify-center mx-auto border-2 border-primary/20">
-               <ShieldAlert className="h-12 w-12 text-primary animate-pulse" />
-            </div>
-            <div className="space-y-4">
-               <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter">Instância em Auditoria</h1>
-               <p className="text-slate-400 text-sm font-medium leading-relaxed italic">
-                  Sua loja <b>{merchant.name}</b> foi provisionada, mas o acesso ainda não foi liberado pelo Master Admin. <br/><br/>
-                  Este processo leva cerca de 1 hora para verificação do CNPJ e conformidade legal.
-               </p>
-            </div>
-            <div className="p-6 bg-white/5 rounded-[30px] border border-white/10 text-[10px] font-black uppercase text-primary tracking-widest">
-               ID da Instância: {merchant.id}
-            </div>
-            <Button variant="ghost" className="text-slate-500 hover:text-white" asChild><Link href="/"><LogOut className="mr-2 h-4 w-4" /> Sair do Console</Link></Button>
-         </div>
-      </div>
-    );
-  }
-
   const getSegmentStats = () => {
     switch (segment) {
       case 'BEAUTY':
@@ -119,6 +96,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "Retention IA", value: "84%", icon: Users, color: "text-purple-600", bg: "bg-purple-100", trend: "+5%" },
           { title: "Faturamento Líquido", value: "R$ 2.450", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
         ];
+      case 'HEALTH':
+        return [
+          { title: "Consultas Agendadas", value: "08", icon: Stethoscope, color: "text-blue-600", bg: "bg-blue-100", trend: "+1" },
+          { title: "PEP Visualizados", value: "42", icon: ClipboardList, color: "text-emerald-600", bg: "bg-emerald-100", trend: "Sync" },
+          { title: "Telemedicina Live", value: "02", icon: Video, color: "text-purple-600", bg: "bg-purple-100", trend: "Active" },
+          { title: "Faturamento Convênio", value: "R$ 8.420", icon: Wallet, color: "text-green-600", bg: "bg-green-100", trend: "+8%" },
+        ];
+      case 'RESTAURANT':
+        return [
+          { title: "Pedidos no KDS", value: "12", icon: Package, color: "text-orange-600", bg: "bg-orange-100", trend: "Flow" },
+          { title: "Mesas Ocupadas", value: "8/15", icon: Landmark, color: "text-blue-600", bg: "bg-blue-100", trend: "53%" },
+          { title: "Ticket Médio", value: "R$ 85,90", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
+          { title: "Tempo Médio Prep.", value: "18 min", icon: Clock, color: "text-red-600", bg: "bg-red-100", trend: "-2 min" },
+        ];
       case 'FITNESS':
         return [
           { title: "Alunos On-line", value: "45", icon: Dumbbell, color: "text-blue-600", bg: "bg-blue-100", trend: "Pico" },
@@ -126,61 +117,106 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
           { title: "MRR Assinaturas", value: "R$ 14.850", icon: Wallet, color: "text-purple-600", bg: "bg-purple-100", trend: "Estável" },
           { title: "Churn Rate", value: "1.2%", icon: Activity, color: "text-red-600", bg: "bg-red-100", trend: "-0.5%" },
         ];
-      case 'EVENTS':
-        return [
-          { title: "Datas Reservadas", value: "12", icon: Calendar, color: "text-pink-600", bg: "bg-pink-100", trend: "Lotado" },
-          { title: "Orçamentos Pendentes", value: "08", icon: ClipboardList, color: "text-blue-600", bg: "bg-blue-100", trend: "+3" },
-          { title: "Ticket Médio", value: "R$ 4.500", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+8%" },
-          { title: "Leads Captados", value: "42", icon: Users, color: "text-orange-600", bg: "bg-orange-100", trend: "High" },
-        ];
-      case 'PROFESSIONAL':
-        return [
-          { title: "Consultas Hoje", value: "06", icon: Clock, color: "text-indigo-600", bg: "bg-indigo-100", trend: "Normal" },
-          { title: "Horas Cobráveis", value: "142h", icon: History, color: "text-blue-600", bg: "bg-blue-100", trend: "Meta" },
-          { title: "Honorários", value: "R$ 8.200", icon: Gavel, color: "text-slate-600", bg: "bg-slate-100", trend: "+12%" },
-          { title: "Score NPS", value: "98", icon: Star, color: "text-yellow-600", bg: "bg-yellow-100", trend: "Elite" },
-        ];
-      case 'PET':
-        return [
-          { title: "Pets em Atendimento", value: "08", icon: Dog, color: "text-orange-600", bg: "bg-orange-100", trend: "Ativo" },
-          { title: "Banho & Tosa", value: "12", icon: Droplets, color: "text-blue-600", bg: "bg-blue-100", trend: "+4" },
-          { title: "Vacinas Pendentes", value: "05", icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100", trend: "Alerta" },
-          { title: "Faturamento Pet", value: "R$ 3.850", icon: Wallet, color: "text-green-600", bg: "bg-green-100", trend: "+10%" },
-        ];
       case 'AUTO':
         return [
-          { title: "Boxes Ocupados", value: "04 / 06", icon: Car, color: "text-slate-600", bg: "bg-slate-100", trend: "80%" },
+          { title: "Boxes Ocupados", value: "04/06", icon: Car, color: "text-slate-600", bg: "bg-slate-100", trend: "80%" },
           { title: "O.S. em Aberto", value: "15", icon: ClipboardList, color: "text-orange-600", bg: "bg-orange-100", trend: "+2" },
           { title: "Peças em Falta", value: "03", icon: AlertCircle, color: "text-red-600", bg: "bg-red-100", trend: "Urgente" },
           { title: "Ticket Médio Mec.", value: "R$ 1.250", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+15%" },
         ];
+      case 'EDUCATION':
+        return [
+          { title: "Alunos Ativos", value: "542", icon: Users, color: "text-blue-600", bg: "bg-blue-100", trend: "+12" },
+          { title: "Aulas Hoje", value: "24", icon: GraduationCap, color: "text-purple-600", bg: "bg-purple-100", trend: "Normal" },
+          { title: "Nota Média Global", value: "8.4", icon: Star, color: "text-yellow-600", bg: "bg-yellow-100", trend: "Elite" },
+          { title: "Inadimplência", value: "2.4%", icon: ShieldAlert, color: "text-red-600", bg: "bg-red-100", trend: "-0.2%" },
+        ];
       default:
         return [
           { title: "Vendas Brutas", value: "R$ 4.850", icon: DollarSign, color: "text-green-600", bg: "bg-green-100", trend: "+12%" },
-          { title: "Pedidos KDS", value: "08", icon: Package, color: "text-blue-600", bg: "bg-blue-100", trend: "Flowing" },
+          { title: "Pedidos Pendentes", value: "08", icon: Package, color: "text-blue-600", bg: "bg-blue-100", trend: "Flowing" },
           { title: "Saúde Estoque", value: "Normal", icon: Database, color: "text-purple-600", bg: "bg-purple-100", trend: "Sync" },
           { title: "Sessões Ativas", value: "142", icon: Globe, color: "text-orange-600", bg: "bg-orange-100", trend: "Live" },
         ];
     }
   };
 
-  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
-    <div className={mobile ? "space-y-2" : "flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar"}>
-      <Link href={`/merchant/${slug}/dashboard`} className="flex items-center gap-3 px-4 py-2.5 bg-primary/10 text-primary rounded-xl font-bold">
-        <LayoutDashboard className="h-5 w-5" /> Dashboard
-      </Link>
-      <Link href={`/merchant/${slug}/orders`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><ShoppingBag className="h-5 w-5" /> Gestão de Fluxo</Link>
-      <Link href={`/merchant/${slug}/analytics`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium">
-        <BarChart3 className="h-5 w-5" /> Deep Analytics
-      </Link>
-      <Link href={`/merchant/${slug}/hr`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Briefcase className="h-5 w-5" /> Capital Humano</Link>
-      <Link href={`/merchant/${slug}/inventory`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Database className="h-5 w-5" /> Inventário IA</Link>
-      <Link href={`/merchant/${slug}/customers`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Users className="h-5 w-5" /> CRM & WhatsApp</Link>
-      <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Monitor className="h-5 w-5" /> PDV Cloud</Link>
-      <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro Pro</Link>
-      <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
-    </div>
-  );
+  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => {
+    const commonLinks = [
+      { href: `/merchant/${slug}/dashboard`, label: "Dashboard", icon: LayoutDashboard, active: true },
+      { href: `/merchant/${slug}/analytics`, label: "Deep Analytics", icon: BarChart3 },
+      { href: `/merchant/${slug}/inventory`, label: "Inventário IA", icon: Database },
+      { href: `/merchant/${slug}/customers`, label: "CRM & WhatsApp", icon: Users },
+      { href: `/merchant/${slug}/finance`, label: "Financeiro Pro", icon: Wallet },
+      { href: `/merchant/${slug}/settings`, label: "Configurações", icon: Settings },
+    ];
+
+    const segmentSpecificLinks = {
+      BEAUTY: [
+        { href: `/merchant/${slug}/appointments`, label: "Agenda Digital", icon: Calendar },
+        { href: `/merchant/${slug}/staff`, label: "Equipe Elite", icon: Scissors },
+        { href: `/merchant/${slug}/catalog`, label: "Serviços & Itens", icon: List },
+      ],
+      RESTAURANT: [
+        { href: `/merchant/${slug}/orders`, label: "KDS & Pedidos", icon: Utensils },
+        { href: `/merchant/${slug}/waiter`, label: "App Garçom", icon: Smartphone },
+        { href: `/merchant/${slug}/pdv`, label: "PDV Cloud", icon: Monitor },
+      ],
+      HEALTH: [
+        { href: `/merchant/${slug}/health/pep`, label: "Prontuários (PEP)", icon: ClipboardList },
+        { href: `/merchant/${slug}/health/telemedicine`, label: "Telemedicina", icon: Video },
+        { href: `/merchant/${slug}/appointments`, label: "Agenda Médica", icon: Calendar },
+      ],
+      AUTO: [
+        { href: `/merchant/${slug}/auto/os`, label: "Ordens de Serviço", icon: ClipboardList },
+        { href: `/merchant/${slug}/inventory`, label: "Peças & Estoque", icon: Wrench },
+        { href: `/merchant/${slug}/logistics`, label: "Gestão de Pátio", icon: Car },
+      ],
+      PET: [
+        { href: `/merchant/${slug}/pet/clinic`, label: "Clínica Vet", icon: HeartPulse },
+        { href: `/merchant/${slug}/appointments`, label: "Banho & Tosa", icon: Dog },
+      ],
+      EDUCATION: [
+        { href: `/merchant/${slug}/education/academic`, label: "Acadêmico", icon: GraduationCap },
+        { href: `/merchant/${slug}/education/ava`, label: "Ambiente (AVA)", icon: Monitor },
+      ],
+      FITNESS: [
+        { href: `/merchant/${slug}/fitness/checkins`, label: "Check-ins", icon: CheckCircle },
+        { href: `/merchant/${slug}/fitness/plans`, label: "Planos & Recorrência", icon: Ticket },
+      ],
+      RETAIL: [
+        { href: `/merchant/${slug}/pdv`, label: "PDV Cloud", icon: Monitor },
+        { href: `/merchant/${slug}/suppliers`, label: "Fornecedores", icon: Truck },
+      ],
+      PROFESSIONAL: [
+        { href: `/merchant/${slug}/appointments`, label: "Consultas", icon: Clock },
+        { href: `/merchant/${slug}/legal/cases`, label: "Processos/Casos", icon: Gavel },
+      ],
+      EVENTS: [
+        { href: `/merchant/${slug}/events/bookings`, label: "Datas Reservadas", icon: Calendar },
+        { href: `/merchant/${slug}/events/leads`, label: "Orçamentos", icon: ClipboardList },
+      ]
+    };
+
+    const links = [...commonLinks, ...(segmentSpecificLinks[segment as keyof typeof segmentSpecificLinks] || [])];
+
+    return (
+      <div className={mobile ? "space-y-2" : "flex-1 px-4 space-y-2 overflow-y-auto no-scrollbar"}>
+        {links.map((link, i) => (
+          <Link 
+            key={i}
+            href={link.href} 
+            className={cn(
+              "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-medium",
+              link.active ? "bg-primary/10 text-primary font-bold" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            )}
+          >
+            <link.icon className="h-5 w-5" /> {link.label}
+          </Link>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-body relative">
@@ -199,16 +235,19 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         </div>
       </aside>
 
-      <main className="flex-1 p-4 lg:p-8">
+      <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div className="flex gap-2 bg-white dark:bg-slate-900 p-2 rounded-full w-fit shadow-sm border dark:border-slate-800">
             <Button onClick={() => toggleMode('easy')} variant={uiMode === 'easy' ? 'default' : 'ghost'} className={cn("rounded-full px-6 font-black italic text-xs uppercase", uiMode === 'easy' ? "bg-green-600 text-white shadow-lg" : "text-slate-400 hover:text-green-600")}><MousePointer2 className="h-3.5 w-3.5 mr-2" /> Modo Fácil</Button>
             <Button onClick={() => toggleMode('advanced')} variant={uiMode === 'advanced' ? 'default' : 'ghost'} className={cn("rounded-full px-6 font-black italic text-xs uppercase", uiMode === 'advanced' ? "bg-slate-900 dark:bg-white dark:text-slate-900 text-white" : "text-slate-400")}><Zap className="h-3.5 w-3.5 mr-2" /> Modo Avançado</Button>
           </div>
-          <ModeToggle />
+          <div className="flex items-center gap-3">
+             <ModeToggle />
+             <Badge className="bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black italic text-[10px] py-1.5 px-4 rounded-full">v3.2.0-ULTRA</Badge>
+          </div>
         </div>
 
-        <header className="flex justify-between items-center mb-10">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div className="flex items-center gap-4">
             <Sheet>
               <SheetTrigger asChild><Button variant="outline" size="icon" className="lg:hidden rounded-xl border-slate-200 dark:border-slate-800"><Menu className="h-5 w-5" /></Button></SheetTrigger>
@@ -219,7 +258,9 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
             </Sheet>
             <div>
               <h1 className="text-2xl lg:text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">{merchant?.name}</h1>
-              <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">Status: <span className="text-green-500 uppercase font-black">{merchant?.status === 'active' ? 'Ativo & Auditado' : 'Aguardando'}</span> • Plano: <span className="font-black uppercase">{merchant?.planName || 'Enterprise'}</span></p>
+              <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">
+                Vertical: <span className="text-primary font-black uppercase">{segment}</span> • Status: <span className="text-green-500 uppercase font-black">{merchant?.status === 'active' ? 'Ativo & Auditado' : 'Aguardando'}</span>
+              </p>
             </div>
           </div>
           <AiBusinessHub merchantName={merchant?.name || slug} />
@@ -227,10 +268,10 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-10">
           {getSegmentStats().map((stat, i) => (
-            <Card key={i} className="border-none shadow-sm rounded-3xl overflow-hidden dark:bg-slate-900">
+            <Card key={i} className="border-none shadow-sm rounded-3xl overflow-hidden dark:bg-slate-900 group hover:ring-2 ring-primary transition-all">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className={`${stat.bg} dark:bg-slate-800 p-3 rounded-2xl`}><stat.icon className={`h-6 w-6 ${stat.color}`} /></div>
+                  <div className={cn(`${stat.bg} dark:bg-slate-800 p-3 rounded-2xl`)}><stat.icon className={cn(`h-6 w-6 ${stat.color}`)} /></div>
                   <div className="text-[10px] font-black uppercase text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-full">{stat.trend}</div>
                 </div>
                 <div className="mt-4">
@@ -248,14 +289,14 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                  <div className="relative z-10 space-y-6">
                     <div className="flex items-center gap-3">
                        <ShieldCheck className="h-6 w-6 text-primary" />
-                       <h2 className="text-2xl font-black italic uppercase tracking-tighter">Configurações Enterprise</h2>
+                       <h2 className="text-2xl font-black italic uppercase tracking-tighter">Gestão Operacional {segment}</h2>
                     </div>
                     <p className="text-slate-400 text-sm italic font-medium leading-relaxed max-w-lg">
-                      Sua unidade está operando no Regime <b>{merchant?.legal?.regimeTributario || 'Simples Nacional'}</b> com CNPJ auditado. Utilize o módulo financeiro para acompanhar o faturamento líquido descontando taxas.
+                      Sua instância está configurada para operar no regime <b>{merchant?.legal?.regimeTributario || 'Simples Nacional'}</b>. Todos os relatórios financeiros já descontam automaticamente as taxas de <b>{merchant?.financial?.creditFee || 2.99}%</b> das maquininhas.
                     </p>
                     <div className="flex gap-3">
-                       <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl" asChild><Link href={`/merchant/${slug}/settings`}>EDITAR REGRAS DE NEGÓCIO</Link></Button>
-                       <Button variant="outline" className="h-14 px-8 border-white/10 text-white font-black italic rounded-2xl hover:bg-white/5" asChild><Link href={`/merchant/${slug}/finance`}>RELATÓRIOS DRE</Link></Button>
+                       <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl" asChild><Link href={`/merchant/${slug}/settings`}>EDITAR CONFIGURAÇÕES</Link></Button>
+                       <Button variant="outline" className="h-14 px-8 border-white/10 text-white font-black italic rounded-2xl hover:bg-white/5" asChild><Link href={`/merchant/${slug}/finance`}>FLUXO FINANCEIRO</Link></Button>
                     </div>
                  </div>
                  <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
@@ -264,9 +305,9 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
               <Card className="border-none shadow-sm rounded-[40px] overflow-hidden bg-white dark:bg-slate-900">
                  <CardHeader className="p-8 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                     <CardTitle className="text-xl font-black italic dark:text-white uppercase flex items-center gap-2">
-                       <Clock className="h-5 w-5 text-primary" /> Timeline de Hoje
+                       <Clock className="h-5 w-5 text-primary" /> Atividade em Tempo Real
                     </CardTitle>
-                    <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase text-slate-400" asChild><Link href={`/merchant/${slug}/appointments`}>Ver Agenda Completa</Link></Button>
+                    <Badge variant="outline" className="animate-pulse border-primary text-primary font-black italic text-[8px]">LIVE SYNC</Badge>
                  </CardHeader>
                  <CardContent className="p-0">
                     <div className="divide-y dark:divide-slate-800">
@@ -280,14 +321,17 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                                <div className="h-10 w-1 bg-primary/20 rounded-full"></div>
                                <div>
                                   <p className="font-black text-slate-900 dark:text-white uppercase italic text-sm">{ap.customer}</p>
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase">{ap.service}</p>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase">{ap.service || ap.subject}</p>
                                </div>
                             </div>
                             <Badge className="bg-green-100 text-green-700 border-none font-black italic text-[8px] uppercase">{ap.status}</Badge>
                          </div>
                        ))}
                        {(!recentAppointments || recentAppointments.length === 0) && (
-                         <div className="p-20 text-center text-slate-400 italic font-bold uppercase text-[10px] tracking-widest">Nenhuma atividade registrada hoje.</div>
+                         <div className="p-20 text-center text-slate-400 italic font-bold uppercase text-[10px] tracking-widest flex flex-col items-center gap-4">
+                            <HelpCircle className="h-10 w-10 opacity-20" />
+                            Nenhuma atividade registrada no momento.
+                         </div>
                        )}
                     </div>
                  </CardContent>
@@ -296,37 +340,37 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
            <div className="lg:col-span-4 space-y-6">
               <Card className="border-none shadow-sm rounded-[40px] p-8 bg-white dark:bg-slate-900 space-y-6">
-                 <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Sparkles className="h-3 w-3 text-primary" /> Insights de Operação</h3>
+                 <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><Sparkles className="h-3 w-3 text-primary" /> Operação Master</h3>
                  
                  <div className="space-y-4">
                     <div className="space-y-2">
                        <div className="flex justify-between text-[10px] font-black uppercase">
-                          <span className="text-slate-500">Capacidade de Salão</span>
+                          <span className="text-slate-500">Capacidade Operacional</span>
                           <span className="text-primary">82%</span>
                        </div>
                        <Progress value={82} className="h-1.5" />
                     </div>
                     <div className="space-y-2">
                        <div className="flex justify-between text-[10px] font-black uppercase">
-                          <span className="text-slate-500">Saúde do Estoque</span>
-                          <span className="text-green-500">Normal</span>
+                          <span className="text-slate-500">Qualidade de Serviço (NPS)</span>
+                          <span className="text-green-500">95%</span>
                        </div>
                        <Progress value={95} className="h-1.5" />
                     </div>
                  </div>
 
                  <div className="pt-4 border-t dark:border-slate-800 space-y-4">
-                    <Link href={`/merchant/${slug}/creative-studio`} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl group hover:bg-primary transition-all">
+                    <Link href={`/merchant/${slug}/analytics`} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl group hover:bg-primary transition-all">
                        <div className="flex items-center gap-3">
-                          <Video className="h-5 w-5 text-primary group-hover:text-white" />
-                          <span className="text-[10px] font-black uppercase text-slate-900 dark:text-white group-hover:text-white">Gerar Vídeos IA</span>
+                          <BarChart3 className="h-5 w-5 text-primary group-hover:text-white" />
+                          <span className="text-[10px] font-black uppercase text-slate-900 dark:text-white group-hover:text-white">Business Intelligence</span>
                        </div>
                        <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-white" />
                     </Link>
-                    <Link href={`/merchant/${slug}/marketing`} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl group hover:bg-accent transition-all">
+                    <Link href={`/merchant/${slug}/creative-studio`} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl group hover:bg-accent transition-all">
                        <div className="flex items-center gap-3">
-                          <TrendingUp className="h-5 w-5 text-accent group-hover:text-white" />
-                          <span className="text-[10px] font-black uppercase text-slate-900 dark:text-white group-hover:text-white">Growth Scripts</span>
+                          <Video className="h-5 w-5 text-accent group-hover:text-white" />
+                          <span className="text-[10px] font-black uppercase text-slate-900 dark:text-white group-hover:text-white">Creative Studio IA</span>
                        </div>
                        <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-white" />
                     </Link>
@@ -335,9 +379,9 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
               <Card className="border-none shadow-sm rounded-[40px] p-8 bg-primary text-white relative overflow-hidden">
                  <div className="relative z-10 space-y-4">
-                    <Info className="h-8 w-8 opacity-50" />
-                    <h4 className="text-xl font-black italic uppercase leading-tight">Clube de <br/>Fidelidade Ativo</h4>
-                    <p className="text-xs font-bold opacity-70">12 novos membros se juntaram ao seu clube esta semana.</p>
+                    <Crown className="h-8 w-8 opacity-50" />
+                    <h4 className="text-xl font-black italic uppercase leading-tight">Clube de <br/>Fidelidade {segment}</h4>
+                    <p className="text-xs font-bold opacity-70">Sua base de membros VIP cresceu 12% este mês.</p>
                     <Button variant="outline" className="w-full h-12 rounded-xl bg-white/10 border-white/20 text-white font-black italic text-xs hover:bg-white/20" asChild><Link href={`/merchant/${slug}/loyalty`}>GERENCIAR RECOMPENSAS</Link></Button>
                  </div>
                  <Sparkles className="absolute -bottom-10 -right-10 h-32 w-32 opacity-10" />
