@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 const staffPerformance = [
   { id: 'st1', name: 'Ricardo Barber', role: 'Sênior', shift: '09:00 - 18:00', prod: 92, payroll: 4500 },
@@ -27,6 +28,11 @@ const staffPerformance = [
 export default function MerchantHR({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
   const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSimulatePayroll = () => {
     toast({ title: "Simulação de Folha", description: "Cálculo de encargos e salários processado." });
@@ -76,7 +82,9 @@ export default function MerchantHR({ params }: { params: Promise<{ slug: string 
            </Card>
            <Card className="border-none shadow-sm p-6 rounded-[32px] bg-white dark:bg-slate-900">
               <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Custo Operacional RH</p>
-              <p className="text-3xl font-black italic mt-2 text-slate-900 dark:text-white">R$ 18.450</p>
+              <p className="text-3xl font-black italic mt-2 text-slate-900 dark:text-white">
+                {mounted ? "R$ 18.450" : "R$ ---"}
+              </p>
            </Card>
            <Card className="border-none shadow-sm p-6 rounded-[32px] bg-primary text-white relative overflow-hidden">
               <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Produtividade Global</p>
@@ -127,7 +135,7 @@ export default function MerchantHR({ params }: { params: Promise<{ slug: string 
                                </div>
                             </TableCell>
                             <TableCell className="text-right px-8 font-black text-slate-900 dark:text-white italic">
-                               R$ {staff.payroll.toLocaleString()}
+                               {mounted ? `R$ ${staff.payroll.toLocaleString('pt-BR')}` : 'R$ ---'}
                             </TableCell>
                          </TableRow>
                        ))}

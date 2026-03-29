@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -40,13 +41,18 @@ const expansionData = [
 
 export default function AdminDashboard() {
   const db = useFirestore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const merchantsQuery = useMemoFirebase(() => query(collection(db, 'merchants'), orderBy('createdAt', 'desc'), limit(10)), [db]);
   const { data: merchants, isLoading: loadingMerchants } = useCollection(merchantsQuery);
 
   const stats = [
     { title: "Redes (Franquias)", value: "0", icon: Building2, color: "text-blue-600", bg: "bg-blue-100", trend: "Start" },
-    { title: "MRR Global", value: `R$ ${(merchants?.length || 0) * 150}`, icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", trend: "+8.4%" },
+    { title: "MRR Global", value: mounted ? `R$ ${((merchants?.length || 0) * 150).toLocaleString('pt-BR')}` : "R$ ---", icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", trend: "+8.4%" },
     { title: "Lojistas Ativos", value: merchants?.length?.toString() || "0", icon: Store, color: "text-purple-600", bg: "bg-purple-100", trend: `+${merchants?.length}` },
     { title: "Royalties Acumulados", value: "R$ 0,00", icon: Landmark, color: "text-orange-600", bg: "bg-orange-100", trend: "0%" },
   ];
@@ -271,7 +277,7 @@ export default function AdminDashboard() {
                           </TableCell>
                           <TableCell className="font-black text-slate-600 dark:text-slate-400 italic">{merchant.planName || 'Pro'}</TableCell>
                           <TableCell className="text-right px-8 font-bold text-slate-400 tabular-nums">
-                            {new Date(merchant.createdAt).toLocaleDateString('pt-BR')}
+                            {mounted ? new Date(merchant.createdAt).toLocaleDateString('pt-BR') : '---'}
                           </TableCell>
                         </TableRow>
                       ))}
