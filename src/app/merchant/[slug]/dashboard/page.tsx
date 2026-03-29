@@ -340,7 +340,11 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
 
       {/* Floating AI Assistant Chat Balloon */}
       {showAi && (
-        <AiAssistantChat merchantName={merchant?.name} segment={segment} />
+        <AiAssistantChat 
+          merchantName={merchant?.name} 
+          segment={segment} 
+          uiMode={uiMode}
+        />
       )}
     </div>
   );
