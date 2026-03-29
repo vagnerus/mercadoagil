@@ -6,15 +6,15 @@ import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { 
   Search, ShoppingCart, User, Clock, 
   Star, MapPin, Plus, Scissors, ShoppingBag, 
   Calendar, Timer, Bot, Sparkles, Filter, 
-  Menu, Info, ChevronRight, Globe, Zap, SearchIcon
+  Menu, Info, ChevronRight, Globe, Zap, SearchIcon,
+  Store, Loader2
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit, orderBy } from 'firebase/firestore';
 import Link from 'next/link';
@@ -51,7 +51,7 @@ export default function StoreFront() {
 
   return (
     <div className="min-h-screen bg-black text-white font-body selection:bg-primary">
-      {/* Header Premium ( sites.appbarber style ) */}
+      {/* Header Premium */}
       <header className="px-6 h-20 flex items-center border-b border-white/5 sticky top-0 z-50 bg-black/80 backdrop-blur-xl">
         <div className="container max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-10">
@@ -84,7 +84,7 @@ export default function StoreFront() {
            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">{new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
 
-        {/* Busca Central (sites.appbarber style) */}
+        {/* Busca Central */}
         <div className="space-y-6">
            <div className="relative group">
               <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-500 group-focus-within:text-primary transition-colors" />
@@ -119,7 +119,7 @@ export default function StoreFront() {
            </div>
         </div>
 
-        {/* Empty State / Listagem (Style sites.appbarber) */}
+        {/* Resultados */}
         {!searchTerm ? (
           <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
              <div className="h-40 w-40 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center animate-pulse">
@@ -156,7 +156,6 @@ export default function StoreFront() {
         )}
       </main>
 
-      {/* Footer Dark Custom */}
       <footer className="mt-32 border-t border-white/5 py-20 px-6">
          <div className="container max-w-6xl mx-auto grid md:grid-cols-4 gap-16">
             <div className="space-y-6">
