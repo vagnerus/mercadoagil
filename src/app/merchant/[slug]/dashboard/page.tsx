@@ -273,24 +273,20 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
                     <Sparkles className="h-5 w-5 text-primary" /> Ações Rápidas IA
                   </h2>
                   <div className="space-y-4">
-                     <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors" asChild>
-                        <Link href={`/merchant/${slug}/marketing`}>
-                          <div className="flex items-center gap-3">
-                             <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
-                             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Otimizar Preços</p>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                     </div>
-                     <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors" asChild>
-                        <Link href={`/merchant/${slug}/loyalty`}>
-                          <div className="flex items-center gap-3">
-                             <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4" /></Badge>
-                             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Recuperar Clientes</p>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                     </div>
+                     <Link href={`/merchant/${slug}/marketing`} className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                           <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
+                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Otimizar Preços</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                     </Link>
+                     <Link href={`/merchant/${slug}/loyalty`} className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                           <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4" /></Badge>
+                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Recuperar Clientes</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                     </Link>
                   </div>
                </Card>
             </div>
