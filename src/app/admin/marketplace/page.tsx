@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from 'next/link';
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const marketplaceStores = [
   { id: 'm1', name: 'Barbearia do Zé', slug: 'barbearia-ze', segment: 'Beleza', status: 'Featured', sales: 450 },
