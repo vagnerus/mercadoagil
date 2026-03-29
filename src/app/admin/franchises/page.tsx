@@ -53,10 +53,10 @@ export default function AdminFranchises() {
       <main className="flex-1 p-8 overflow-y-auto">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Gestão de Franquias</h1>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Gestão de Franquias</h1>
             <p className="text-slate-500 font-medium">Controle de grupos e redes multi-unitarias.</p>
           </div>
-          <Button className="bg-slate-900 rounded-2xl h-12 gap-2 font-bold shadow-xl shadow-slate-200">
+          <Button className="bg-slate-900 rounded-2xl h-12 gap-2 font-bold shadow-xl shadow-slate-200 text-white">
             <Plus className="h-4 w-4" /> Nova Rede
           </Button>
         </header>
@@ -99,7 +99,7 @@ export default function AdminFranchises() {
                           <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
                              <Building2 className="h-5 w-5 text-blue-600" />
                           </div>
-                          <span className="font-black text-slate-900 text-lg italic">{group.name}</span>
+                          <span className="font-black text-slate-900 text-lg italic uppercase">{group.name}</span>
                        </div>
                     </TableCell>
                     <TableCell>

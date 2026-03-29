@@ -75,7 +75,7 @@ export default function WaiterApp({ params }: { params: Promise<{ slug: string }
       {!selectedTable ? (
         <main className="flex-1 p-6 space-y-6 overflow-y-auto">
            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-black italic tracking-tighter">Selecione a Mesa</h2>
+              <h2 className="text-2xl font-black italic tracking-tighter uppercase">Selecione a Mesa</h2>
               <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Gestão de Salão em tempo real</p>
            </div>
            <div className="grid grid-cols-3 gap-4">
@@ -119,7 +119,7 @@ export default function WaiterApp({ params }: { params: Promise<{ slug: string }
                       <img src={p.imageUrl} className="h-full w-full object-cover opacity-60" />
                    </div>
                    <div className="flex-1">
-                      <p className="font-black text-sm uppercase italic">{p.name}</p>
+                      <p className="font-black text-sm uppercase italic leading-tight truncate pr-2">{p.name}</p>
                       <p className="text-primary font-black text-xs">R$ {p.price.toFixed(2)}</p>
                    </div>
                    <Plus className="h-5 w-5 text-slate-600 group-active:text-white" />
@@ -147,7 +147,7 @@ export default function WaiterApp({ params }: { params: Promise<{ slug: string }
                  <Button 
                   disabled={cart.length === 0}
                   onClick={handleSendToKitchen}
-                  className="w-full h-16 bg-primary hover:bg-primary/90 rounded-[28px] font-black italic text-lg shadow-2xl shadow-primary/20 flex justify-between px-8"
+                  className="w-full h-16 bg-primary hover:bg-primary/90 text-white rounded-[28px] font-black italic text-lg shadow-2xl shadow-primary/20 flex justify-between px-8"
                  >
                     <span>COMANDAR MESA {selectedTable}</span>
                     <ChefHat className="h-6 w-6" />

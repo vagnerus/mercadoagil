@@ -114,8 +114,8 @@ export default function AdminDashboard() {
             </Sheet>
 
             <div>
-              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic">Command Center Global</h1>
-              <p className="text-slate-500 font-medium text-xs lg:text-base">Monitoramento em tempo real do ecossistema Ágil.</p>
+              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase leading-none">Command Center Global</h1>
+              <p className="text-slate-500 font-medium text-xs lg:text-base mt-1">Monitoramento em tempo real do ecossistema Ágil.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
           <Card className="lg:col-span-2 border-none shadow-sm p-6 lg:p-8 rounded-[40px] bg-white dark:bg-slate-900 relative overflow-hidden">
              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                   <CardTitle className="text-2xl font-black italic dark:text-white">Expansão & Forecast IA</CardTitle>
+                   <CardTitle className="text-2xl font-black italic dark:text-white uppercase">Expansão & Forecast IA</CardTitle>
                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Base de Lojistas vs Projeção de Crescimento</p>
                 </div>
                 <div className="flex gap-2">
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
           
           <div className="space-y-6">
             <Card className="border-none shadow-sm p-8 rounded-[40px] bg-slate-900 dark:bg-black text-white relative overflow-hidden">
-               <CardTitle className="text-xl font-black italic mb-6">SaaS Plan Mix</CardTitle>
+               <CardTitle className="text-xl font-black italic mb-6 uppercase">SaaS Plan Mix</CardTitle>
                <div className="h-[200px] mb-6">
                   <ResponsiveContainer width="100%" height="100%">
                      <PieChart>
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
             </Card>
 
             <Card className="border-none shadow-sm p-8 rounded-[40px] bg-white dark:bg-slate-900">
-               <CardTitle className="text-xl font-black italic mb-6 dark:text-white">Governança & Tasks</CardTitle>
+               <CardTitle className="text-xl font-black italic mb-6 dark:text-white uppercase">Governança & Tasks</CardTitle>
                <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-dashed dark:border-slate-700">
                      <div className="flex items-center gap-3">
@@ -238,13 +238,13 @@ export default function AdminDashboard() {
         <div className="grid gap-6 lg:grid-cols-3 mb-8">
            <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] overflow-hidden bg-white dark:bg-slate-900">
               <CardHeader className="p-6 lg:p-8 border-b dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <CardTitle className="text-2xl font-black italic dark:text-white">Últimos Lojistas Ativados</CardTitle>
+                <CardTitle className="text-2xl font-black italic dark:text-white uppercase">Últimos Lojistas Ativados</CardTitle>
                 <div className="relative w-full md:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input className="pl-10 h-10 rounded-xl border-none bg-slate-100 dark:bg-slate-800 dark:text-white font-medium" placeholder="Buscar lojista..." />
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-x-auto">
                 {loadingMerchants ? (
                   <div className="p-20 text-center"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /></div>
                 ) : (
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
                              </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className="rounded-lg font-black italic bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-100 border-none">{merchant.segment}</Badge>
+                            <Badge className="rounded-lg font-black italic bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-100 border-none uppercase text-[10px]">{merchant.segment}</Badge>
                           </TableCell>
                           <TableCell className="font-black text-slate-600 dark:text-slate-400 italic">{merchant.planName || 'Pro'}</TableCell>
                           <TableCell className="text-right px-8 font-bold text-slate-400 tabular-nums">
@@ -275,11 +275,6 @@ export default function AdminDashboard() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {merchants?.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={4} className="h-40 text-center text-slate-400 font-bold italic">Nenhum lojista ativado no momento.</TableCell>
-                        </TableRow>
-                      )}
                     </TableBody>
                   </Table>
                 )}
@@ -287,7 +282,7 @@ export default function AdminDashboard() {
            </Card>
 
            <Card className="border-none shadow-sm p-8 rounded-[40px] bg-slate-900 dark:bg-black text-white relative overflow-hidden">
-              <CardTitle className="text-xl font-black italic mb-8">Infra Health Monitor</CardTitle>
+              <CardTitle className="text-xl font-black italic mb-8 uppercase">Infra Health Monitor</CardTitle>
               <div className="space-y-8">
                  <div className="space-y-4">
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500">
@@ -323,7 +318,7 @@ export default function AdminDashboard() {
                        <Zap className="h-5 w-5" />
                     </div>
                     <div>
-                       <p className="font-black italic text-sm">IA Scaler</p>
+                       <p className="font-black italic text-sm uppercase">IA Scaler</p>
                        <p className="text-[9px] text-slate-500 uppercase font-bold">Auto-scaling ativo</p>
                     </div>
                  </div>

@@ -30,8 +30,6 @@ export default function LandingPage() {
   const [selectedSegment, setSelectedSegment] = useState(SEGMENTS[0]);
   const [latency, setLatency] = useState(42);
   const [socialProof, setSocialProof] = useState<{name: string, segment: string} | null>(null);
-  const [aiStep, setAiStep] = useState(0); 
-  const [isMagicAnimating, setIsMagicAnimating] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const aiSectionRef = useRef<HTMLDivElement>(null);
@@ -65,16 +63,10 @@ export default function LandingPage() {
       toast({ title: "Quase lá!", description: "Dê um nome ao seu projeto para ver a mágica.", variant: "destructive" });
       return;
     }
-    setIsMagicAnimating(true);
     setLoading(true);
-    
     setTimeout(() => {
       setLoading(false);
-      if (aiSectionRef.current) {
-        aiSectionRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-      setAiStep(2); 
-      toast({ title: "Arquitetura Pronta!", description: `Sua plataforma de ${selectedSegment.label} foi pré-configurada.` });
+      window.location.href = '/login';
     }, 1500);
   };
 
@@ -167,7 +159,7 @@ export default function LandingPage() {
                    <Button 
                     onClick={handleMagicClick}
                     disabled={loading}
-                    className="absolute right-3 top-3 bottom-3 h-14 px-8 rounded-2xl font-black italic gap-2 shadow-xl shadow-primary/20 text-lg"
+                    className="absolute right-3 top-3 bottom-3 h-14 px-8 rounded-2xl font-black italic gap-2 shadow-xl shadow-primary/20 text-white text-lg"
                    >
                       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>GERAR PROJETO <ArrowRight className="h-5 w-5" /></>}
                    </Button>
@@ -175,34 +167,27 @@ export default function LandingPage() {
                 <div className="flex items-center gap-6 text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">
                    <span className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div> {latency}ms Latency</span>
                    <span className="flex items-center gap-2"><Zap className="h-3 w-3 text-primary" /> Auto-Provisionamento</span>
-                   <span className="flex items-center gap-2"><Globe className="h-3 w-3" /> Multi-Moeda</span>
+                   <span className="flex items-center gap-2"><Globe className="h-3 w-3" /> Multi-Tenant</span>
                 </div>
               </div>
             </div>
 
             <div className="relative flex justify-center perspective-[1500px]">
-              <div className={cn(
-                "w-[340px] h-[680px] bg-slate-900 rounded-[60px] border-[14px] border-slate-900 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.4)] relative overflow-hidden transition-all duration-1000 transform-gpu",
-                isMagicAnimating ? "rotate-y-0 scale-105" : "rotate-y-12 hover:rotate-y-0"
-              )}>
+              <div className="w-[340px] h-[680px] bg-slate-900 rounded-[60px] border-[14px] border-slate-900 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.4)] relative overflow-hidden transition-all duration-1000 transform-gpu rotate-y-12">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 h-7 w-32 bg-slate-900 rounded-b-3xl z-30"></div>
                 
-                {/* Simulated Store Content */}
                 <div className="absolute inset-0 bg-slate-50 flex flex-col pt-12">
-                   {/* App Header */}
                    <div className="px-6 py-4 flex justify-between items-center border-b">
                       <div className="flex items-center gap-2">
                          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black italic text-xs">
                             {storeName ? storeName[0].toUpperCase() : 'M'}
                          </div>
-                         <span className="font-black text-slate-800 text-sm truncate max-w-[120px]">{storeName || "Minha Loja"}</span>
+                         <span className="font-black text-slate-800 text-sm truncate max-w-[120px] uppercase italic">{storeName || "Minha Loja"}</span>
                       </div>
                       <ShoppingCart className="h-4 w-4 text-slate-400" />
                    </div>
 
-                   {/* Content Area */}
                    <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
-                      {/* Banner Hero */}
                       <div className="h-32 w-full bg-slate-200 rounded-3xl relative overflow-hidden group">
                          <img src={`https://picsum.photos/seed/${selectedSegment.id}/400/300`} className="w-full h-full object-cover" />
                          <div className="absolute inset-0 bg-black/20"></div>
@@ -211,7 +196,6 @@ export default function LandingPage() {
                          </div>
                       </div>
 
-                      {/* Dynamic Layout Based on Segment */}
                       <div className="space-y-4">
                          <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
                             {isService ? 'Agende seu Horário' : 'Sugestões para você'}
@@ -223,10 +207,6 @@ export default function LandingPage() {
                                  <div className="h-20 w-full bg-slate-100 rounded-2xl overflow-hidden">
                                     <img src={`https://picsum.photos/seed/${selectedSegment.id}${i}/200/200`} className="w-full h-full object-cover" />
                                  </div>
-                                 <div className="space-y-1">
-                                    <div className="h-2 w-12 bg-slate-200 rounded-full"></div>
-                                    <div className="h-2 w-8 bg-primary/20 rounded-full"></div>
-                                 </div>
                                  <div className="flex justify-between items-center">
                                     <span className="font-black text-[10px] text-slate-900">R$ 45,90</span>
                                     {isService ? <Calendar className="h-3 w-3 text-primary" /> : <Plus className="h-3 w-3 text-primary" />}
@@ -237,7 +217,6 @@ export default function LandingPage() {
                       </div>
                    </div>
 
-                   {/* App Footer */}
                    <div className="p-6 bg-white border-t rounded-t-[40px] shadow-2xl">
                       <Button className="w-full h-14 rounded-2xl font-black italic bg-slate-900 text-primary text-sm shadow-xl shadow-primary/10 flex justify-between px-6">
                          <span>{isService ? 'RESERVAR AGORA' : 'VER CARRINHO'}</span>
@@ -291,74 +270,21 @@ export default function LandingPage() {
               </div>
 
               <div className="mt-20 flex flex-col md:flex-row justify-center items-center gap-10">
-                 <div className="p-8 bg-white/5 rounded-[45px] border border-dashed border-white/20 max-w-sm">
+                 <div className="p-8 bg-white/5 rounded-[45px] border border-dashed border-white/20 max-w-sm text-center">
                     <p className="text-primary font-black italic text-3xl">99.9%</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Uptime Garantido em Contrato (SLA Enterprise)</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Uptime SLA Enterprise</p>
                  </div>
-                 <div className="p-8 bg-white/5 rounded-[45px] border border-dashed border-white/20 max-w-sm">
+                 <div className="p-8 bg-white/5 rounded-[45px] border border-dashed border-white/20 max-w-sm text-center">
                     <p className="text-primary font-black italic text-3xl">15ms</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Latência Global via CDN Edge Network</p>
-                 </div>
-              </div>
-           </div>
-        </section>
-
-        {/* Business Verticals Carousel / Grid */}
-        <section className="py-24 bg-white overflow-hidden">
-           <div className="container px-4 md:px-6 mx-auto">
-              <div className="grid lg:grid-cols-2 gap-20 items-center">
-                 <div className="relative group">
-                    <div className="bg-slate-50 rounded-[60px] p-10 border-4 border-slate-100 transition-all group-hover:shadow-3xl group-hover:-translate-y-2">
-                       <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-8">Especialista em cada <span className="text-primary">Nicho.</span></h3>
-                       <div className="space-y-6">
-                          {[
-                            { segment: "Estética & Saúde", tools: "Agenda, Prontuário, Comissões, Lembrete WhatsApp" },
-                            { segment: "Varejo & Moda", tools: "Grade de Produtos, Estoque Multi-Galpão, Etiquetas QR" },
-                            { segment: "Gastronomia", tools: "KDS Cozinha, App Garçom, Gestão de Mesas, iFood Sync" },
-                            { segment: "Automotivo", tools: "Checklist de Entrada, Histórico de Veículo, Orçamentos" }
-                          ].map((v, i) => (
-                            <div key={i} className="flex gap-6 p-6 rounded-3xl hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-slate-100">
-                               <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl">{i+1}</div>
-                               <div>
-                                  <p className="font-black text-slate-900 uppercase italic text-sm">{v.segment}</p>
-                                  <p className="text-xs text-slate-500 font-medium mt-1">{v.tools}</p>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
-                    </div>
-                 </div>
-
-                 <div className="space-y-10">
-                    <div className="bg-primary/5 p-4 rounded-full inline-flex items-center gap-3">
-                       <div className="bg-primary p-2 rounded-full text-white"><Star className="h-4 w-4 fill-white" /></div>
-                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Plataforma Líder em Automação</span>
-                    </div>
-                    <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter leading-none">Inove seu <span className="text-primary">Operacional.</span></h2>
-                    <p className="text-slate-500 text-lg leading-relaxed italic">
-                       Não importa se você vende hambúrgueres, corta cabelos ou conserta servidores. O Mercado Ágil fornece a camada tecnológica que grandes corporações usam, agora acessível para o seu negócio.
-                    </p>
-                    <div className="grid grid-cols-2 gap-6">
-                       <div className="space-y-2">
-                          <p className="text-4xl font-black italic text-slate-900 tracking-tighter">150+</p>
-                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Recursos Integrados</p>
-                       </div>
-                       <div className="space-y-2">
-                          <p className="text-4xl font-black italic text-primary tracking-tighter">Zero</p>
-                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Taxa de Configuração</p>
-                       </div>
-                    </div>
-                    <Button className="h-16 px-10 rounded-3xl font-black text-lg gap-3 bg-slate-900 shadow-2xl hover:scale-105 transition-transform" asChild>
-                       <Link href="/login">COMEÇAR AGORA <Zap className="h-5 w-5 fill-current" /></Link>
-                    </Button>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Latência Global Edge</p>
                  </div>
               </div>
            </div>
         </section>
       </main>
 
-      <footer className="w-full py-20 px-4 border-t bg-slate-50 overflow-hidden relative">
-        <div className="container mx-auto grid md:grid-cols-4 gap-16 relative z-10">
+      <footer className="w-full py-20 px-4 border-t bg-slate-50">
+        <div className="container mx-auto grid md:grid-cols-4 gap-16">
           <div className="space-y-6">
              <Link className="flex items-center gap-3 group" href="#">
               <div className="bg-primary p-2 rounded-xl text-white shadow-lg shadow-primary/20">
@@ -370,20 +296,7 @@ export default function LandingPage() {
               A infraestrutura definitiva de comércio e serviços unificados. Escala global, performance local.
             </p>
           </div>
-          <div>
-            <h4 className="font-black text-xs uppercase tracking-widest text-slate-400 mb-8 italic">Painéis Administrativos</h4>
-            <div className="space-y-4">
-               <Link href="/login" className="block p-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-primary transition-all group">
-                  <p className="text-[10px] font-black uppercase text-primary mb-1 group-hover:scale-105 transition-transform">Console Master</p>
-                  <p className="text-xs font-bold text-slate-700">Acesso Infraestrutura</p>
-               </Link>
-               <Link href="/login" className="block p-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-accent transition-all group">
-                  <p className="text-[10px] font-black uppercase text-accent mb-1 group-hover:scale-105 transition-transform">Console Lojista</p>
-                  <p className="text-xs font-bold text-slate-700">Acesso Operacional</p>
-               </Link>
-            </div>
-          </div>
-          <div className="md:col-span-2 flex flex-col justify-between items-end">
+          <div className="md:col-span-3 flex flex-col justify-between items-end">
              <div className="flex gap-4">
                 <div className="h-12 w-12 rounded-2xl bg-white border flex items-center justify-center text-slate-400 hover:text-primary transition-colors cursor-pointer"><Smartphone className="h-6 w-6" /></div>
                 <div className="h-12 w-12 rounded-2xl bg-white border flex items-center justify-center text-slate-400 hover:text-primary transition-colors cursor-pointer"><Monitor className="h-6 w-6" /></div>

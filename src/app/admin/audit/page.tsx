@@ -54,7 +54,7 @@ export default function AdminAudit() {
       <main className="flex-1 p-8 overflow-y-auto">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Logs de Auditoria</h1>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic uppercase">Logs de Auditoria</h1>
             <p className="text-slate-500 font-medium">Registro histórico de todas as ações administrativas.</p>
           </div>
           <Button variant="outline" className="h-12 rounded-2xl gap-2 font-bold"><Download className="h-4 w-4" /> Exportar CSV</Button>
