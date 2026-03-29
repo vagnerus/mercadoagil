@@ -12,7 +12,7 @@ import {
   Calendar, Scissors, Wallet, Globe, LogOut, ShieldCheck,
   ChevronRight, Loader2, Stethoscope, Wrench, Dog, GraduationCap,
   ClipboardList, HeartPulse, Truck, BarChart3, Video, HeartHandshake,
-  Menu, MousePointer2, CheckCircle2, HelpCircle
+  Menu, MousePointer2, CheckCircle2, HelpCircle, Sparkles
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -92,6 +92,10 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         <LayoutDashboard className="h-5 w-5" /> Dashboard
       </Link>
       
+      <Link href={`/merchant/${slug}/creative-studio`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium">
+        <Video className="h-5 w-5 text-primary" /> Creative Studio IA
+      </Link>
+
       {segment === 'BEAUTY' && (
         <>
           <Link href={`/merchant/${slug}/appointments`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Calendar className="h-5 w-5" /> Agenda Digital</Link>
@@ -109,6 +113,7 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
         </>
       )}
 
+      <Link href={`/merchant/${slug}/pdv`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium"><Monitor className="h-5 w-5" /> PDV Cloud</Link>
       <Link href={`/merchant/${slug}/finance`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Wallet className="h-5 w-5" /> Financeiro</Link>
       <Link href={`/merchant/${slug}/education/ava`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Monitor className="h-5 w-5" /> Ágil Academy</Link>
       <Link href={`/merchant/${slug}/settings`} className="flex items-center gap-3 px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium"><Settings className="h-5 w-5" /> Configurações</Link>
@@ -231,40 +236,45 @@ export default function MerchantDashboard({ params }: { params: Promise<{ slug: 
               ))}
             </div>
 
-            <div className="grid gap-8 lg:grid-cols-2">
-               <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 dark:bg-black text-white relative overflow-hidden">
-                  <div className="relative z-10 space-y-6">
-                     <h2 className="text-2xl font-black italic uppercase tracking-tighter">Saúde do Ecossistema</h2>
-                     <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10">
-                        <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 animate-pulse shrink-0">
+            <div className="grid gap-8 lg:grid-cols-3">
+               <Card className="lg:col-span-2 border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-slate-900 dark:bg-black text-white relative overflow-hidden">
+                  <div className="relative z-10 flex flex-col md:flex-row justify-between gap-10">
+                     <div className="space-y-6 flex-1">
+                        <h2 className="text-2xl font-black italic uppercase tracking-tighter">Engine Criativa IA</h2>
+                        <p className="text-slate-400 text-sm italic font-medium leading-relaxed">Use o poder do Veo 2 para gerar vídeos cinematográficos dos seus produtos e aumente seu alcance orgânico em 300%.</p>
+                        <Button className="h-14 px-8 bg-primary hover:bg-primary/90 text-white font-black italic rounded-2xl gap-2" asChild>
+                           <Link href={`/merchant/${slug}/creative-studio`}>ABRIR CREATIVE STUDIO <Video className="h-5 w-5" /></Link>
+                        </Button>
+                     </div>
+                     <div className="flex items-center gap-4 p-6 bg-white/5 rounded-3xl border border-white/10 shrink-0">
+                        <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 animate-pulse">
                            <Activity className="h-6 w-6" />
                         </div>
                         <div>
-                           <p className="font-black italic text-lg uppercase leading-tight">Instância Saudável</p>
-                           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Todas as APIs e integrações estão operacionais.</p>
+                           <p className="font-black italic text-lg uppercase leading-tight">SaaS Health</p>
+                           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Latência: 12ms</p>
                         </div>
                      </div>
-                     <Button className="w-full h-14 bg-white text-slate-900 font-black italic rounded-2xl hover:bg-slate-100">
-                        Abrir Monitoramento Pro
-                     </Button>
                   </div>
                   <Zap className="absolute -bottom-10 -right-10 h-40 w-40 opacity-5" />
                </Card>
 
                <Card className="border-none shadow-sm rounded-[40px] p-6 lg:p-10 bg-white dark:bg-slate-900">
-                  <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-6 dark:text-white">Ações Rápidas IA</h2>
+                  <h2 className="text-xl font-black italic uppercase tracking-tighter mb-6 dark:text-white flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" /> Ações Rápidas IA
+                  </h2>
                   <div className="space-y-4">
                      <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center justify-between group cursor-pointer hover:bg-primary/10 transition-colors">
                         <div className="flex items-center gap-3">
-                           <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4 text-white" /></Badge>
-                           <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Otimizar Preços por Curva ABC</p>
+                           <Badge className="bg-primary text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><TrendingUp className="h-4 w-4" /></Badge>
+                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Otimizar Preços</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
                      </div>
                      <div className="p-4 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between group cursor-pointer hover:bg-accent/10 transition-colors">
                         <div className="flex items-center gap-3">
-                           <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4 text-white" /></Badge>
-                           <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Recuperar Carrinhos Abandonados</p>
+                           <Badge className="bg-accent text-white border-none h-8 w-8 flex items-center justify-center rounded-lg p-0"><Users className="h-4 w-4" /></Badge>
+                           <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Recuperar Clientes</p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
                      </div>

@@ -11,12 +11,13 @@ import {
   ShoppingCart, Search, Plus, Minus, Trash2, 
   CreditCard, Landmark, Wallet, User, Zap, 
   Barcode, Printer, ArrowLeft, Loader2, Sparkles, 
-  Monitor, Scissors, Calendar, Timer, Ticket
+  Monitor, Scissors, Calendar, Timer, Ticket, FileText, Download
 } from "lucide-react";
 import { MOCK_PRODUCTS, MOCK_SERVICES, Product, Service } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
+import { jsPDF } from "jspdf";
 
 export default function MerchantPDV({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = React.use(params);
@@ -49,14 +50,59 @@ export default function MerchantPDV({ params }: { params: Promise<{ slug: string
 
   const total = cart.reduce((acc, i) => acc + ((i.product?.price || i.service?.price || 0) * i.quantity), 0);
 
+  const generatePDFReceipt = (orderId: string) => {
+    const doc = new jsPDF({ unit: 'mm', format: [80, 150] }); // Formato térmico 80mm
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("MERCADO AGIL", 40, 15, { align: "center" });
+    
+    doc.setFontSize(8);
+    doc.text(`ID INSTANCIA: ${slug.toUpperCase()}`, 40, 20, { align: "center" });
+    doc.text(`PEDIDO: #${orderId}`, 40, 25, { align: "center" });
+    
+    doc.line(5, 30, 75, 30);
+    
+    let y = 38;
+    doc.text("ITEM", 5, y);
+    doc.text("QTD", 50, y);
+    doc.text("TOTAL", 75, y, { align: "right" });
+    
+    doc.setFont("helvetica", "normal");
+    y += 8;
+    cart.forEach(item => {
+      const name = item.product?.name || item.service?.name || "";
+      const price = (item.product?.price || item.service?.price || 0) * item.quantity;
+      doc.text(name.substring(0, 20), 5, y);
+      doc.text(item.quantity.toString(), 52, y);
+      doc.text(`R$ ${price.toFixed(2)}`, 75, y, { align: "right" });
+      y += 6;
+    });
+    
+    doc.line(5, y + 2, 75, y + 2);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("TOTAL GERAL", 5, y + 10);
+    doc.text(`R$ ${total.toFixed(2)}`, 75, y + 10, { align: "right" });
+    
+    doc.setFontSize(7);
+    doc.text("Obrigado pela preferência!", 40, y + 20, { align: "center" });
+    doc.text(new Date().toLocaleString(), 40, y + 25, { align: "center" });
+    
+    doc.save(`Recibo_${orderId}.pdf`);
+  };
+
   const handleCheckout = () => {
     if (cart.length === 0) return;
     setLoading(true);
+    const orderId = Math.random().toString(36).substring(7).toUpperCase();
+    
     setTimeout(() => {
       setLoading(false);
+      generatePDFReceipt(orderId);
       setCart([]);
-      toast({ title: "Comanda Fechada!", description: "Venda registrada e comissões calculadas." });
-    }, 1000);
+      toast({ title: "Venda Concluída!", description: "Recibo digital gerado com sucesso." });
+    }, 1200);
   };
 
   return (
@@ -191,7 +237,7 @@ export default function MerchantPDV({ params }: { params: Promise<{ slug: string
               <>
                 <span>FECHAR COMANDA</span>
                 <div className="flex items-center gap-3">
-                  <Printer className="h-6 w-6 opacity-50" />
+                  <FileText className="h-6 w-6 opacity-50" />
                   <Sparkles className="h-6 w-6" />
                 </div>
               </>

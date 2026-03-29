@@ -61,7 +61,7 @@ export function AiAssistantChat({
           role: 'assistant', 
           content: isAdmin 
             ? "Olá, Master Admin! Sou o suporte técnico da infraestrutura Ágil. Como posso ajudar com a gestão dos clusters, tenants ou faturamento global hoje?" 
-            : `Olá! Eu sou o Ágil Assist. Sou especialista na plataforma Mercado Ágil. Como posso ajudar na gestão da sua unidade ${merchantName || ''} hoje?` 
+            : `Olá! Eu sou o Ágil Assist. Sou especialista na plataforma Mercado Ágil. Agora também possuímos o "Creative Studio IA" para gerar vídeos cinematográficos dos seus produtos. Como posso ajudar na gestão da sua unidade ${merchantName || ''} hoje?` 
         }
       ]);
     }
