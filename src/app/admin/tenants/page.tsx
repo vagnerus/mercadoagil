@@ -11,7 +11,7 @@ import {
   Server, Plus, Loader2, Search, Copy, CheckCircle2, XCircle, 
   Building2, Globe, ArrowUpRight, Headphones, Settings2,
   Save, Landmark, MapPin, Clock, Smartphone, ShieldAlert,
-  AlertCircle, ChevronRight, CheckCircle, Database
+  AlertCircle, ChevronRight, CheckCircle, Database, ExternalLink
 } from "lucide-react";
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
@@ -81,7 +81,7 @@ export default function AdminTenants() {
             <p className="text-slate-500 font-medium">Controle de ativação, conformidade e auditoria de instâncias.</p>
           </div>
           <div className="flex gap-2">
-             <Badge className="bg-slate-900 text-white font-black italic px-4 py-2 rounded-xl">TOTAL: {merchants?.length || 0}</Badge>
+             <Badge className="bg-primary text-white font-black italic px-4 py-2 rounded-xl">TOTAL: {merchants?.length || 0}</Badge>
           </div>
         </header>
 
@@ -129,11 +129,21 @@ export default function AdminTenants() {
                       </TableCell>
                       <TableCell className="text-right px-8">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => copyStoreLink(m.slug)} className="rounded-xl font-bold h-9 border-slate-200 dark:border-slate-800 shadow-sm"><Globe className="h-3.5 w-3.5 mr-2" /> Link</Button>
+                          <Button variant="outline" size="sm" asChild className="rounded-xl font-bold h-9 border-slate-200 dark:border-slate-800 shadow-sm">
+                            <Link href={`/store/${m.slug}`} target="_blank">
+                              <ExternalLink className="h-3.5 w-3.5 mr-2" /> Vitrine
+                            </Link>
+                          </Button>
+
+                          <Button variant="outline" size="sm" asChild className="rounded-xl font-bold h-9 border-primary/20 text-primary shadow-sm">
+                            <Link href={`/merchant/${m.slug}/dashboard`}>
+                              <LayoutDashboard className="h-3.5 w-3.5 mr-2" /> Painel
+                            </Link>
+                          </Button>
                           
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setEditingMerchant(m)} className="rounded-xl font-bold h-9 border-slate-200 dark:border-slate-800 shadow-sm"><Settings2 className="h-3.5 w-3.5 mr-2" /> Gerenciar</Button>
+                              <Button variant="outline" size="sm" onClick={() => setEditingMerchant(m)} className="rounded-xl font-bold h-9 border-slate-200 dark:border-slate-800 shadow-sm"><Settings2 className="h-3.5 w-3.5 mr-2" /> Config</Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-3xl rounded-[40px] p-0 overflow-hidden border-none shadow-2xl font-body">
                                <div className="bg-slate-900 p-8 text-white relative">
