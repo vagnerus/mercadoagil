@@ -95,17 +95,19 @@
     "SupportTicket": {
       "title": "SupportTicket",
       "type": "object",
-      "description": "Chamados de suporte abertos por lojistas via chat para o Master Admin.",
+      "description": "Chamados de suporte abertos por lojistas via formulário para o Master Admin.",
       "properties": {
         "id": { "type": "string" },
         "merchantId": { "type": "string" },
         "merchantName": { "type": "string" },
         "userEmail": { "type": "string" },
-        "lastMessage": { "type": "string" },
+        "subject": { "type": "string" },
+        "reason": { "type": "string" },
+        "urgency": { "type": "string", "enum": ["normal", "moderate", "high"] },
         "status": { "type": "string", "enum": ["open", "in_progress", "closed"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["merchantId", "merchantName", "userEmail", "status"]
+      "required": ["merchantId", "merchantName", "userEmail", "status", "subject", "urgency"]
     }
   },
   "auth": {

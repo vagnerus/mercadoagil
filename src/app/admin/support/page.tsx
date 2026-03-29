@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { 
   Headphones, MessageSquare, CheckCircle2, Clock, 
   ShieldCheck, LogOut, LayoutDashboard, LayoutGrid, 
-  Server, Loader2, Building2, User, Mail, ExternalLink, Menu
+  Server, Loader2, Building2, User, Mail, ExternalLink, Menu,
+  AlertCircle, ChevronDown, ChevronUp, Info
 } from "lucide-react";
 import Link from 'next/link';
 import { useFirestore, useCollection, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
@@ -21,6 +23,7 @@ import { cn } from "@/lib/utils";
 export default function AdminSupport() {
   const db = useFirestore();
   const { toast } = useToast();
+  const [expandedTicket, setExpandedTicket] = useState<string | null>(null);
   
   const ticketsQuery = useMemoFirebase(() => query(collection(db, 'supportTickets'), orderBy('createdAt', 'desc')), [db]);
   const { data: tickets, isLoading } = useCollection(ticketsQuery);
@@ -28,6 +31,14 @@ export default function AdminSupport() {
   const handleResolveTicket = (id: string) => {
     updateDocumentNonBlocking(doc(db, 'supportTickets', id), { status: 'closed' });
     toast({ title: "Chamado Encerrado", description: "O lojista foi notificado da resolução." });
+  };
+
+  const getUrgencyBadge = (urgency: string) => {
+    switch (urgency) {
+      case 'high': return <Badge className="bg-red-500 text-white border-none font-black italic px-2 py-0.5 rounded-md text-[8px]">GRAVE</Badge>;
+      case 'moderate': return <Badge className="bg-orange-500 text-white border-none font-black italic px-2 py-0.5 rounded-md text-[8px]">MODERADO</Badge>;
+      default: return <Badge className="bg-blue-500 text-white border-none font-black italic px-2 py-0.5 rounded-md text-[8px]">NORMAL</Badge>;
+    }
   };
 
   const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
@@ -83,13 +94,13 @@ export default function AdminSupport() {
               </SheetContent>
             </Sheet>
             <div>
-              <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase">Centro de Suporte Humano</h1>
-              <p className="text-slate-500 font-medium">Intervenção e auxílio direto aos lojistas em dificuldade.</p>
+              <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase leading-none">Centro de Comando Master</h1>
+              <p className="text-slate-500 font-medium mt-1">Intervenção e auxílio direto aos lojistas através de chamados estruturados.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <ModeToggle />
-            <Badge className="bg-slate-900 text-white font-black italic">SLA: 15min</Badge>
+            <Badge className="bg-slate-900 text-white font-black italic">SLA GLOBAL: 1h</Badge>
           </div>
         </header>
 
@@ -104,55 +115,92 @@ export default function AdminSupport() {
               <Table>
                 <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
                   <TableRow className="dark:border-slate-800">
-                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest">Lojista / Usuário</TableHead>
-                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Mensagem de Ajuda</TableHead>
+                    <TableHead className="px-8 h-16 font-black uppercase text-[10px] tracking-widest w-12"></TableHead>
+                    <TableHead className="px-4 h-16 font-black uppercase text-[10px] tracking-widest">Lojista / Usuário</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest">Assunto do Chamado</TableHead>
+                    <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest text-center">Urgência</TableHead>
                     <TableHead className="h-16 font-black uppercase text-[10px] tracking-widest text-center">Status</TableHead>
                     <TableHead className="text-right px-8 h-16 font-black uppercase text-[10px] tracking-widest">Ação Master</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {tickets?.map((ticket: any) => (
-                    <TableRow key={ticket.id} className="dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                      <TableCell className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                            <Building2 className="h-6 w-6" />
+                    <>
+                      <TableRow key={ticket.id} className="dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer" onClick={() => setExpandedTicket(expandedTicket === ticket.id ? null : ticket.id)}>
+                        <TableCell className="px-8 py-6">
+                          {expandedTicket === ticket.id ? <ChevronUp className="h-4 w-4 text-primary" /> : <ChevronDown className="h-4 w-4 text-slate-300" />}
+                        </TableCell>
+                        <TableCell className="px-4">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                              <Building2 className="h-5 w-5" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-black text-slate-900 dark:text-white uppercase italic text-sm">{ticket.merchantName}</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase">{ticket.userEmail}</span>
+                            </div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="font-black text-slate-900 dark:text-white uppercase italic">{ticket.merchantName}</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1"><Mail className="h-3 w-3" /> {ticket.userEmail}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-md">
-                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 italic line-clamp-2">"{ticket.lastMessage}"</p>
-                        <p className="text-[9px] font-black text-slate-400 uppercase mt-1">{new Date(ticket.createdAt).toLocaleString('pt-BR')}</p>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge className={cn(
-                          "rounded-lg font-black italic border-none uppercase text-[9px] px-3",
-                          ticket.status === 'open' ? "bg-red-100 text-red-600 animate-pulse" : "bg-green-100 text-green-600"
-                        )}>
-                          {ticket.status === 'open' ? 'AGUARDANDO' : 'RESOLVIDO'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right px-8">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" asChild className="rounded-xl font-bold border-slate-200">
-                            <a href={`mailto:${ticket.userEmail}`}><MessageSquare className="h-4 w-4 mr-2" /> Responder</a>
-                          </Button>
-                          {ticket.status === 'open' && (
-                            <Button onClick={() => handleResolveTicket(ticket.id)} size="sm" className="bg-slate-900 text-white rounded-xl font-black italic gap-2 px-4 shadow-xl">
-                              <CheckCircle2 className="h-4 w-4" /> ENCERRAR
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase italic leading-tight">{ticket.subject || ticket.lastMessage}</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">{new Date(ticket.createdAt).toLocaleString('pt-BR')}</p>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {getUrgencyBadge(ticket.urgency)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge className={cn(
+                            "rounded-lg font-black italic border-none uppercase text-[9px] px-3",
+                            ticket.status === 'open' ? "bg-red-100 text-red-600 animate-pulse" : "bg-green-100 text-green-600"
+                          )}>
+                            {ticket.status === 'open' ? 'AGUARDANDO' : 'RESOLVIDO'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right px-8">
+                          <div className="flex justify-end gap-2" onClick={e => e.stopPropagation()}>
+                            <Button variant="outline" size="sm" asChild className="rounded-xl font-bold border-slate-200">
+                              <a href={`mailto:${ticket.userEmail}`}><Mail className="h-4 w-4 mr-2" /> Responder</a>
                             </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                            {ticket.status === 'open' && (
+                              <Button onClick={() => handleResolveTicket(ticket.id)} size="sm" className="bg-slate-900 text-white rounded-xl font-black italic gap-2 px-4 shadow-xl">
+                                <CheckCircle2 className="h-4 w-4" /> ENCERRAR
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {expandedTicket === ticket.id && (
+                        <TableRow className="bg-slate-50 dark:bg-slate-900/50 border-none">
+                          <TableCell colSpan={6} className="px-20 py-8">
+                            <div className="space-y-6">
+                              <div className="flex items-center gap-2 mb-4">
+                                <Info className="h-4 w-4 text-primary" />
+                                <h4 className="font-black italic uppercase text-xs text-slate-500">Detalhes do Motivo / Requisição</h4>
+                              </div>
+                              <div className="p-8 bg-white dark:bg-slate-800 rounded-[30px] shadow-sm border border-slate-100 dark:border-slate-700">
+                                <p className="text-slate-700 dark:text-slate-300 font-medium italic leading-relaxed text-sm whitespace-pre-wrap">
+                                  {ticket.reason || ticket.lastMessage}
+                                </p>
+                              </div>
+                              <div className="flex gap-4">
+                                 <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl flex-1 border border-slate-100 dark:border-slate-700">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">ID do Tenant</p>
+                                    <p className="font-mono text-xs font-bold text-primary">{ticket.merchantId}</p>
+                                 </div>
+                                 <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl flex-1 border border-slate-100 dark:border-slate-700">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Impacto na Infra</p>
+                                    <Badge className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-none font-black text-[8px] uppercase">ISOLADO</Badge>
+                                 </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
                   ))}
                   {tickets?.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={4} className="h-60 text-center">
+                      <TableCell colSpan={6} className="h-60 text-center">
                         <div className="flex flex-col items-center gap-4">
                           <div className="h-20 w-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
                             <Headphones className="h-8 w-8 text-slate-300" />
